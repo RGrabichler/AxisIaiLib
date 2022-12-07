@@ -15,12 +15,24 @@
     <Implicit_KindOfTask>{adfa0afd-73ab-4c3e-ada5-b51c7f6d2bd9}</Implicit_KindOfTask>
     <Implicit_Jitter_Distribution>{c5650add-d05a-4207-bb38-e1db2070de17}</Implicit_Jitter_Distribution>
     <LibraryReferences>{08cfa5ec-be79-4a04-ada0-80de2c70a767}</LibraryReferences>
+    <Company>Gema</Company>
+    <Released>false</Released>
+    <Title>Test</Title>
+    <ProjectVersion>0.1.0.0</ProjectVersion>
+    <Placeholder>PLC</Placeholder>
+    <Author>RG</Author>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\AppContext.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainStation.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -43,23 +55,65 @@
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc3_Module</Namespace>
     </PlaceholderReference>
+    <PlaceholderReference Include="TcoCore">
+      <DefaultResolution>TcoCore, 0.11.0.2 (Vortex.Library)</DefaultResolution>
+      <Namespace>TcoCore</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="TcoData">
+      <DefaultResolution>TcoData, 0.11.0.2 (Vortex.Library)</DefaultResolution>
+      <Namespace>TcoData</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="TcoDrivesBeckhoff">
+      <DefaultResolution>TcoDrivesBeckhoff, 0.11.0.2 (Vortex.Library)</DefaultResolution>
+      <Namespace>TcoDrivesBeckhoff</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="TcoElements">
+      <DefaultResolution>TcoElements, 0.11.0.2 (Vortex.Library)</DefaultResolution>
+      <Namespace>TcoElements</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="TcoPneumatics">
+      <DefaultResolution>TcoPneumatics, 0.11.0.2 (Vortex.Library)</DefaultResolution>
+      <Namespace>TcoPneumatics</Namespace>
+    </PlaceholderReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderResolution Include="TcoCore">
+      <Resolution>TcoCore, 0.11.0.2 (Vortex.Library)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="TcoData">
+      <Resolution>TcoData, 0.11.0.2 (Vortex.Library)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="TcoDrivesBeckhoff">
+      <Resolution>TcoDrivesBeckhoff, 0.11.0.2 (Vortex.Library)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="TcoElements">
+      <Resolution>TcoElements, 0.11.0.2 (Vortex.Library)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="TcoPneumatics">
+      <Resolution>TcoPneumatics, 0.11.0.2 (Vortex.Library)</Resolution>
+    </PlaceholderResolution>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PLC.tmc">
+      <SubType>Content</SubType>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-  <Data>
-    <o xml:space="preserve" t="OptionKey">
+        <Data>
+          <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" />
       <d n="Values" t="Hashtable" />
     </o>
-  </Data>
-  <TypeList>
-    <Type n="Hashtable">System.Collections.Hashtable</Type>
-    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-    <Type n="String">System.String</Type>
-  </TypeList>
-</XmlArchive>
+        </Data>
+        <TypeList>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+          <Type n="String">System.String</Type>
+        </TypeList>
+      </XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>
