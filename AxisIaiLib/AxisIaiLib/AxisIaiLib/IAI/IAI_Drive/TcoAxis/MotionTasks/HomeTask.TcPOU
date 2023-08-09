@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HomeTask" Id="{12caeca4-4639-45ea-8f54-17c3c8819f42}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK HomeTask EXTENDS TcoCore.TcoTask IMPLEMENTS IAxisIAI
+VAR
+    {attribute 'hide'}
+    _message : STRING(125);
+
+    HomeTrig : R_TRIG;
+    _error   : bool;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[THIS^.Enabled :=
+    NOT DriveRef.HaltTask.Busy AND NOT DriveRef.MoveAbsoluteTask.Busy AND NOT DriveRef.MoveRelativeTask.Busy;
+
+IF (THIS^.Execute()) THEN
+    DriveRef.PlcToDrive.ControlSignal.HOME := TRUE;
+    HomeTrig(CLK := DriveRef.AxisStatus.Homed);
+
+    THIS^.DoneWhen(HomeTrig.Q);
+
+    IF DriveRef.AxisStatus.Error THEN
+        _error := true;
+    END_IF
+
+    THIS^.ThrowWhen(DriveRef.AxisStatus.Error or not DriveRef.PlcToDrive.ControlSignal.SON);
+    THIS^.Messenger.Error('Axis Error while Homing').Pin();
+END_IF]]></ST>
+    </Implementation>
+    <Property Name="DriveRef" Id="{dad16f08-6b6f-4e8c-a0c8-6fdc446923f0}">
+      <Declaration><![CDATA[PROPERTY DriveRef : REFERENCE TO AxisIAI]]></Declaration>
+      <Get Name="Get" Id="{1c1e6ff5-d14b-4a84-b2af-deb26394d5a2}">
+        <Declaration><![CDATA[VAR
+    _drive : POINTER TO AxisIAI;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __QUERYPOINTER(THIS^._ParentObject, _drive) THEN
+    DriveRef REF= _drive^;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{0ae8f2c0-66f3-4eb5-9194-e0ee54842e62}">
+      <Declaration><![CDATA[{attribute 'hide'}
+METHOD PUBLIC FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject : ITcoObject;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode, ParentObject := ParentObject);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDone" Id="{bdabd5da-0c4c-4196-a248-ea032902ab32}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task reaches the ```Done``` state .
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnDone
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DriveRef.PlcToDrive.ControlSignal.HOME := FALSE;
+DriveRef.Restore();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{5278dc5c-bc19-486f-895e-b33ee463603c}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task reaches the ```Error``` state.
+            <para>
+                Do not confuse with <see cref="PlcDocu.TcoCore.TcoTask.WhileError()"/>, that is called cyclically until '''Error''' state is left.
+            </para>
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnError
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DriveRef.SetErrorID(333);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Restore" Id="{bb4829bd-0acd-46e0-b24c-2935c86dbb30}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Restores this instance to the Ready state. Can be called explicitly or from within one of the restore mechanisms.
+            <para>
+                See also <see cref="PlcDocu.TcoCore.TcoTask.AutoRestorable()"/>
+            </para>
+        </summary>
+    </docu>
+~*)
+METHOD Restore : ITcoRestorable]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DriveRef.PlcToDrive.ControlSignal.HOME := FALSE;
+Super^.Restore();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

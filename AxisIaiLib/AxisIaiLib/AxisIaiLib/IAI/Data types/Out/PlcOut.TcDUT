@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="PlcOut" Id="{4c489ef9-7b8b-4d0c-bb3d-0c02adc233df}">
+    <Declaration><![CDATA[TYPE
+    PlcOut :
+    //    (*PCON-CA output -> PLC input  - 32 bytes *)
+    STRUCT
+        TargetPosition  : DINT := 1000; (*Unit: 0,01 mm*)
+        PositioningBand : DINT := 10;   (*Unit: 0,01 mm or pressing width value*)
+        Velocity        : UINT := 1;    (*Unit 0,01 mm/s*)
+        //        ZoneBoundary_pos : DINT; (*Unit 0,01 mm*)
+        //        ZoneBoundary_neg : DINT; (*Unit 0,01 mm*) (*pos >= neg!*)
+        Accelerartion : UINT := 1; (*Acc und Dec Unit: 0,01 G*) (*Range 1.. 300*)
+        //        Decelerartion : UINT; (*Unit: 0,01 G*) (*Range 1.. 300*)
+        //        PressingCurrentLimitValue : UINT; (*Unit: %*) (*Range 0(0%) .. 510(200%)*)
+        PushCurrentLimit : UINT := 1; (*Schubstrombegrenzung Unit: %*) (*Range 0(0%) .. 255(100%)*)
+        ControlSignal    : ControlOut;                                 (*n+28;n+29*)
+    //        ControlSignal2 : WORD; (*n+30;n+31*)
+    END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="GatewayStatus" Id="{45a47be8-15ee-402a-af0f-9dc6f74020fe}">
+    <Declaration><![CDATA[TYPE
+    GatewayStatus :
+    STRUCT
+        GatewayStatus0 : StatusSignal0;
+        GatewayStatus1 : StatusSignal1;
+        AnswerCmd      : WORD;
+        Data0          : WORD;
+        Data1          : WORD;
+        Data2          : WORD;
+        Data3          : WORD;
+        UsedSpace      : WORD;
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

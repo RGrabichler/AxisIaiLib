@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="StatusSignal1" Id="{346d5293-67c7-475c-a5da-b892dbb07fe2}">
+    <Declaration><![CDATA[TYPE
+    StatusSignal1 :
+    STRUCT
+        //~
+        LNK0 : BIT; // zeigt aktive Achsennummer im Gateway
+        LNK1 : BIT; // zeigt aktive Achsennummer im Gateway
+        LNK2 : BIT; // zeigt aktive Achsennummer im Gateway
+        LNK3 : BIT; // zeigt aktive Achsennummer im Gateway
+        LNK4 : BIT; // zeigt aktive Achsennummer im Gateway
+        LNK5 : BIT; // zeigt aktive Achsennummer im Gateway
+        LNK6 : BIT; // zeigt aktive Achsennummer im Gateway
+        LNK7 : BIT; // zeigt aktive Achsennummer im Gateway
+        MNT0 : BIT; // Bit for Easy Error
+        MNT1 : BIT; // Bit for Easy Error
+        MNT2 : BIT; // Bit for Easy Error
+        MNT3 : BIT; // Bit for Easy Error
+        MNT4 : BIT; // Bit for Easy Error
+        MNT5 : BIT; // Bit for Easy Error
+        MNT6 : BIT; // Bit for Easy Error
+        MNT7 : BIT; // Bit for Easy Error
+    //~
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

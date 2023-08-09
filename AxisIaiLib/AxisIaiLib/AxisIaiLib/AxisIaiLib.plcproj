@@ -41,6 +41,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PlaceholderReference Include="Tc2_Standard">
+      <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Standard</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="TcoCore">
       <DefaultResolution>TcoCore, 0.11.0.35 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoCore</Namespace>
@@ -67,6 +71,7 @@
     </PlaceholderReference>
     <PlaceholderReference Include="TcoUtilities">
       <DefaultResolution>TcoUtilities, 0.11.0.35 (Vortex.Library)</DefaultResolution>
+      <Namespace>TcoUtilities</Namespace>
     </PlaceholderReference>
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +99,19 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Context" />
+    <Folder Include="IAI" />
+    <Folder Include="IAI\Data types" />
+    <Folder Include="IAI\Data types\Enum" />
+    <Folder Include="IAI\Data types\In" />
+    <Folder Include="IAI\Data types\In\Gateway" />
+    <Folder Include="IAI\Data types\Interfaces" />
+    <Folder Include="IAI\Data types\Out" />
+    <Folder Include="IAI\Data types\Out\Gateway" />
+    <Folder Include="IAI\Global Variables" />
+    <Folder Include="IAI\IAI_Drive" />
+    <Folder Include="IAI\IAI_Drive\TcoAxis" />
+    <Folder Include="IAI\IAI_Drive\TcoAxis\AxisTasks" />
+    <Folder Include="IAI\IAI_Drive\TcoAxis\MotionTasks" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Context\MainStation.TcPOU">
@@ -103,6 +121,96 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Context\TcUnitContext.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\AxisLimits.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Enum\eSetPositionMode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Enum\E_AccelMode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Enum\E_RMod.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Enum\E_StopMode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\IAIAxisStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Interfaces\iSuperActuator.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\In\Gateway\GatewayStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\In\Gateway\StatusSignal0.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\In\Gateway\StatusSignal1.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\In\PlcIn.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\In\StatusIn.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\IOAxis.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Out\ControlOut.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Out\Gateway\ControlSignal0.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Out\Gateway\ControlSignal1.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Out\Gateway\GatewayControl.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Data types\Out\PlcOut.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Global Variables\AxisStats.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\Global Variables\AxisStatsGlobal.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\AxisIAI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\AxisTasks\ResetTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\AxisTasks\SetPositionTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\IAxisIAI.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\HaltTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\HomeTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\MoveAbsoluteTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\MoveRelativeTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\StopTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAI\IAI_Drive\TcoAxis\Power.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

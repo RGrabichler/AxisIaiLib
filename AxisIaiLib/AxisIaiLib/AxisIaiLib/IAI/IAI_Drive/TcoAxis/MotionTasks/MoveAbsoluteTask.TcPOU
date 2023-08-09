@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MoveAbsoluteTask" Id="{4ef4f929-1154-4da1-9c13-50bef2547b08}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MoveAbsoluteTask EXTENDS TcoCore.TcoTask IMPLEMENTS IAxisIAI
+VAR
+    {attribute addProperty Maximum 11.0f}
+    {attribute addProperty Name "<#Position in mm#>"}
+    {attribute addProperty Units "mm"}
+    _position : REAL := 10.0;
+    {attribute addProperty Name "<#Positionierbereich in mm#>"}
+    _positionBand : REAL := 0.1;
+    {attribute addProperty Name "<#Geschwindigkeit in mm/s#>"}
+    _velocity : UINT := 10;
+    {attribute addProperty Name "<#Beschleunigung (0 - 100)#>"}
+    _acceleration : UINT := 10;
+    {attribute addProperty Name "<#Schubstrombegrenzung#>"}
+    _pushCurrentLimit : USINT := 10;
+    _doneTrig         : R_TRIG;
+    _moveTrig         : TC2_Standard.R_TRIG;
+    //~
+    _state :
+        (Init
+        , Moving
+        , Stopping);
+    //~
+    _startCount : ULINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[THIS^.Enabled := NOT DriveRef.HaltTask.Busy AND NOT DriveRef.MoveRelativeTask.Busy AND NOT DriveRef.HomeTask.Busy;
+_doneTrig();
+
+IF Execute() THEN
+    DriveRef.PlcToDrive.ControlSignal.INC := FALSE;
+    DriveRef.PlcToDrive.Accelerartion     := _acceleration;
+    DriveRef.PlcToDrive.PushCurrentLimit  := _pushCurrentLimit;
+    //for Visu
+    DriveRef.PlcToDrive.PositioningBand    := REAL_TO_DINT((_positionBand * 100));
+    DriveRef.PlcToDrive.TargetPosition     := REAL_TO_DINT((_position * 100));
+    DriveRef.PlcToDrive.Velocity           := _velocity;
+    DriveRef.PlcToDrive.ControlSignal.CSTR := TRUE;
+
+    IF THIS^.ElapsedTime >= T#20MS THEN
+        DoneWhen(DriveRef.AxisStatus.NotMoving);
+        DriveRef.PlcToDrive.ControlSignal.CSTR := FALSE;
+
+        IF DriveRef.DriveToPlc.CurrentPosition = REAL_TO_DINT((_position * 100)) THEN
+            DoneWhen(TRUE);
+            DriveRef.PlcToDrive.ControlSignal.CSTR := FALSE;
+        END_IF
+    END_IF
+
+    ThrowWhen(DriveRef.AxisStatus.Error);
+END_IF]]></ST>
+    </Implementation>
+    <Property Name="DriveRef" Id="{092e9f5d-a4fd-4186-be27-d5a8250cefc6}">
+      <Declaration><![CDATA[PROPERTY DriveRef : REFERENCE TO AxisIAI]]></Declaration>
+      <Get Name="Get" Id="{acea1e7e-4eb6-4394-a3b6-33d89adcdb78}">
+        <Declaration><![CDATA[VAR
+    _drive : POINTER TO AxisIAI;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __QUERYPOINTER(THIS^._ParentObject, _drive) THEN
+    DriveRef REF= _drive^;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{cdb4fdb9-abf3-4fc1-97d9-59421cc7ade4}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject : ITcoObject;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode, ParentObject := ParentObject);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeWithParams" Id="{432bdac4-7581-47c5-9688-6bef6d5ac8fc}">
+      <Declaration><![CDATA[METHOD INTERNAL InvokeWithParams : ITcoTaskStatus
+VAR_INPUT
+    TargetPosition   : REAL;
+    PositionBand     : REAL;
+    Velocity         : UINT;
+    Acceleration     : UINT;
+    PushCurrentLimit : USINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_position         := TargetPosition;
+_positionBand     := PositionBand;
+_velocity         := Velocity;
+_acceleration     := Acceleration;
+_pushCurrentLimit := PushCurrentLimit;
+InvokeWithParams  := THIS^.Invoke();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnAbort" Id="{f13729b8-ef55-4f50-9b76-9fd51d0d25c9}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task is aborted.
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnAbort]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+THIS^.DriveRef.AxisStatus.HasBeenStopped    := TRUE;
+THIS^.DriveRef.PlcToDrive.ControlSignal.RES := TRUE;
+_state                                      := Init;
+DriveRef.PlcToDrive.ControlSignal.CSTR      := FALSE;
+//_mcMoveAbsolute(Axis := _axisRef, Execute := FALSE);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDone" Id="{e20bfc5e-33eb-4a2d-9336-3770a5e9c775}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task reaches the ```Done``` state .
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnDone
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DriveRef.PlcToDrive.ControlSignal.CSTR := FALSE;
+_state                                 := Init;
+//THIS^.Restore();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{6babf593-2141-45e6-b9df-d6677efd4224}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task reaches the ```Error``` state.
+            <para>
+                Do not confuse with <see cref="PlcDocu.TcoCore.TcoTask.WhileError()"/>, that is called cyclically until '''Error''' state is left.
+            </para>
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnError
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DriveRef.PlcToDrive.ControlSignal.CSTR := FALSE;
+DriveRef.SetErrorID(DriveRef.AxisStatus.ErrorId);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Restore" Id="{abaaac90-a92f-44ce-86a5-8ea877ed96ae}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Restores this instance to the Ready state. Can be called explicitly or from within one of the restore mechanisms.
+            <para>
+                See also <see cref="PlcDocu.TcoCore.TcoTask.AutoRestorable()"/>
+            </para>
+        </summary>
+    </docu>
+~*)
+METHOD Restore : ITcoRestorable]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+DriveRef.PlcToDrive.ControlSignal.CSTR := FALSE;
+DriveRef.PlcToDrive.ControlSignal.STP  := FALSE;
+_state                                 := Init;
+SUPER^.Restore();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

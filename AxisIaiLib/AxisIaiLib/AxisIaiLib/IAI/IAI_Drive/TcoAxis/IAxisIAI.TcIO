@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IAxisIAI" Id="{afe947c1-2a9f-4545-83f8-6a383e4eba28}">
+    <Declaration><![CDATA[INTERFACE IAxisIAI]]></Declaration>
+    <Property Name="DriveRef" Id="{0f1bd579-7aa1-47ee-bc4d-f5e57bd343eb}">
+      <Declaration><![CDATA[PROPERTY DriveRef : REFERENCE TO AxisIAI]]></Declaration>
+      <Get Name="Get" Id="{e762046f-ecd7-4480-89be-748032735750}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="PlcIn" Id="{1947fdc0-db14-4713-9e84-e2b8eaed8a22}">
+    <Declaration><![CDATA[TYPE
+    PlcIn :
+    //    (*PCON-CA output -> PLC input  - 32 bytes *)
+    STRUCT
+        CurrentPosition : DINT; (*Unit: 0,01mm*)
+        CommandCurrent  : DINT; (*Unit: mA*)
+        CurrentSpeed    : UINT; (*Unit: 0,01mm/s*)
+        Unavailable1    : WORD; (*n+14;n+15*)
+        AlarmCode       : UINT; (*0- no Error*)
+        //        TotalMovingCount : UDINT; (*Unit: times*)
+        //        TotalMovingDistance : UDINT; (*Unit: m*)
+        StatusSignal : StatusIn;
+    //        StatusSignal2 : WORD; (*n+30;n+31*)
+    END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

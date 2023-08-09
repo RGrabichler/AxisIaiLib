@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ControlOut" Id="{73819a2d-a110-4871-92c6-177adc7600c0}">
+    <Declaration><![CDATA[TYPE
+    ControlOut :
+    STRUCT
+        //~
+        CSTR        : BIT; // Positionierungs Start, Trigger
+        HOME        : BIT; // Referenzfahrt
+        STP         : BIT; // PAuse
+        RES         : BIT; // REset
+        SON         : BIT; //Servo Ein
+        JISL        : BIT; //Wechsel zwischen Jog/Inch Betrieb
+        JVEL        : BIT; // Umschalten von Jog-Geschw/Schrittweite  S119 ANleitung
+        JOGNegative : BIT; //-Jog
+        JOGPositive : BIT; //+Jog
+        b9          : BIT;
+        b10         : BIT;
+        b11         : BIT;
+        PUSH        : BIT; //Schubbetrieb, True = Schubbetrieb, False = Positionierbetrieb
+        DIR         : BIT; //Schubrichtung, True = Entgegen Refernezpunktrichtung
+        INC         : BIT; //False= Absolute Positionsbefehle, True = Inkrementale
+        BKRL        : BIT; //True = Bremsfreigabe, False = Bremse aktiv
+    //~
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

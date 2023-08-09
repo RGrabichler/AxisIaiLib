@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="SetPositionTask" Id="{cf082124-76bb-41dd-b5c0-d114727e51fd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SetPositionTask EXTENDS TcoCore.TcoTask IMPLEMENTS IAxisIAI
+VAR
+    {attribute addProperty Name "<#Position#>"}
+    _position : LREAL;
+    {attribute addProperty Name "<#Mode#>"}
+    _mode : eSetPositionMode;
+END_VAR
+VAR
+    {attribute 'hide'}
+    _message : STRING(125);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF Execute() THEN
+    //   DriveRef.AxisStatus.OpMode
+    DoneWhen(TRUE);
+    //    ThrowWhen(_mcSetPosition.Error);
+END_IF]]></ST>
+    </Implementation>
+    <Property Name="DriveRef" Id="{252598a7-7ff7-4630-9436-2af7e41d6b7c}">
+      <Declaration><![CDATA[PROPERTY DriveRef : REFERENCE TO AxisIAI]]></Declaration>
+      <Get Name="Get" Id="{78907e33-dd67-4c0c-a29a-617d765c7bfd}">
+        <Declaration><![CDATA[VAR
+    _drive : POINTER TO AxisIAI;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __QUERYPOINTER(THIS^._ParentObject, _drive) THEN
+    DriveRef REF= _drive^;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{b2b5f717-74c8-4922-ac88-b3ad0aac4011}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject : ITcoObject;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode, ParentObject := ParentObject);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeWithParams" Id="{a74f42f6-29b9-4720-a538-c68e5afcd72e}">
+      <Declaration><![CDATA[METHOD INTERNAL InvokeWithParams : ITcoTaskStatus
+VAR_INPUT
+    inPosition : LREAL;
+    inMode     : eSetPositionMode;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_position        := inPosition;
+_mode            := inMode;
+InvokeWithParams := THIS^.Invoke();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Restore" Id="{f39080f4-5039-4d48-9aee-5f0f6a9233e5}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Restores this instance to the Ready state. Can be called explicitly or from within one of the restore mechanisms.
+            <para>
+                See also <see cref="PlcDocu.TcoCore.TcoTask.AutoRestorable()"/>
+            </para>
+        </summary>
+    </docu>
+~*)
+METHOD Restore : ITcoRestorable]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Restore();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

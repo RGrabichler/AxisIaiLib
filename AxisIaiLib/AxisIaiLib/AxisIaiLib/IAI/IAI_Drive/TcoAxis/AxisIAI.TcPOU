@@ -1,0 +1,510 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="AxisIAI" Id="{ff02f432-e8f0-4f93-bc4d-f5370d51f3fd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AxisIAI EXTENDS TcoCore.TcoComponent IMPLEMENTS IAxisIAI, iSuperActuator
+VAR_INPUT
+    inEnabled : BOOL; // Power ein
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR_IN_OUT
+    GateWayStatus  : GatewayStatus;
+    GateWayControl : GatewayControl;
+
+    DriveToPlc : PlcIn;
+    PlcToDrive : PlcOut;
+
+END_VAR
+VAR
+    //    _baseAxis : FB_SpecialControl(maxAcc := _maxAcc, minPos := _minPos, maxPos := _maxPos, maxVel := _maxVel);
+    {attribute clr [ReadOnly()]}
+    _axisStatus : IAIAxisStatus;
+    _axisLimit  : AxisLimits;
+
+    {attribute 'hide'}
+    _sb        : TcoCore.StringBuilder;
+    _errorDesc : string;
+END_VAR
+VAR
+    _power : Power(THIS^);
+    {attribute addProperty Name "Referenz (Aufpassen)"}
+    _homeTask : HomeTask(THIS^);
+    {attribute addProperty Name "<#Reset#>"}
+    _resetTask : ResetTask(THIS^);
+    {attribute addProperty Name "<#Set position#>"}
+    _setPositionTask : SetPositionTask(THIS^);
+    //	    {attribute addProperty Name "<#Jogging#>"}
+    //    _jog : Jog(THIS^);
+    {attribute addProperty Name "<#Stop#>"}
+    _stopTask : StopTask(THIS^);
+    {attribute addProperty Name "<#Halt#>"}
+    _haltTask : HaltTask(THIS^);
+    {attribute addProperty Name "<#Move relative#>"}
+    _moveRelativeTask : MoveRelativeTask(THIS^);
+    {attribute addProperty Name "<#Move absolute#>"}
+    _moveAbsoluteTask : MoveAbsoluteTask(THIS^);
+    //    {attribute addProperty Name "<#Move modulo#>"}
+    //    _moveModuloTask : MoveModuloTask(THIS^);
+    _faultTask : TcoCore.TcoTask(THIS^);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+UpdateAxisStatus();
+
+_power(inEnable := inEnabled);
+
+_resetTask();
+
+_homeTask();
+_setPositionTask();
+_stopTask();
+_haltTask();
+_moveRelativeTask();
+_moveAbsoluteTask();
+THIS^.Service();
+//_moveModuloTask();
+
+IF (_axisStatus.Error) THEN
+    CASE _axisStatus.ErrorId OF
+        111:
+            _errorDesc := 'NotAus der Achse, bitte Checken';
+        131:
+            _errorDesc := 'Referenzfahrt nicht Complete';
+        163:
+            _errorDesc := 'Position Command Data invalid';
+        193:
+            _errorDesc := '0C1,Fehler Achse, Motorlast zu hoch aufgrund externer Kraft';
+        333, 444, 555:
+            _errorDesc := 'Servo ist aus';
+
+    ELSE
+        _errorDesc := 'For details see the service mode';
+
+    END_CASE
+
+    Messenger.Error
+    (
+        _sb.Clear()
+            .Append('<#Drive error no #>')
+            .Append(UDINT_TO_STRING(_axisStatus.ErrorId))
+            .Append(': ')
+            .Append(_errorDesc)
+            .ToString()
+    );
+
+    _faultTask.ThrowWhen(TRUE);
+END_IF;
+
+UpdateAxisStatus();]]></ST>
+    </Implementation>
+    <Folder Name="Axis" Id="{246b8fb8-2c75-40a9-bfda-666e5a707d79}" />
+    <Folder Name="ErrorHandling" Id="{993d2e5a-fcde-45a0-ad50-670ac461c725}" />
+    <Folder Name="Motion" Id="{3eda8ba8-2f34-4111-87ed-83ed99d80b44}" />
+    <Property Name="AxisStatus" Id="{4fd5eb19-c8e9-4b02-8159-9e0023cff962}" FolderPath="Axis\">
+      <Declaration><![CDATA[PROPERTY AxisStatus : REFERENCE TO IAIAxisStatus]]></Declaration>
+      <Get Name="Get" Id="{1f11e942-5078-46f5-8df6-7ff4b045b507}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[UpdateAxisStatus();
+AxisStatus REF= _axisStatus;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ClearError" Id="{faa160c8-59e9-453d-811f-d68d56d08605}">
+      <Declaration><![CDATA[METHOD INTERNAL ClearError
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axisStatus.Error   := FALSE;
+_axisStatus.ErrorId := 0;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="DriveRef" Id="{4866df59-68f7-4cd2-b1ac-795e2681d5e5}" FolderPath="Axis\">
+      <Declaration><![CDATA[PROPERTY DriveRef : REFERENCE TO AxisIAI]]></Declaration>
+      <Get Name="Get" Id="{65d395a7-6334-413e-bc3b-01754a72ce8a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(DriveRef) THEN
+    DriveRef := THIS^;
+end_if]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ErrorHandling" Id="{66ce3600-b4a7-4029-ae95-12f4e5c10216}" FolderPath="ErrorHandling\">
+      <Declaration><![CDATA[METHOD ErrorHandling : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="FaultTask" Id="{88e37a78-a067-4dcf-a039-39b5246ba637}">
+      <Declaration><![CDATA[PROPERTY FaultTask : TcoCore.ITcoTask]]></Declaration>
+      <Get Name="Get" Id="{de28ba97-4ebd-4dba-9313-e6dcc7324244}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultTask := _faultTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{664e9c53-74ed-4696-b3f7-4322a2fb3297}">
+      <Declaration><![CDATA[{attribute 'hide'}
+METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject : ITcoObject;
+    AxisLimits   : AxisLimits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_init(bInitRetains, bInCopyCode, ParentObject);
+
+THIS^._axisLimit := AxisLimits;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Halt" Id="{c682fcb7-96de-49f1-a2fe-48a182b750af}" FolderPath="Motion\">
+      <Declaration><![CDATA[METHOD Halt : ITcoTaskStatus
+VAR_INPUT
+    inDeceleration : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Halt := THIS^._haltTask.InvokeWithParams(inDeceleration := inDeceleration);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="HaltTask" Id="{b22af8ee-20cc-436b-969e-549731099c33}" FolderPath="Motion\">
+      <Declaration><![CDATA[PROPERTY HaltTask : TcoCore.ITcoTaskStatus]]></Declaration>
+      <Get Name="Get" Id="{bf44bf0d-eaa6-4038-a146-905b63014044}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HaltTask := _haltTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="HomeTask" Id="{b05186b1-66e1-4e7c-b5b4-b1dd345152d8}" FolderPath="Motion\">
+      <Declaration><![CDATA[PROPERTY HomeTask : TcoCore.ITcoTaskStatus]]></Declaration>
+      <Get Name="Get" Id="{7c4219a2-e749-4735-bb99-daa42b06c5f4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HomeTask := _homeTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="isEnabled" Id="{248e7cf4-3cfd-4fa8-a946-51d5643bd53b}" FolderPath="Axis\">
+      <Declaration><![CDATA[PROPERTY isEnabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9b038add-6758-467e-8642-8985da7ee9b5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isEnabled := inEnabled and DriveToPlc.StatusSignal.SV;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsError" Id="{4c205107-0a64-4e99-ac1e-e5dc14059681}" FolderPath="ErrorHandling\">
+      <Declaration><![CDATA[PROPERTY IsError : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{9b56ca0d-a645-4627-a7a9-5dadfd8d62e2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsError := _faultTask.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="MoveAbsolute" Id="{bcb05ff5-a048-4bb5-bfb7-50026492f11d}" FolderPath="Motion\">
+      <Declaration><![CDATA[METHOD MoveAbsolute : ITcoTaskStatus
+VAR_INPUT
+    TargetPosition   : REAL;
+    PositionBand     : REAL;
+    Velocity         : UINT;
+    Acceleration     : UINT;
+    PushCurrentLimit : USINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveAbsolute := THIS^._moveAbsoluteTask.InvokeWithParams
+(
+    TargetPosition     := TargetPosition
+    , PositionBand     := PositionBand
+    , Velocity         := Velocity
+    , Acceleration     := Acceleration
+    , PushCurrentLimit := PushCurrentLimit
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="MoveAbsoluteTask" Id="{d7dd8ebe-7c69-407b-ba17-3112063a8518}" FolderPath="Motion\">
+      <Declaration><![CDATA[PROPERTY MoveAbsoluteTask : TcoCore.ITcoTaskStatus]]></Declaration>
+      <Get Name="Get" Id="{1ee6b324-1d91-45e6-8efe-519de11eed73}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveAbsoluteTask := _moveAbsoluteTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="MoveHome" Id="{81505a36-d48a-4859-add2-dae1ab183f97}" FolderPath="Motion\">
+      <Declaration><![CDATA[METHOD MoveHome : ITcoTaskStatus
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveHome := _homeTask.Invoke();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveRelative" Id="{0c5c8c67-5065-4e3b-b330-5a1329c41ba0}" FolderPath="Motion\">
+      <Declaration><![CDATA[METHOD MoveRelative : ITcoTaskStatus
+VAR_INPUT
+    Distance         : REAL;
+    PositionBand     : REAL;
+    Velocity         : UINT;
+    Acceleration     : UINT;
+    PushCurrentLimit : USINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveRelative := THIS^._moveRelativeTask.InvokeWithParams
+(
+    Distance           := Distance
+    , Velocity         := Velocity
+    , Acceleration     := Acceleration
+    , PositionBand     := PositionBand
+    , PushCurrentLimit := PushCurrentLimit
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="MoveRelativeTask" Id="{4c9af92e-447a-4d9f-8f95-cbd71e2d7d11}" FolderPath="Motion\">
+      <Declaration><![CDATA[PROPERTY MoveRelativeTask : TcoCore.ITcoTaskStatus]]></Declaration>
+      <Get Name="Get" Id="{d52e96ae-7c8c-44d5-99c3-ab8348c3647d}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveRelativeTask := _moveRelativeTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Reset" Id="{03d4e425-7e8b-4a84-b4fd-8355d9d50eda}" FolderPath="Axis\">
+      <Declaration><![CDATA[METHOD Reset : ITcoTaskStatus]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Reset := THIS^._resetTask.Invoke();
+ClearError();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetError" Id="{18a1100b-c32e-4b72-9b81-2b21660b25cb}" FolderPath="ErrorHandling\">
+      <Declaration><![CDATA[METHOD ResetError : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Restore();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ResetTask" Id="{a9edf216-ac7c-4bcb-aeea-af087eb39e9f}" FolderPath="Axis\">
+      <Declaration><![CDATA[PROPERTY ResetTask : TcoCore.ITcoTaskStatus]]></Declaration>
+      <Get Name="Get" Id="{94a6d7e5-8239-40d2-9bac-50f465177193}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ResetTask := _resetTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Restore" Id="{950055a2-fc00-4d29-844a-441fe982a1fa}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Restores this instance to the Ready state. Can be called explicitly or from within one of the restore mechanisms.
+        </summary>
+    </docu>
+~*)
+METHOD Restore : ITcoRestorable
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Reset();
+RestoreTasks();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RestoreTasks" Id="{e55294f9-da03-4f9d-8d46-ddc0ae59582b}">
+      <Declaration><![CDATA[METHOD RestoreTasks : ITcoRestorable
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Restore all
+_homeTask.Restore();
+_resetTask.Restore();
+_setPositionTask.Restore();
+_stopTask.Restore();
+_haltTask.Restore();
+_moveRelativeTask.Restore();
+_moveAbsoluteTask.Restore();
+_resetTask.Restore();
+_faultTask.Restore();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ServiceMode" Id="{f63a40fe-0c00-4834-aa74-296a83cfa8b6}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Custom service (manual, maintenance) logic.
+            This method must be implemented in derived class.
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED ServiceMode
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//_jog.Service();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetErrorID" Id="{a2ee34ef-33c6-46c5-a8af-9b430eeebe61}">
+      <Declaration><![CDATA[METHOD INTERNAL SetErrorID
+VAR_INPUT
+    inErrorId : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axisStatus.Error := TRUE;
+
+IF inErrorId <> 0 THEN
+    _axisStatus.ErrorId := inErrorId;
+ELSIF DriveToPlc.StatusSignal.EMGS THEN
+    _axisStatus.ErrorId := 111;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetPosition" Id="{208fb00f-ea0e-483c-9566-67f74ac12c79}" FolderPath="Axis\">
+      <Declaration><![CDATA[METHOD SetPosition : ITcoTaskStatus
+VAR_INPUT
+    inPosition : LREAL;
+    inMode     : eSetPositionMode;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetPosition := THIS^._setPositionTask.InvokeWithParams(inPosition := inPosition, inMode := inMode);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SetPositionTask" Id="{277fa6f9-ac95-45c6-bac8-4c14e18815f0}" FolderPath="Axis\">
+      <Declaration><![CDATA[PROPERTY SetPositionTask : TcoCore.ITcoTaskStatus]]></Declaration>
+      <Get Name="Get" Id="{1b71c172-7878-40e3-9e64-7d777933ef72}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SetPositionTask := _setPositionTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Stop" Id="{6282e6a7-0aef-4fbd-9910-0669f3df3f74}" FolderPath="Motion\">
+      <Declaration><![CDATA[METHOD Stop : ITcoTaskStatus
+VAR_INPUT
+    inDeceleration : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Stop := THIS^._stopTask.InvokeWithParams(inDeceleration := inDeceleration);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StopTask" Id="{f8073f60-398c-44b1-8229-25a2513685b2}" FolderPath="Motion\">
+      <Declaration><![CDATA[PROPERTY StopTask : TcoCore.ITcoTaskStatus]]></Declaration>
+      <Get Name="Get" Id="{d1dc2659-1874-4d6c-93b2-5f0a70638fdb}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StopTask := _stopTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="UpdateAxisStatus" Id="{7167118a-a530-420f-8dbf-8e56e0576e0d}">
+      <Declaration><![CDATA[METHOD INTERNAL UpdateAxisStatus
+VAR
+    _message : STRING(125);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axisStatus.ActPos := DriveToPLC.CurrentPosition / 100.0;
+//_axisStatus.ModuloActPos := AxisRef.NcToPlc.ModuloActPos;
+//_axisStatus.ModuloActTurns := AxisRef.NcToPlc.ModuloActTurns;
+_axisStatus.ActVelo := DriveToPLC.CurrentSpeed;
+//_axisStatus.ActAcc := AxisRef.NcToPlc.ActAcc;
+_axisStatus.ActTorque := DriveToPLC.CommandCurrent;
+//_axisStatus.CmdNo := AxisRef.NcToPlc.CmdNo;
+//_axisStatus.CmdState := AxisRef.NcToPlc.CmdState;
+
+//IF NOT Tc2MC2_TO_Tco_AxisStates(AxisRef.Status.MotionState, _axisStatus.MotionState) THEN
+//    _message := Tc2_Standard
+//        .CONCAT('Unable to cast AxisRef.Status.MotionState variable of type Tc2_MC2.MC_AxisStates (', TO_STRING(AxisRef.Status.MotionState));
+
+//    _message := Tc2_Standard.CONCAT(_message, ') to the type TcoDrivesBeckhoff.eAxisStates!!!');
+//    THIS^.Messenger.Post(_message, TcoCore.eMessageCategory.ProgrammingError);
+//END_IF
+
+//AlarmCodes ausprogrammieren (alle Gateway ALarmcodes etc.)
+IF (DriveToPLC.StatusSignal.ALM OR DriveToPLC.StatusSignal.ALML or DriveToPlc.StatusSignal.EMGS) THEN
+    SetErrorID(DriveToPlc.AlarmCode);
+END_IF
+
+//_axisStatus.ErrorStop := AxisRef.Status.ErrorStop;
+//_axisStatus.Disabled := AxisRef.Status.Disabled;
+//_axisStatus.Stopping := AxisRef.Status.Stopping;
+_axisStatus.StandStill       := NOT DriveToPLC.StatusSignal.MOVE1;
+_axisStatus.DiscreteMotion   := PLCToDrive.ControlSignal.JISL;
+_axisStatus.ContinuousMotion := NOT PLCToDrive.ControlSignal.JISL;
+_axisStatus.AbsoluteMotion   := NOT PLCToDrive.ControlSignal.INC;
+_axisStatus.RelativeMotion   := PLCToDrive.ControlSignal.INC;
+//_axisStatus.SynchronizedMotion := AxisRef.Status.SynchronizedMotion;
+_axisStatus.Homing := DriveToPLC.StatusSignal.MOVE1 AND NOT DriveToPLC.StatusSignal.HEND;
+//_axisStatus.ConstantVelocity := AxisRef.Status.ConstantVelocity;
+//_axisStatus.Accelerating := AxisRef.Status.Accelerating;
+//_axisStatus.Decelerating := AxisRef.Status.Decelerating;
+_axisStatus.Operational := GateWayStatus.GatewayStatus0.RUN;
+//_axisStatus.ControlLoopClosed := AxisRef.Status.ControlLoopClosed;
+//_axisStatus.HasJob := AxisRef.Status.HasJob;
+_axisStatus.HasBeenStopped := PLCToDrive.ControlSignal.STP;
+//_axisStatus.NewTargetPosition := AxisRef.Status.NewTargetPosition;
+_axisStatus.InPositionArea    := DriveToPLC.StatusSignal.PEND and not DriveToPlc.StatusSignal.MOVE1;
+_axisStatus.InTargetPosition1 := DriveToPLC.StatusSignal.ZONE1;
+_axisStatus.InTargetPosition2 := DriveToPLC.StatusSignal.ZONE2;
+_axisStatus.Homed             := DriveToPLC.StatusSignal.HEND;
+//_axisStatus.HomingBusy := AxisRef.Status.HomingBusy;
+//_axisStatus.MotionCommandsLocked := AxisRef.Status.MotionCommandsLocked;
+//_axisStatus.SoftLimitMinExceeded := AxisRef.Status.SoftLimitMinExceeded;
+//_axisStatus.SoftLimitMaxExceeded := AxisRef.Status.SoftLimitMaxExceeded;
+_axisStatus.Moving            := DriveToPLC.StatusSignal.MOVE1;
+_axisStatus.PositiveDirection := PLCToDrive.ControlSignal.DIR;
+_axisStatus.NegativeDirection := NOT PLCToDrive.ControlSignal.DIR;
+_axisStatus.NotMoving         := NOT DriveToPLC.StatusSignal.MOVE1;
+//_axisStatus.Compensating := AxisRef.Status.Compensating;
+//_axisStatus.ExtSetPointGenEnabled := AxisRef.Status.ExtSetPointGenEnabled;
+//_axisStatus.ExternalLatchValid := AxisRef.Status.ExternalLatchValid;
+//_axisStatus.CamDataQueued := AxisRef.Status.CamDataQueued;
+//_axisStatus.CamTableQueued := AxisRef.Status.CamTableQueued;
+//_axisStatus.CamScalingPending := AxisRef.Status.CamScalingPending;
+//_axisStatus.CmdBuffered := AxisRef.Status.CmdBuffered;
+//_axisStatus.PTPmode := AxisRef.Status.PTPmode;
+_axisStatus.DriveDeviceError :=
+    GateWayStatus.GatewayStatus0.ALMH OR GateWayStatus.GatewayStatus0.ALML OR GateWayStatus.GatewayStatus0.LERC;
+
+_axisStatus.IoDataInvalid := GateWayStatus.GatewayStatus0.ERRT;
+_axisStatus.Coupled1      := GateWayStatus.GatewayStatus1.LNK0;
+_axisStatus.Coupled2      := GateWayStatus.GatewayStatus1.LNK2;
+_axisStatus.Coupled3      := GateWayStatus.GatewayStatus1.LNK4;
+_axisStatus.Coupled4      := GateWayStatus.GatewayStatus1.LNK6;
+
+//_axisStatus.OpMode.PositionAreaMonitoring := AxisRef.Status.OpMode.PositionAreaMonitoring;
+//_axisStatus.OpMode.TargetPositionMonitoring := AxisRef.Status.OpMode.TargetPositionMonitoring;
+//_axisStatus.OpMode.LoopMode := AxisRef.Status.OpMode.LoopMode;
+//_axisStatus.OpMode.MotionMonitoring := AxisRef.Status.OpMode.MotionMonitoring;
+//_axisStatus.OpMode.PEHTimeMonitoring := AxisRef.Status.OpMode.PEHTimeMonitoring;
+//_axisStatus.OpMode.BacklashCompensation := AxisRef.Status.OpMode.BacklashCompensation;
+//_axisStatus.OpMode.Modulo := AxisRef.Status.OpMode.Modulo;
+//_axisStatus.OpMode.PositionLagMonitoring := AxisRef.Status.OpMode.PositionLagMonitoring;
+//_axisStatus.OpMode.VelocityLagMonitoring := AxisRef.Status.OpMode.VelocityLagMonitoring;
+//_axisStatus.OpMode.SoftLimitMinMonitoring := AxisRef.Status.OpMode.SoftLimitMinMonitoring;
+//_axisStatus.OpMode.SoftLimitMaxMonitoring := AxisRef.Status.OpMode.SoftLimitMaxMonitoring;
+//_axisStatus.OpMode.PositionCorrection := AxisRef.Status.OpMode.PositionCorrection;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

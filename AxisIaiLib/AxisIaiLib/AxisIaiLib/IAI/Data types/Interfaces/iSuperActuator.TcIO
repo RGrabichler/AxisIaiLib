@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="iSuperActuator" Id="{7d906433-c242-40bb-a2ff-7356a90c2292}">
+    <Declaration><![CDATA[INTERFACE iSuperActuator
+]]></Declaration>
+    <Method Name="ErrorHandling" Id="{8bb89f97-f6ff-4f7b-9dd5-50a06b17fb3c}">
+      <Declaration><![CDATA[METHOD ErrorHandling : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="IsError" Id="{ebe86b05-d4dc-40ea-9640-96f404873b1e}">
+      <Declaration><![CDATA[PROPERTY IsError : bool]]></Declaration>
+      <Get Name="Get" Id="{392bbca7-14aa-471f-9ef1-45c759f2dbe3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="ResetError" Id="{52ca07aa-ba55-4e48-a3d6-2319d7c0005f}">
+      <Declaration><![CDATA[METHOD ResetError : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

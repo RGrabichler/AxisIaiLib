@@ -3,8 +3,17 @@
   <POU Name="MainStation" Id="{133c6404-7ee3-4d52-81ac-dadf34168d5f}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK MainStation EXTENDS TcoCore.TcoObject
 VAR
-    counter          : INT;
+    counter : INT;
 
+    testAxis : AxisIaiLibrary.AxisIAI(THIS^, AxisLimits := AxisStats.AxisLimitsRfid);
+
+    enable                 : BOOL := TRUE;
+    controllWithCommActive : BOOL := TRUE;
+    //Link this for example in Global to IN/Out
+    gateWayStatus      : AxisIaiLibrary.GatewayStatus;
+    gateWayControl     : AxisIaiLibrary.GatewayControl;
+    DriveToPlcTestAxis : AxisIaiLibrary.PlcIn;
+    PlcToDriveTestAxis : AxisIaiLibrary.PlcOut;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -16,7 +25,19 @@ END_IF
 
 IF (THIS^.counter MOD 400 = 0) THEN
     THIS^.Messenger.Error('ich Poste').Pin();
-END_IF]]></ST>
+END_IF
+
+testAxis
+(
+    inEnabled        := enable
+    , GateWayStatus  := gateWayStatus
+    , GateWayControl := gateWayControl
+    , DriveToPlc     := DriveToPlcTestAxis
+    , PlcToDrive     := PlcToDriveTestAxis
+);
+
+gateWayControl.GatewayControl0.MON := controllWithCommActive;
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

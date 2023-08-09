@@ -117,4 +117,106 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="___Drive_error_no___" xml:space="preserve">
+    <value>Drive error no </value>
+  </data>
+  <data name="___Reset__" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="___Set_position__" xml:space="preserve">
+    <value>Set position</value>
+  </data>
+  <data name="___Jogging__" xml:space="preserve">
+    <value>Jogging</value>
+  </data>
+  <data name="___Stop__" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="___Halt__" xml:space="preserve">
+    <value>Halt</value>
+  </data>
+  <data name="___Move_relative__" xml:space="preserve">
+    <value>Move relative</value>
+  </data>
+  <data name="___Move_absolute__" xml:space="preserve">
+    <value>Move absolute</value>
+  </data>
+  <data name="___Move_modulo__" xml:space="preserve">
+    <value>Move modulo</value>
+  </data>
+  <data name="___Position__" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="___Mode__" xml:space="preserve">
+    <value>Mode</value>
+  </data>
+  <data name="___Deceleration__" xml:space="preserve">
+    <value>Deceleration</value>
+  </data>
+  <data name="___Position_in_mm__" xml:space="preserve">
+    <value>Position in mm</value>
+  </data>
+  <data name="___Positionierbereich_in_mm__" xml:space="preserve">
+    <value>Positionierbereich in mm</value>
+  </data>
+  <data name="___Geschwindigkeit_in_mm_s__" xml:space="preserve">
+    <value>Geschwindigkeit in mm/s</value>
+  </data>
+  <data name="___Beschleunigung__0___100___" xml:space="preserve">
+    <value>Beschleunigung (0 - 100)</value>
+  </data>
+  <data name="___Schubstrombegrenzung__" xml:space="preserve">
+    <value>Schubstrombegrenzung</value>
+  </data>
+  <data name="___Distance__" xml:space="preserve">
+    <value>Distance</value>
+  </data>
+  <data name="___Power_enable__" xml:space="preserve">
+    <value>Power enable</value>
+  </data>
+  <data name="___Enabled__" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="___Disabled__" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="___Enable_positive__" xml:space="preserve">
+    <value>Enable positive</value>
+  </data>
+  <data name="___Enable_negative__" xml:space="preserve">
+    <value>Enable negative</value>
+  </data>
+  <data name="___Actual_position_in_mm__" xml:space="preserve">
+    <value>Actual position in mm</value>
+  </data>
+  <data name="___Actual_modulo_position__" xml:space="preserve">
+    <value>Actual modulo position</value>
+  </data>
+  <data name="___Actual_modulo_turns__" xml:space="preserve">
+    <value>Actual modulo turns</value>
+  </data>
+  <data name="___Actual_velocity__" xml:space="preserve">
+    <value>Actual velocity</value>
+  </data>
+  <data name="___Actual_acceleration__" xml:space="preserve">
+    <value>Actual acceleration</value>
+  </data>
+  <data name="___Actual_torque__" xml:space="preserve">
+    <value>Actual torque</value>
+  </data>
+  <data name="___Command_number__" xml:space="preserve">
+    <value>Command number</value>
+  </data>
+  <data name="___Command_state__" xml:space="preserve">
+    <value>Command state</value>
+  </data>
+  <data name="___Motion_state__" xml:space="preserve">
+    <value>Motion state</value>
+  </data>
+  <data name="___Error__" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="___Error_id__" xml:space="preserve">
+    <value>Error id</value>
+  </data>
 </root>

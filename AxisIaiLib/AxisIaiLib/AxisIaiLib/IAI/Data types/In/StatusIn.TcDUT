@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="StatusIn" Id="{bcc599c2-06b3-4d59-abea-794aac3e1f4f}">
+    <Declaration><![CDATA[TYPE
+    StatusIn :
+    STRUCT
+        //~
+        PEND  : BIT; //Signal wird true nach Abschluss Positionierung, on during Stop if Motor on
+        HEND  : BIT; //True after Homeing, until Pos lost
+        MOVE1 : BIT; //True while Moving
+        ALM   : BIT; // true while Alarm
+        SV    : BIT; //True when ready, (Servo On)
+        PSFL  : BIT; //True while Error in SchubBetrieb
+        bit6  : BIT;
+        ALML  : BIT; //izi Error
+        MEND  : BIT; //Signal True after Moving, Homing or Schubvorgang, False by Start new Movement
+        bit9  : BIT;
+        bit10 : BIT;
+        bit11 : BIT;
+        ZONE1 : BIT; // True when in Zone1
+        ZONE2 : BIT;
+        CRDY  : BIT; // Controller in Standby
+        EMGS  : BIT; // Emergency Stop
+    //~
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

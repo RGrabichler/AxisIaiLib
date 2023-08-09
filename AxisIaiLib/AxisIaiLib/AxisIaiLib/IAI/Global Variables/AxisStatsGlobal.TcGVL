@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="AxisStatsGlobal" Id="{c280eef3-eed2-42d7-84d0-109e71898170}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+    MaxAcceleration1 : UINT := 100;
+    MINPosition1     : DINT := 0;
+    MaxPosition1     : DINT := 20000;
+    MaxVelocity1     : UINT := 900;
+
+    MaxAcceleration2 : UINT := 100;
+    MINPosition2     : DINT := 0;
+    MaxPosition2     : DINT := 25000;
+    MaxVelocity2     : UINT := 900;
+
+    MaxAcceleration3 : UINT := 100;
+    MINPosition3     : DINT := 0;
+    MaxPosition3     : DINT := 40000;
+    MaxVelocity3     : UINT := 840;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

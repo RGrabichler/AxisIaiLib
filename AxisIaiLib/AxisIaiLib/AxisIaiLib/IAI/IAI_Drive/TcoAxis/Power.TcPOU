@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Power" Id="{1b744228-76c8-4c2e-900d-ff5d56a00c51}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Power EXTENDS TcoCore.TcoObject IMPLEMENTS IAxisIAI
+VAR_INPUT
+    inEnable : BOOL;
+    //    inEnablePositive : BOOL;
+    //    inEnableNegative : BOOL;
+    //    inOverride : LREAL;
+    //	inIsServiceMode : BOOL;
+END_VAR
+VAR
+    {attribute addProperty Name "<#Power enable#>"}
+    {attribute addProperty StateOnDesc "<#Enabled#>"}
+    {attribute addProperty StateOffDesc "<#Disabled#>"}
+    _driveEnableLocalTask : TcoCore.TcoToggleTask(THIS^, FALSE);
+    //    {attribute addProperty Name "<#Enable positive#>"}
+    //	{attribute addProperty StateOnDesc "<#Enabled#>"}
+    //	{attribute addProperty StateOffDesc "<#Disabled#>"}
+    //    _driveEnablePositiveLocalTask : TcoCore.TcoToggleTask(THIS^,FALSE);
+    //    {attribute addProperty Name "<#Enable negative#>"}
+    //	{attribute addProperty StateOnDesc "<#Enabled#>"}
+    //	{attribute addProperty StateOffDesc "<#Disabled#>"}
+    //    _driveEnableNegativeLocalTask : TcoCore.TcoToggleTask(THIS^,FALSE);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+_driveEnableLocalTask.Run();
+//_driveEnablePositiveLocalTask.Run();
+//_driveEnableNegativeLocalTask.Run();
+
+IF inEnable THEN
+    _driveEnableLocalTask.On();
+ELSE
+    _driveEnableLocalTask.Off();
+END_IF
+
+DriveRef.PlcToDrive.ControlSignal.SON := _driveEnableLocalTask.IsOn;]]></ST>
+    </Implementation>
+    <Property Name="DriveRef" Id="{e7583d6e-1b05-438a-b94c-c05bd684cae0}">
+      <Declaration><![CDATA[PROPERTY DriveRef : REFERENCE TO AxisIAI]]></Declaration>
+      <Get Name="Get" Id="{858d6cc8-f4f9-42d9-ab8c-c8363a629298}">
+        <Declaration><![CDATA[VAR
+    _drive : POINTER TO AxisIAI;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __QUERYPOINTER(THIS^._ParentObject, _drive) THEN
+    DriveRef REF= _drive^;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{7de9ca26-db98-4560-8b2f-49f8bc11a648}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject : TcoCore.ITcoObject;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode, ParentObject := ParentObject);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>
