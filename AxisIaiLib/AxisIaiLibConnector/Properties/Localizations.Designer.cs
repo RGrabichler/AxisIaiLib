@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace PLCConnector.Properties {
+namespace AxisIaiLibConnector.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace PLCConnector.Properties {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("PLCConnector.Properties.Localizations", typeof(Localizations).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AxisIaiLibConnector.Properties.Localizations", typeof(Localizations).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

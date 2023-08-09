@@ -1,18 +1,12 @@
 using BlazorHmi.Data;
+using Vortex.Presentation.Blazor.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PLCConnector;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TcOpen.Inxton.TcoCore.Blazor.Extensions;
-using Vortex.Presentation.Blazor.Services;
+using AxisIaiLibExample;
 
 namespace BlazorHmi
 {
@@ -33,7 +27,6 @@ namespace BlazorHmi
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
             services.AddVortexBlazorServices();
-            services.AddTcoCoreExtensions();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,16 +50,7 @@ namespace BlazorHmi
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
-
-            TcOpen.Inxton.TcoAppDomain.Current.Builder.SetUpLogger(
-                new TcOpen.Inxton.Logging.SerilogAdapter(
-                    new Serilog.LoggerConfiguration().WriteTo.Console()
-                )
-            );
-
             Entry.Plc.Connector.BuildAndStart();
-
-            Entry.Plc.MAIN._app._logger.StartLoggingMessages(TcoCore.eMessageCategory.Error, 10);
         }
     }
 }
