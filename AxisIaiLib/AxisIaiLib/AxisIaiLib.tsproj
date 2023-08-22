@@ -10,7 +10,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{F0BAB1E7-B207-4D97-B1F2-FE3D9803120C}" Name="AxisIaiLibExample" PrjFilePath="AxisIaiLibExample\AxisIaiLibExample.plcproj" TmcFilePath="AxisIaiLibExample\AxisIaiLibExample.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x001e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="AxisIaiLibExample\AxisIaiLibExample.tmc" TmcHash="{28E310A0-C0CA-7F88-DC71-ECB7B7703B3E}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="AxisIaiLibExample\AxisIaiLibExample.tmc" TmcHash="{0617DD63-0379-2B75-7415-DBF7BC776B95}">
 					<Name>AxisIaiLibExample Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
@@ -22,6 +22,7 @@
 							</ManualConfig>
 							<Priority>20</Priority>
 							<CycleTime>10000000</CycleTime>
+							<DependOn>FixedConfig</DependOn>
 						</Context>
 					</Contexts>
 					<TaskPouOids>
