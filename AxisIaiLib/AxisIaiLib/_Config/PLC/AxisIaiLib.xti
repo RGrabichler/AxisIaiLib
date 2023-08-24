@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.47" ClassName="CNestedPlcProjDef">
 	<Project GUID="{D82FC749-9CAD-4CCF-8B04-92C10F9D2CB3}" Name="AxisIaiLib" PrjFilePath="..\..\AxisIaiLib\AxisIaiLib.plcproj" TmcFilePath="..\..\AxisIaiLib\AxisIaiLib.tmc" ReloadTmc="true" AmsPort="852" FileArchiveSettings="#x001e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-		<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="AxisIaiLib\AxisIaiLib.tmc" TmcHash="{7149CCDD-93BB-6E37-098D-C58F8CA428E1}">
+		<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="AxisIaiLib\AxisIaiLib.tmc" TmcHash="{B77C0130-3446-61CA-4168-6C9F772E3039}">
 			<Name>AxisIaiLib Instance</Name>
 			<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 			<Contexts>
