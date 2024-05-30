@@ -7,3 +7,5 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5003:5003"
+    environment:
+      - Hostname=host.docker.internal
