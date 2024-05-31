@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="EngelInput" Id="{a880286c-c6cc-418a-b2af-898f4617afb5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EngelInput IMPLEMENTS IInput
+VAR_INPUT
+    input : ARRAY[1..42] OF BYTE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetInputData" Id="{e6d62227-82a0-490d-b12b-eb153040cf3e}">
+      <Declaration><![CDATA[METHOD GetInputData : EngelInputData
+VAR
+    hbTemp : uint;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[hbTemp := input[1];
+hbTemp := SHL(hbTemp, 8);
+hbTemp := hbTemp OR input[2];
+
+GetInputData.HeartBeat            := hbTemp;
+GetInputData.ManualActive         := input[39].0;
+GetInputData.AutoActive           := input[39].1;
+GetInputData.AutoStart            := input[39].2;
+GetInputData.HomeRequest          := input[39].3;
+GetInputData.HomeDone             := input[39].4;
+GetInputData.SafetyClosed         := input[39].5;
+GetInputData.SafetyOpeningAllowed := input[39].6;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

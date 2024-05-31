@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IInput" Id="{e2ee5310-5cba-4699-ae4a-a08130a9dc68}">
+    <Declaration><![CDATA[INTERFACE IInput
+]]></Declaration>
+    <Method Name="GetInputData" Id="{69eef123-16ab-40f6-adc0-b1e8482bfcb4}">
+      <Declaration><![CDATA[METHOD GetInputData : EngelInputData
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HeartBeat_Test" Id="{c0ea1f1e-e0e1-40d2-bf1d-13be11f8f6e1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK HeartBeat_Test EXTENDS TcUnit.FB_TestSuite
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[GetsValueAndGiveBackIncreasedValueStatusValid();
+HeartbeatFromEngelTimeout_GetStateGivesStatusTimeOut();
+ErrorOccurs_ExpectStringMessage();
+AfterTimeOutRecieveNewHb_ExpectToChangeStatusBackToValid();
+NotExecute_ExpectErrorMessageAndStateUnknown();]]></ST>
+    </Implementation>
+    <Method Name="AfterTimeOutRecieveNewHb_ExpectToChangeStatusBackToValid" Id="{400e66fe-a631-49fa-83c6-93e9297d4627}">
+      <Declaration><![CDATA[METHOD PRIVATE AfterTimeOutRecieveNewHb_ExpectToChangeStatusBackToValid
+VAR_INST
+    toTimer : TON := (PT := T#4MS); // Bigger 12ms !
+    eState  : eHeartBeatState;
+    first   : BOOL := TRUE;
+    hb      : HeartBeat(heartBeatTimeoutTime := T#2MS);
+    resetHb : BOOL;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Test('ErrorOccurs_ExpectStringAfterTimeOutRecieveNewHb_ExpectToChangeStatusBackToValidMessage');
+// Arrange
+// Act
+// Assert
+hb(execute := TRUE);
+toTimer();
+
+IF first THEN
+    first  := FALSE;
+    eState := hb.GetState;
+    hb.IncreaseHeartBeat(5);
+    eState := hb.GetState;
+    AssertEquals_UINT(6, hb.GetHeartBeat, 'Nach Erhoehung muss HB 6 sein');
+    AssertTrue(eState = eHeartBeatState.Valid, 'State muss Valid sein');
+    toTimer(in := TRUE);
+END_IF
+
+IF toTimer.q THEN
+    AssertTrue(hb.GetState = eHeartBeatState.Timeout, 'Timeout, keine Erhoehung HB durch Engel');
+    resetHb := TRUE;
+END_IF
+
+IF resetHb THEN
+    hb.IncreaseHeartBeat(665);
+    AssertTrue(hb.GetState = eHeartBeatState.Valid, 'State muss Valid sein');
+    AssertEquals_UINT(0, hb.GetHeartBeat, 'Nach Erhoehung muss HB 0 sein');
+
+    TEST_FINISHED();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ErrorOccurs_ExpectStringMessage" Id="{d9dd1057-e886-47c2-a62a-504b0581f483}">
+      <Declaration><![CDATA[METHOD PRIVATE ErrorOccurs_ExpectStringMessage
+VAR_INST
+    hb                 : HeartBeat(heartBeatTimeoutTime := T#1MS);
+    toTimer            : TON := (PT := T#3MS); // Bigger 12ms !
+    errorMessage       : STRING;
+    actualErrorMessage : STRING;
+    first              : BOOL := TRUE;
+    eState             : eHeartBeatState;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Test('ErrorOccurs_ExpectStringMessage');
+// Arrange
+// Act
+// Assert
+
+hb(execute := TRUE);
+toTimer(in := TRUE);
+
+IF first THEN
+    errorMessage       := '';
+    actualErrorMessage := hb.GetErrorMessage;
+    AssertEquals_STRING(errorMessage, actualErrorMessage, 'ErrorMessage soll leer sein');
+    first := FALSE;
+    hb.IncreaseHeartBeat(1);
+END_IF
+
+IF toTimer.Q THEN
+    eState := hb.GetState;
+    AssertTrue(eState = eHeartBeatState.Timeout, 'Timeout, keine Erhoehung HB durch Engel');
+    actualErrorMessage := hb.GetErrorMessage;
+
+    errorMessage := CONCAT
+    (
+        'Timeout, da keine Erhoehung Heartbeat stattgefunden hat in '
+        , TO_STRING(hb.GetHeartBeatTimeOutTime)
+    );
+
+    AssertEquals_STRING(errorMessage, actualErrorMessage, 'ErrorMessage muss gleich sein');
+
+    TEST_FINISHED();
+end_if
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetsValueAndGiveBackIncreasedValueStatusValid" Id="{10a618e8-6d23-4aee-bbc1-b566b2ee4f4a}">
+      <Declaration><![CDATA[METHOD PRIVATE GetsValueAndGiveBackIncreasedValueStatusValid
+VAR
+    hb            : HeartBeat(heartBeatTimeoutTime := T#12MS);
+    eState        : eHeartBeatState;
+    inputData     : UINT;
+    inHeartBeat   : UINT := 0;
+    expectedOutHb : UINT := 1;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Calculate a Heartbeat for the Engle Ethercat Bridge Communication
+// Wertebereich des Heartbeats ist [0..65635]
+// Aber Engel erhoeht internen Zaehler alle 6ms bis 255!
+// Nur Aenderung von meiner Seite notwendig
+// Wenn nach max. 12ms keine Aenderung => Fehler
+
+Test('GetsValueAndGiveBackIncreasedValueStatusValid');
+// Arrange
+// Act
+// Assert
+
+hb(execute := TRUE);
+
+eState := hb.GetState;
+AssertTrue(estate = eHeartBeatState.Unknown, 'State soll Unknown sein');
+///=========================================================
+
+inputData := hb.IncreaseHeartBeat(inHeartBeat);
+eState    := hb.GetState;
+AssertEquals_UINT(expectedOutHb, inputData, 'Nach Erhoehung muss HB 1 sein');
+AssertTrue(estate = eHeartBeatState.Valid, 'State muss Valid sein');
+
+//Arrange
+inHeartBeat   := 255;
+expectedOutHb := 0;
+
+//Act
+inputData := hb.IncreaseHeartBeat(inHeartBeat);
+AssertEquals_UINT(expectedOutHb, inputData, 'Nach Erhoehung ueber 255 muss HB wieder 0 sein');
+AssertTrue(estate = eHeartBeatState.Valid, 'State muss Valid sein');
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HeartbeatFromEngelTimeout_GetStateGivesStatusTimeOut" Id="{1128f4ce-f57c-46fd-8477-ec7373e6965e}">
+      <Declaration><![CDATA[METHOD PRIVATE HeartbeatFromEngelTimeout_GetStateGivesStatusTimeOut
+VAR
+    inputData     : UINT;
+    inHeartBeat   : UINT := 22;
+    expectedOutHb : UINT := 23;
+END_VAR
+
+VAR_INST
+    toTimer : TON := (PT := T#20MS); // Bigger 12ms !
+    eState  : eHeartBeatState;
+    first   : BOOL := TRUE;
+    hb      : HeartBeat(heartBeatTimeoutTime := T#12MS);
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Calculate a Heartbeat for the Engle Ethercat Bridge Communication
+// Wertebereich des Heartbeats ist [0..65635]
+// Aber Engel erhoeht internen Zaehler alle 6ms bis 255!
+// Nur Aenderung von meiner Seite notwendig
+// Wenn nach max. 12ms keine Aenderung => Fehler
+
+Test('HeartbeatFromEngelTimeout_GetStateGivesStatusTimeOut');
+// Arrange
+// Act
+// Assert
+hb(execute := TRUE);
+toTimer();
+
+IF first THEN
+    first  := FALSE;
+    eState := hb.GetState;
+    AssertTrue(estate = eHeartBeatState.Unknown, 'State soll Unknown sein');
+    ///=========================================================
+
+    inputData := hb.IncreaseHeartBeat(inHeartBeat);
+    eState    := hb.GetState;
+    AssertEquals_UINT(expectedOutHb, inputData, 'Nach Erhoehung muss HB 23 sein');
+    AssertEquals_UINT(expectedOutHb, hb.GetHeartBeat, 'Bie GetHeartBeat muss HB 23 sein');
+    AssertTrue(estate = eHeartBeatState.Valid, 'State muss Valid sein');
+    //======================
+
+    toTimer(in := TRUE);
+END_IF
+
+IF toTimer.ET <= T#12MS THEN
+    AssertTrue(estate = eHeartBeatState.Valid, 'Valid, TO erst nach 12ms');
+END_IF
+
+IF toTimer.Q THEN
+    eState := hb.GetState;
+    AssertTrue(estate = eState, 'Timeout, keine Erhoehung HB durch Engel');
+    TEST_FINISHED();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="NotExecute_ExpectErrorMessageAndStateUnknown" Id="{c133f806-4d3a-4f5d-86a9-bc13b7313ff9}">
+      <Declaration><![CDATA[METHOD PRIVATE NotExecute_ExpectErrorMessageAndStateUnknown
+VAR
+    timeout             : TIME := T#1MS;
+    hb                  : HeartBeat(heartBeatTimeoutTime := timeout);
+    errorStringExpected : STRING;
+    errorStringActual   : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('NotExecute_ExpectErrorMessageAndStateUnknown');
+
+hb(execute := FALSE);
+hb.IncreaseHeartBeat(23);
+errorStringExpected := 'Bitte Execute auf True setzten!';
+errorStringActual   := hb.GetErrorMessage;
+AssertEquals_STRING(errorStringActual, errorStringExpected, 'ErrorMessage soll gleich sein');
+AssertTrue(hb.GetState = eHeartBeatState.Unknown, 'State muss Unknown sein');
+AssertEquals_UINT(hb.IncreaseHeartBeat(25), 0, 'Keine Erhoehung, da Execute False');
+AssertEquals_UINT(hb.GetHeartBeat, 0, 'Keine Erhoehung, da Execute False');
+AssertTrue(hb.GetHeartbeatTimeoutTime = timeout, 'Property muss gleiche Zeit wie bei Init zurueckgeben (1ms)');
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

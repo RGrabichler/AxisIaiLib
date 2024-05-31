@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="OutputAts400" Id="{bd7aa8b3-01d0-4f2a-b42e-da0cb9424db6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK OutputAts400 EXTENDS TcoCore.TcoState IMPLEMENTS IOutputAts400
+VAR_OUTPUT
+    output : ARRAY[1..12] OF BOOl;
+END_VAR
+VAR
+    selectProgramTask : SelectProgramTask(THIS^);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AbortTest" Id="{e0d45663-ed6c-41a9-b491-4d68a84754c0}">
+      <Declaration><![CDATA[METHOD AbortTest
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.output[2] := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SelectProgramm" Id="{94f3e723-9abd-49b8-8079-3bf1f7bee9e2}">
+      <Declaration><![CDATA[METHOD SelectProgramm : TcoCore.ITcoTaskStatus
+VAR_INPUT
+    programm : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//mind 18ms muss Select gesetzt sein
+
+SelectProgramm := selectProgramTask.Invoke();
+selectProgramTask(selectedProgram := programm, output => output);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDummyReady" Id="{290d1db9-9de7-4da1-be79-3003f6c53c37}">
+      <Declaration><![CDATA[METHOD SetDummyReady
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[5] := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetManualFail" Id="{1b6deb94-7eed-490a-b11a-5717d5885917}">
+      <Declaration><![CDATA[METHOD SetManualFail
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[4] := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetManualPass" Id="{ac847f6f-4cd5-46cc-9b3e-25d42092aa04}">
+      <Declaration><![CDATA[METHOD SetManualPass
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[3] := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Start" Id="{ffe48cac-4552-44f6-bb74-95127658e21f}">
+      <Declaration><![CDATA[METHOD Start
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[this^.output[1] := enable;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

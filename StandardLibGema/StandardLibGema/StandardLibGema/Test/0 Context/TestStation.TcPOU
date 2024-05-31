@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="TestStation" Id="{5b1cd35d-b303-401b-8f2c-32537fa09a9a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK TestStation EXTENDS TcoCore.TcoObject
+VAR
+    cylCustomTest : CylCustom_Test;
+END_VAR
+//===============================Turck Rfid Reader===============================================
+VAR
+    rfidHead_Test : RfidHead_Test;
+END_VAR
+//===================================================================================
+
+//====================== Engel Communication Ethercat Bridge =====================================
+VAR
+    engelInputTest     : EngelInput_Test;
+    engelOutputTest    : EngelOutput_Test;
+    engelHeartBeatTest : HeartBeat_Test;
+END_VAR
+//===================================================================================
+
+//===============================Dual Position Actuator Sagatowski===============================================
+VAR
+    sequenceTryOutTest : SequenceTryout_Test;
+END_VAR
+//====
+//===============================Dual Position Actuator Sagatowski===============================================
+VAR
+    dualPositionActuator_Test : FB_DualPositionActuator_Test;
+END_VAR
+//===================================================================================
+
+//===============================Communication with ETL ATS400 ===============================================
+VAR
+    inputAts400Test  : InputAts400_Test;
+    outputAts400Test : OutputAts400_Test;
+END_VAR
+//===================================================================================
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[TcUnit.RUN();
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

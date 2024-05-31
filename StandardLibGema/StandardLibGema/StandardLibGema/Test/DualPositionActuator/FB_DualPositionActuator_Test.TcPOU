@@ -1,0 +1,809 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_DualPositionActuator_Test" Id="{008527df-8a4b-018b-3f82-e27c02ed0336}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_DualPositionActuator_Test EXTENDS TcUnit.FB_TestSuite
+VAR
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ActiveFeedbackSensorAvailableButNotDisableFeedbackAvailableIfNoActiveFeedbackProvidedItShouldGoToDisabled();
+BothSensorInputsAreTrueExpectUnknownState();
+CloseOneSensorActuatorExpectItToBeClosedWithoutFeedback();
+CloseOneSensorActuatorExpectItToBeClosedWithoutFeedbackVariant2();
+CloseOneSensorActuatorExpectItToTimeout();
+CloseTwoSensorActuatorExpectCloseOutputToBeTrue();
+CloseTwoSensorActuatorExpectItToBeClosed();
+CloseTwoSensorActuatorExpectItToTimeout();
+DisableFeedbackSensorAvailableButNotActiveFeedbackAvailableIfNoDisableFeedbackProvidedItShouldGoToActive();
+DisableTwoSensorNormallyEnabledActuatorExpectItToTimeoutThenExpectDisablingToGoLow();
+EnableTwoSensorNormallyDisabledActuatorExpectItToTimeoutThenExpectActuationToGoLow();
+GivenActivatedFeedBackSensorNotAvailableAndNormallyActivatedThenShouldBeActivated();
+GivenDisabledFeedBackSensorNotAvailableAndNormallyDisabledThenShouldBeDisabled();
+OpenOneSensorActuatorExpectItToBeOpenWithoutFeedback();
+OpenOneSensorActuatorExpectItToBeOpenWithoutFeedbackVariant2();
+OpenOneSensorActuatorExpectItToTimeout();
+OpenTwoSensorActuatorExpectItToBeOpen();
+OpenTwoSensorActuatorExpectItToTimeout();]]></ST>
+    </Implementation>
+    <Method Name="ActiveFeedbackSensorAvailableButNotDisableFeedbackAvailableIfNoActiveFeedbackProvidedItShouldGoToDisabled" Id="{439a4f82-76ab-037b-0abb-ae64040a8835}">
+      <Declaration><![CDATA[METHOD PRIVATE
+    ActiveFeedbackSensorAvailableButNotDisableFeedbackAvailableIfNoActiveFeedbackProvidedItShouldGoToDisabled
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := FALSE
+        , bNormallyDisabled                  := TRUE
+    );
+    nTestState : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('ActiveFeedbackSensorAvailableButNotDisableFeedbackAvailableIfNoActiveFeedbackProvidedItShouldGoToDisabled');
+
+CASE nTestState OF
+    0:
+        fbActuator(bActiveFeedback := TRUE);
+        AssertEquals_INT
+        (
+            Expected  := E_DualPositionActuatorState.Active
+            , Actual  := fbActuator.GetState()
+            , Message := 'Actuator should be active'
+        );
+
+        nTestState := nTestState + 1;
+
+    1:
+        fbActuator(bActiveFeedback := FALSE);
+        AssertEquals_INT
+        (
+            Expected  := E_DualPositionActuatorState.Disabled
+            , Actual  := fbActuator.GetState()
+            , Message := 'Actuator should be disabled'
+        );
+
+        nTestState := nTestState + 1;
+    2:
+        {analysis -9}
+        TEST_FINISHED();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BothSensorInputsAreTrueExpectUnknownState" Id="{487c00ec-a002-057a-3679-049aa4e6aac1}">
+      <Declaration><![CDATA[METHOD PRIVATE BothSensorInputsAreTrueExpectUnknownState
+VAR
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#10MS
+        , tDisableTimeout                    := T#10MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('BothSensorInputsAreTrueExpectUnknownState');
+
+fbActuator(bActiveFeedback := TRUE, bDisableFeedback := TRUE);
+
+AssertTrue(Condition := fbActuator.GetState() = E_DualPositionActuatorState.Unknown, Message := '');
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CloseOneSensorActuatorExpectItToBeClosedWithoutFeedback" Id="{0cb1582d-018d-0976-3b3b-487ea26c0758}">
+      <Declaration><![CDATA[METHOD PRIVATE CloseOneSensorActuatorExpectItToBeClosedWithoutFeedback
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := FALSE
+        , bNormallyDisabled                  := TRUE
+    );
+
+    fbTestTimer : TON := (PT := T#2MS);
+    bRunOnce    : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('CloseOneSensorActuatorExpectItToBeClosedWithoutFeedback');
+fbTestTimer(IN := TRUE);
+
+IF NOT bRunOnce THEN
+    bRunOnce := TRUE;
+    fbActuator.Disable();
+END_IF
+
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Disabled
+        , Actual  := fbActuator.GetState()
+        , Message := 'Not in closed state'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CloseOneSensorActuatorExpectItToBeClosedWithoutFeedbackVariant2" Id="{bc6bd700-9f79-03bc-1c76-fa139c112694}">
+      <Declaration><![CDATA[METHOD PRIVATE CloseOneSensorActuatorExpectItToBeClosedWithoutFeedbackVariant2
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := FALSE
+        , bNormallyDisabled                  := TRUE
+    );
+
+    fbTestTimer : TON := (PT := T#2MS);
+    bRunOnce    : BOOL;
+
+    nState : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('CloseOneSensorActuatorExpectItToBeClosedWithoutFeedbackVariant2');
+fbTestTimer(IN := TRUE);
+
+IF NOT bRunOnce THEN
+    bRunOnce := TRUE;
+    fbActuator.Disable();
+END_IF
+
+CASE nState OF
+    0:
+        fbActuator(bActiveFeedback := TRUE, bDisableFeedback := FALSE);
+        nState := nState + 1;
+
+    1:
+        fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+END_CASE
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Disabled
+        , Actual  := fbActuator.GetState()
+        , Message := 'Not in closed state'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CloseOneSensorActuatorExpectItToTimeout" Id="{e46b382f-08b3-0074-169d-515ef1fa73e7}">
+      <Declaration><![CDATA[METHOD PRIVATE CloseOneSensorActuatorExpectItToTimeout
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#10MS
+        , tDisableTimeout                    := T#10MS
+        , bIsActiveFeedbackSensorAvailable   := FALSE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    bRunOnce    : BOOL;
+    fbTestTimer : TON := (IN := TRUE, PT := T#20MS);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('CloseOneSensorActuatorExpectItToTimeout');
+
+IF NOT bRunOnce THEN
+    fbActuator.Disable();
+    bRunOnce := TRUE;
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Disabling
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be closing'
+    );
+END_IF
+
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+fbTestTimer();
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.TimeoutDisabling
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be timeout closing'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CloseTwoSensorActuatorExpectCloseOutputToBeTrue" Id="{6d480447-aea3-086a-298c-1f97fa0bd98e}">
+      <Declaration><![CDATA[METHOD PRIVATE CloseTwoSensorActuatorExpectCloseOutputToBeTrue
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#10MS
+        , tDisableTimeout                    := T#10MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    bRunOnce : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('CloseTwoSensorActuatorExpectCloseOutputToBeTrue');
+
+IF NOT bRunOnce THEN
+    fbActuator.Disable();
+    bRunOnce := TRUE;
+END_IF
+
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+AssertFalse(Condition := fbActuator.bActivate, Message := 'Output is not false');
+AssertTrue(Condition := fbActuator.bDisable, Message := 'Output is not true');
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CloseTwoSensorActuatorExpectItToBeClosed" Id="{43a3413b-2543-02e6-0a59-22c1f07bcf34}">
+      <Declaration><![CDATA[METHOD PRIVATE CloseTwoSensorActuatorExpectItToBeClosed
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#10MS
+        , tDisableTimeout                    := T#10MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    bRunOnce : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('CloseTwoSensorActuatorExpectItToBeClosed');
+
+IF NOT bRunOnce THEN
+    fbActuator.Disable();
+    bRunOnce := TRUE;
+END_IF
+
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := TRUE);
+
+AssertEquals_INT
+(
+    Expected  := E_DualPositionActuatorState.Disabled
+    , Actual  := fbActuator.GetState()
+    , Message := 'Is not closed'
+);
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CloseTwoSensorActuatorExpectItToTimeout" Id="{37e81494-f88d-0f13-1afc-4721bbb17375}">
+      <Declaration><![CDATA[METHOD PRIVATE CloseTwoSensorActuatorExpectItToTimeout
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    bRunOnce    : BOOL;
+    fbTestTimer : TON := (IN := TRUE, PT := T#20MS);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('CloseTwoSensorActuatorExpectItToTimeout');
+
+IF NOT bRunOnce THEN
+    fbActuator.Disable();
+    bRunOnce := TRUE;
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Disabling
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be closing'
+    );
+END_IF
+
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+fbTestTimer();
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.TimeoutDisabling
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be timeout closing'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DisableFeedbackSensorAvailableButNotActiveFeedbackAvailableIfNoDisableFeedbackProvidedItShouldGoToActive" Id="{2c5223a6-8bfc-0133-1074-6afcdde8b490}">
+      <Declaration><![CDATA[METHOD PRIVATE DisableFeedbackSensorAvailableButNotActiveFeedbackAvailableIfNoDisableFeedbackProvidedItShouldGoToActive
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := FALSE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    nTestState : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('DisableFeedbackSensorAvailableButNotActiveFeedbackAvailableIfNoDisableFeedbackProvidedItShouldGoToActive');
+
+CASE nTestState OF
+    0:
+        fbActuator(bDisableFeedback := TRUE);
+        AssertEquals_INT
+        (
+            Expected  := E_DualPositionActuatorState.Disabled
+            , Actual  := fbActuator.GetState()
+            , Message := 'Actuator should be disabled'
+        );
+
+        nTestState := nTestState + 1;
+
+    1:
+        fbActuator(bDisableFeedback := FALSE);
+        AssertEquals_INT
+        (
+            Expected  := E_DualPositionActuatorState.Active
+            , Actual  := fbActuator.GetState()
+            , Message := 'Actuator should be active'
+        );
+
+        nTestState := nTestState + 1;
+    2:
+        {analysis -9}
+        TEST_FINISHED();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DisableTwoSensorNormallyEnabledActuatorExpectItToTimeoutThenExpectDisablingToGoLow" Id="{eb450d9d-fb5c-04f9-0b8d-d9347363767a}">
+      <Declaration><![CDATA[METHOD PRIVATE DisableTwoSensorNormallyEnabledActuatorExpectItToTimeoutThenExpectDisablingToGoLow
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#10MS
+        , tDisableTimeout                    := T#10MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := FALSE
+    );
+    bRunOnce    : BOOL;
+    fbTestTimer : TON := (IN := TRUE, PT := T#20MS);
+    nTestStep   : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('DisableTwoSensorNormallyEnabledActuatorExpectItToTimeoutThenExpectDisablingToGoLow');
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+fbTestTimer();
+
+IF NOT bRunOnce THEN
+    fbActuator.Disable();
+    bRunOnce := TRUE;
+END_IF
+
+CASE nTestStep OF
+    0:
+        IF fbTestTimer.ET = T#5MS THEN
+            nTestStep := nTestStep + 1;
+        END_IF
+
+    1:
+        AssertEquals_INT
+        (
+            Expected  := E_DualPositionActuatorState.Disabling
+            , Actual  := fbActuator.GetState()
+            , Message := 'Should be disabling'
+        );
+
+        AssertTrue(fbActuator.bDisable, Message := 'Actuator should disable');
+        nTestStep := nTestStep + 1;
+
+    2:
+// Do nothing
+END_CASE
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT(Expected := 2, Actual := nTestStep, Message := 'Not correct step');
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.TimeoutDisabling
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be timeout disabling'
+    );
+
+    AssertFalse(fbActuator.bDisable, Message := 'Actuator should not disable');
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EnableTwoSensorNormallyDisabledActuatorExpectItToTimeoutThenExpectActuationToGoLow" Id="{a6664023-57ae-0c7b-3308-a504f1bb799b}">
+      <Declaration><![CDATA[METHOD PRIVATE EnableTwoSensorNormallyDisabledActuatorExpectItToTimeoutThenExpectActuationToGoLow
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#10MS
+        , tDisableTimeout                    := T#10MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    bRunOnce    : BOOL;
+    fbTestTimer : TON := (IN := TRUE, PT := T#20MS);
+    nTestStep   : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('EnableTwoSensorNormallyDisabledActuatorExpectItToTimeoutThenExpectActuationToGoLow');
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+fbTestTimer();
+
+IF NOT bRunOnce THEN
+    fbActuator.Activate();
+    bRunOnce := TRUE;
+END_IF
+
+CASE nTestStep OF
+    0:
+        IF fbTestTimer.ET = T#5MS THEN
+            nTestStep := nTestStep + 1;
+        END_IF
+
+    1:
+        AssertEquals_INT
+        (
+            Expected  := E_DualPositionActuatorState.Activating
+            , Actual  := fbActuator.GetState()
+            , Message := 'Should be enabling'
+        );
+
+        AssertTrue(fbActuator.bActivate, Message := 'Actuator should actuate');
+        nTestStep := nTestStep + 1;
+
+    2:
+// Do nothing
+END_CASE
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT(Expected := 2, Actual := nTestStep, Message := 'Not correct step');
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.TimeoutActivating
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be timeout activating'
+    );
+
+    AssertFalse(fbActuator.bActivate, Message := 'Actuator should not actuate');
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GivenActivatedFeedBackSensorNotAvailableAndNormallyActivatedThenShouldBeActivated" Id="{001d55fe-11aa-0745-0ede-8092077b40c2}">
+      <Declaration><![CDATA[METHOD PRIVATE GivenActivatedFeedBackSensorNotAvailableAndNormallyActivatedThenShouldBeActivated
+VAR
+    fbDualPositionActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#0S
+        , tDisableTimeout                    := T#0S
+        , bIsActiveFeedbackSensorAvailable   := FALSE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := FALSE
+    );
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('GivenActivatedFeedBackSensorNotAvailableAndNormallyActivatedThenShouldBeActivated');
+
+fbDualPositionActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+AssertEquals_INT
+(
+    Expected  := E_DualPositionActuatorState.Active
+    , Actual  := fbDualPositionActuator.GetState()
+    , Message := 'Not in active state'
+);
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GivenDisabledFeedBackSensorNotAvailableAndNormallyDisabledThenShouldBeDisabled" Id="{936c9591-2de8-0aad-10f4-16fbc3a3e96e}">
+      <Declaration><![CDATA[METHOD PRIVATE GivenDisabledFeedBackSensorNotAvailableAndNormallyDisabledThenShouldBeDisabled
+VAR
+    fbDualPositionActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#0S
+        , tDisableTimeout                    := T#0S
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := FALSE
+        , bNormallyDisabled                  := TRUE
+    );
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('GivenDisabledFeedBackSensorNotAvailableAndNormallyDisabledThenShouldBeDisabled');
+
+fbDualPositionActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+AssertEquals_INT
+(
+    Expected  := E_DualPositionActuatorState.Disabled
+    , Actual  := fbDualPositionActuator.GetState()
+    , Message := 'Not in disabled state'
+);
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OpenOneSensorActuatorExpectItToBeOpenWithoutFeedback" Id="{e28b931e-3395-057f-0ac5-1a81aeadd0a2}">
+      <Declaration><![CDATA[METHOD PRIVATE OpenOneSensorActuatorExpectItToBeOpenWithoutFeedback
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := FALSE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+
+    fbTestTimer : TON := (PT := T#2MS);
+    bRunOnce    : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('OpenOneSensorActuatorExpectItToBeOpenWithoutFeedback');
+fbTestTimer(IN := TRUE);
+
+IF NOT bRunOnce THEN
+    bRunOnce := TRUE;
+    fbActuator.Activate();
+END_IF
+
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Active
+        , Actual  := fbActuator.GetState()
+        , Message := 'Not in open state'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OpenOneSensorActuatorExpectItToBeOpenWithoutFeedbackVariant2" Id="{65eac3db-06d7-000d-23d5-4f25bc315595}">
+      <Declaration><![CDATA[METHOD PRIVATE OpenOneSensorActuatorExpectItToBeOpenWithoutFeedbackVariant2
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := FALSE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+
+    fbTestTimer : TON := (PT := T#2MS);
+    bRunOnce    : BOOL;
+
+    nState : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('OpenOneSensorActuatorExpectItToBeOpenWithoutFeedbackVariant2');
+fbTestTimer(IN := TRUE);
+
+IF NOT bRunOnce THEN
+    bRunOnce := TRUE;
+    fbActuator.Activate();
+END_IF
+
+CASE nState OF
+    0:
+        fbActuator(bActiveFeedback := FALSE, bDisableFeedback := TRUE);
+        nState := nState + 1;
+
+    1:
+        fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+END_CASE
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Active
+        , Actual  := fbActuator.GetState()
+        , Message := 'Not in open state'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OpenOneSensorActuatorExpectItToTimeout" Id="{38eeccc7-6d82-0b78-1f2d-518d64702c69}">
+      <Declaration><![CDATA[METHOD PRIVATE OpenOneSensorActuatorExpectItToTimeout
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := FALSE
+        , bNormallyDisabled                  := TRUE
+    );
+    bRunOnce    : BOOL;
+    fbTestTimer : TON := (IN := TRUE, PT := T#100MS);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('OpenOneSensorActuatorExpectItToTimeout');
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+IF NOT bRunOnce THEN
+    fbActuator.Activate();
+    bRunOnce := TRUE;
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Activating
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be opening'
+    );
+END_IF
+
+IF fbTestTimer.ET = T#3MS THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Activating
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be opening'
+    );
+END_IF
+
+fbTestTimer();
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.TimeoutActivating
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be timeout extended'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OpenTwoSensorActuatorExpectItToBeOpen" Id="{a61b1e5a-2a20-0482-149d-7737a25040c2}">
+      <Declaration><![CDATA[METHOD PRIVATE OpenTwoSensorActuatorExpectItToBeOpen
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#10MS
+        , tDisableTimeout                    := T#10MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    nState : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('OpenTwoSensorActuatorExpectItToBeOpen');
+
+CASE nState OF
+    0:
+        fbActuator.Activate();
+        nState := 10;
+
+    10:
+        fbActuator.bActiveFeedback  := FALSE;
+        fbActuator.bDisableFeedback := FALSE;
+        nState                      := 20;
+
+    20:
+        AssertEquals_INT
+        (
+            Expected  := E_DualPositionActuatorState.Activating
+            , Actual  := fbActuator.GetState()
+            , Message := 'Is not opening'
+        );
+
+        nState := 30;
+
+    30:
+        fbActuator.bActiveFeedback  := TRUE;
+        fbActuator.bDisableFeedback := FALSE;
+        nState                      := 40;
+
+    40:
+        AssertEquals_INT
+        (
+            Expected  := E_DualPositionActuatorState.Active
+            , Actual  := fbActuator.GetState()
+            , Message := 'Is not open'
+        );
+
+        {analysis -9}
+        TEST_FINISHED();
+END_CASE
+
+fbActuator();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OpenTwoSensorActuatorExpectItToTimeout" Id="{5e828320-cd58-03e6-0e83-9deac5bc8ce8}">
+      <Declaration><![CDATA[METHOD PRIVATE OpenTwoSensorActuatorExpectItToTimeout
+VAR_INST
+    fbActuator : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#5MS
+        , tDisableTimeout                    := T#5MS
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    bRunOnce    : BOOL;
+    fbTestTimer : TON := (IN := TRUE, PT := T#15MS);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('OpenTwoSensorActuatorExpectItToTimeout');
+fbActuator(bActiveFeedback := FALSE, bDisableFeedback := FALSE);
+
+IF NOT bRunOnce THEN
+    fbActuator.Activate();
+    bRunOnce := TRUE;
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Activating
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be opening'
+    );
+END_IF
+
+IF fbTestTimer.ET = T#3MS THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.Activating
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be opening'
+    );
+END_IF
+
+fbTestTimer();
+
+IF fbTestTimer.Q THEN
+    AssertEquals_INT
+    (
+        Expected  := E_DualPositionActuatorState.TimeoutActivating
+        , Actual  := fbActuator.GetState()
+        , Message := 'Should be timeout extended'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

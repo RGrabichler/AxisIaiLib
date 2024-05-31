@@ -1,0 +1,296 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="OutputAts400_Test" Id="{964c9ac8-9f1d-42fe-b2ef-6fb31314dfad}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK OutputAts400_Test EXTENDS FB_TestSuite IMPLEMENTS TcoCore.ITcoContext
+VAR
+    //Context for TcOpen
+    _nfContext : TcoCore.TcoContextNfCompatibility;
+
+    timer : ton := (pt := T#15MS); //mind 18ms muss Select gesetzt sein
+END_VAR
+VAR
+    dut : OutputAts400(THIS^, eRestoreMode.None);
+END_VAR
+
+VAR
+    dut_Select      : OutputAts400(THIS^, eRestoreMode.None);
+
+
+    input             : InputAts400MockStatusReady;
+    itfInputAts400 : IInputAts400 := input;
+    inData         : InputDataAts400;
+END_VAR
+
+VAR
+    dut_bitCombi : OutputAts400(THIS^, eRestoreMode.None);
+    timerBitCombi : TON := ( PT := T#15MS);
+END_VAR
+
+VAR
+    dut_bitCombi9 : OutputAts400(THIS^, eRestoreMode.None);
+    timerBitCombi9 : TON := ( PT := T#15MS);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_nfContext.VolatileOpen(); //Required for TCopen
+////==============================================
+
+SetOutputsAndVerify();
+SetProgram5_ExpectBit1TrueBit2FalseBit3TrueOthersFalse();
+SetDifferentPrograms_ExpectCorrespondingBitCombination();
+SetDifferentProgramsLike9_ExpectCorrespondingBitCombination();
+////==============================================
+_nfContext.VolatileClose();
+]]></ST>
+    </Implementation>
+    <Folder Name="ITcoContext" Id="{c3ff7662-4932-4ad1-a028-340cafd5261d}" />
+    <Property Name="Context" Id="{c3dc7a35-efa2-4eaa-8ce9-721e360c7899}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Context : TcoCore.ITcoContext
+]]></Declaration>
+      <Get Name="Get" Id="{fdfb8361-3359-4fe9-9fe1-56e094981468}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Context := This^._nfContext;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="EndCycleCount" Id="{4f3f3a13-795a-405b-a528-9e2062ceb65a}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY EndCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{6861a50a-2fbc-456c-b330-addc26ce9add}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[EndCycleCount := THIS^._nfContext._endCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Environment" Id="{496205f4-ab08-4346-bec6-dff7c71a8612}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Environment : TcoCore.ITcoContextEnvironment
+]]></Declaration>
+      <Get Name="Get" Id="{ec01ace3-3a9e-4c70-be14-2a51732a62d8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Environment := THIS^._nfContext._settings;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Identity" Id="{1f61a68d-aafd-48f0-ae4a-698840579adc}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Identity : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{0bc7757f-8e8d-4a6d-bcb6-9c515ca70eaf}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Identity := THIS^._nfContext._Identity;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Logger" Id="{26fca9f6-d868-42f5-87a1-f73205234bcf}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Logger : TcoCore.ITcoLogger
+]]></Declaration>
+      <Get Name="Get" Id="{ced4409e-a430-4065-be6e-b321e66c5781}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Logger := THIS^._nfContext._logger;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RealTimeClock" Id="{4c16b5da-7a84-46fe-a742-7b59073d5cb7}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY RealTimeClock : TcoCore.ITcoRtc
+]]></Declaration>
+      <Get Name="Get" Id="{9e1b5587-5293-40ba-bca5-4d875fbe8ddb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RealTimeClock := THIS^._nfContext._rtc;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SetDifferentPrograms_ExpectCorrespondingBitCombination" Id="{cd0426ce-9ee1-43da-ae6e-5d440cfaeb3a}">
+      <Declaration><![CDATA[METHOD PRIVATE SetDifferentPrograms_ExpectCorrespondingBitCombination
+VAR_INST
+     selectedProgram : UINT := 11;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetDifferentPrograms_ExpectCorrespondingBitCombination');
+
+timerBitCombi(in := TRUE);
+
+dut_bitCombi.SelectProgramm(selectedProgram);
+
+IF timerBitCombi.Q THEN
+    timer(in := false);
+    AssertTrue(Condition := dut_bitCombi.output[6], 'Select must be true');
+    AssertTrue(Condition := dut_bitCombi.output[7], 'Bit1 must be true');
+    AssertTrue(Condition := dut_bitCombi.output[8], 'Bit2 must be true');
+    AssertFalse(Condition := dut_bitCombi.output[9], 'Bit3 must be true');
+    AssertTrue(Condition := dut_bitCombi.output[10], 'Bit4 must be true');
+    AssertFalse(Condition := dut_bitCombi.output[11], 'Bit5 must be false');
+    AssertFalse(Condition := dut_bitCombi.output[12], 'Bit6 must be false');
+
+END_IF
+
+IF dut_bitCombi.SelectProgramm(programm := selectedProgram).Done THEN
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDifferentProgramsLike9_ExpectCorrespondingBitCombination" Id="{c85a5289-9600-41ff-81aa-408c729ed375}">
+      <Declaration><![CDATA[METHOD PRIVATE SetDifferentProgramsLike9_ExpectCorrespondingBitCombination
+VAR_INST
+     selectedProgram : UINT := 9;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetDifferentProgramsLike9_ExpectCorrespondingBitCombination');
+
+timerBitCombi9(in := TRUE);
+
+dut_bitCombi9.SelectProgramm(selectedProgram);
+
+IF timerBitCombi9.Q THEN
+    timer(in := false);
+    AssertTrue(Condition := dut_bitCombi9.output[6], 'Select must be true');
+    AssertTrue(Condition := dut_bitCombi9.output[7], 'Bit1 must be true');
+    AssertFalse(Condition := dut_bitCombi9.output[8], 'Bit2 must be false');
+    AssertFalse(Condition := dut_bitCombi9.output[9], 'Bit3 must be false');
+    AssertTrue(Condition := dut_bitCombi9.output[10], 'Bit4 must be true');
+    AssertFalse(Condition := dut_bitCombi9.output[11], 'Bit5 must be false');
+    AssertFalse(Condition := dut_bitCombi9.output[12], 'Bit6 must be false');
+
+END_IF
+
+IF dut_bitCombi9.SelectProgramm(programm := selectedProgram).Done THEN
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetOutputsAndVerify" Id="{cd295f31-85d8-4280-a679-fe75a80ce8a2}">
+      <Declaration><![CDATA[METHOD PRIVATE SetOutputsAndVerify
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetOutputsAndVerify');
+
+dut.Start(TRUE);
+AssertTrue(Condition := dut.output[1], 'Start shall be true');
+dut.Start(FALSE);
+
+dut.AbortTest(TRUE);
+AssertTrue(Condition := dut.output[2], 'Abort shall be true');
+dut.AbortTest(FALSE);
+
+dut.SetManualPass(TRUE);
+AssertTrue(Condition := dut.output[3], 'SetManualPass shall be true');
+dut.SetManualPass(FALSE);
+
+dut.SetManualFail(TRUE);
+AssertTrue(Condition := dut.output[4], 'SetManualFail shall be true');
+dut.SetManualFail(FALSE);
+
+dut.SetDummyReady(TRUE);
+AssertTrue(Condition := dut.output[5], 'SetDummyReady shall be true');
+dut.SetDummyReady(FALSE);
+
+timer(in := TRUE);
+dut.SelectProgramm(3);
+//AssertTrue(Condition := out.out[6], 'Select must be true');
+//AssertFalse(Condition := out.out[7], 'Bits muessen false sein');
+
+IF timer.Q THEN
+    AssertTrue(Condition := dut.output[6], 'Select must be true');
+
+    AssertTrue(Condition := dut.output[7], 'Bit1 must be true');
+    AssertTrue(Condition := dut.output[8], 'Bit2 must be true');
+    AssertFalse(Condition := dut.output[9], 'Bit3 must be false');
+    AssertFalse(Condition := dut.output[10], 'Bit4 must be false');
+    AssertFalse(Condition := dut.output[11], 'Bit5 must be false');
+    AssertFalse(Condition := dut.output[12], 'Bit6 must be false');
+
+    TEST_FINISHED();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetProgram5_ExpectBit1TrueBit2FalseBit3TrueOthersFalse" Id="{299ed021-c08d-42d4-9fd1-da71fd23694b}">
+      <Declaration><![CDATA[METHOD PRIVATE SetProgram5_ExpectBit1TrueBit2FalseBit3TrueOthersFalse
+VAR_INST
+    duration : TON := (pt := T#50MS);
+      selectedProgram : UINT := 5;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetProgram5_ExpectBit1TrueBit2FalseBit3TrueOthersFalse');
+
+// Offen, weis nicht, wie das funktioniert
+//Out 3
+//Ausgang IN OP
+//Digitale Ausgabe zur Rückmeldung einer aktiven sicherheitstechnischen Prüfung des Prüfsystems.
+// Zwischen den einzelnen Prüfungen wechselt das Bit von 1 auf 0.
+
+duration(in := TRUE);
+
+inData := itfInputAts400.GetInputData();
+AssertTrue(inData.Ready, 'Ready muss true sein, sonst kann kein Programm gewechselt werden');
+
+dut_Select.SelectProgramm(selectedProgram);
+
+IF duration.ET >= T#4MS AND duration.ET <= T#30MS THEN
+    AssertTrue(Condition := dut.output[6], 'Start, Select must be true ');
+
+    AssertTrue(Condition := dut_Select.output[7], 'Start,Bit1 must be true');
+    AssertFalse(Condition := dut_Select.output[8], 'Start,Bit2 must be false');
+    AssertTrue(Condition := dut_Select.output[9], 'Start,Bit3 must be true');
+    AssertFalse(Condition := dut_Select.output[10], 'Start,Bit4 must be false');
+    AssertFalse(Condition := dut_Select.output[11], 'Start,Bit5 must be false');
+    AssertFalse(Condition := dut_Select.output[12], 'Start,Bit6 must be false');
+
+end_if
+
+IF duration.ET >= T#22MS AND duration.ET <= T#30MS THEN
+    // muss immer noch true sein
+    AssertTrue(Condition := dut_Select.output[6], 'Still, Select must be true');
+
+    AssertTrue(Condition := dut_Select.output[7], 'Still,Bit1 must be true');
+    AssertFalse(Condition := dut_Select.output[8], 'Still,Bit2 must be false');
+    AssertTrue(Condition := dut_Select.output[9], 'Still,Bit3 must be true');
+    AssertFalse(Condition := dut_Select.output[10], 'Still,Bit4 must be false');
+    AssertFalse(Condition := dut_Select.output[11], 'Still,Bit5 must be false');
+    AssertFalse(Condition := dut_Select.output[12], 'Still,Bit6 must be false');
+
+END_IF
+
+IF dut_Select.SelectProgramm(programm := selectedProgram).Done THEN
+    AssertFalse(Condition := dut_Select.output[6], 'Alles False');
+
+    AssertFalse(Condition := dut_Select.output[7], 'Alles False');
+    AssertFalse(Condition := dut_Select.output[8], 'Alles False');
+    AssertFalse(Condition := dut_Select.output[9], 'Alles False');
+    AssertFalse(Condition := dut_Select.output[10], 'Alles False');
+    AssertFalse(Condition := dut_Select.output[11], 'Alles False');
+    AssertFalse(Condition := dut_Select.output[12], 'Alles False');
+
+    TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StartCycleCount" Id="{8234dadf-b358-41a7-88b4-9cdb93b8becd}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY StartCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{05434c56-b869-48bb-a4bd-d51b82500eac}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StartCycleCount := THIS^._nfContext._startCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

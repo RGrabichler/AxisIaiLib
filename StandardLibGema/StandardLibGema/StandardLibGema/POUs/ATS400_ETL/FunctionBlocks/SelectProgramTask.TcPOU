@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="SelectProgramTask" Id="{e286ea5c-20c2-43df-9838-a7921b62fc4e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SelectProgramTask EXTENDS TcoCore.TcoTask
+VAR_OUTPUT
+    {attribute clr [RenderIgnore()]}
+    output    : ARRAY[lower..upper] OF BOOL;
+END_VAR
+
+VAR_INPUT
+    {attribute addProperty Name "<#Waehle ein Programm#>"}
+    selectedProgram : UINT;
+END_VAR
+
+VAR
+    {attribute clr [RenderIgnore()]}
+    i           : UINT;
+    //~
+    selectState : (Init
+        , Abort
+        , Select
+        , SetOutput
+        , Reset);
+    //~
+    //~
+    timer : TON := (PT := T#18MS); //18ms mind. for Select Active
+    //~
+END_VAR
+
+VAR CONSTANT
+    {attribute clr [RenderIgnore()]}
+    lower : UINT := 1;
+    {attribute clr [RenderIgnore()]}
+    upper : UINT := 12;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF (THIS^.Execute()) THEN
+    timer();
+
+    CASE selectState OF
+        Init:
+            selectState := Abort;
+        Abort:
+            output[2] := TRUE;
+            timer(In := TRUE, pt := T#1MS);
+
+            IF timer.Q THEN
+                output[2]      := FALSE;
+                selectState := Select;
+                timer(In := FALSE);
+            END_IF
+        Select:
+            timer(In := TRUE, PT := T#50MS);
+            output[6]      := TRUE;
+            selectState := SetOutput;
+        SetOutPut:
+            output[7]  := (selectedProgram.0);
+            output[8]  := (selectedProgram.1);
+            output[9]  := (selectedProgram.2);
+            output[10] := (selectedProgram.3);
+            output[11] := (selectedProgram.4);
+            output[12] := (selectedProgram.5);
+
+            IF timer.Q THEN
+                selectState := Reset;
+            end_if
+        Reset:
+            output[6]  := FALSE;
+            output[7]  := FALSE;
+            output[8]  := FALSE;
+            output[9]  := FALSE;
+            output[10] := FALSE;
+            output[11] := FALSE;
+            output[12] := FALSE;
+
+            timer(In := FALSE);
+            THIS^.DoneWhen(TRUE);
+    END_CASE
+
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="OnStart" Id="{2d936f5b-fd21-402a-b76b-8937fb8ee360}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes ones when the task starts (at the moment of transition from the ```Requested``` state into the ```Busy``` state).
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnStart
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[timer(in := FALSE);
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

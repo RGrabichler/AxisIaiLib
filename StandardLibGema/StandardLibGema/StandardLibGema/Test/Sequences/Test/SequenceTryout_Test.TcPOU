@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="SequenceTryout_Test" Id="{893ed8c9-f02c-4c9d-bd9c-9e339cc2b845}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SequenceTryout_Test EXTENDS TcUnit.FB_TestSuite IMPLEMENTS TcoCore.ITcoContext
+VAR
+    //Context for TcOpen
+    _nfContext : TcoCore.TcoContextNfCompatibility;
+END_VAR
+
+VAR
+    //~
+    autoSequenceTryOutTest : SequenceTryout(THIS^, eRestoreMode.AutoRestoreMembers);
+    //~
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+_nfContext.VolatileOpen(); //Required for TCopen
+//==============================================
+GivenThatEverythingWorksExpectCompleteSequenceToFinishInDone();
+//==============================================
+_nfContext.VolatileClose();
+]]></ST>
+    </Implementation>
+    <Folder Name="ITcoContext" Id="{b7c355bd-b0a3-4880-80e1-81dceebb4e55}" />
+    <Property Name="Context" Id="{b1171273-11de-43af-89ca-eac2c07324eb}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Context : TcoCore.ITcoContext
+]]></Declaration>
+      <Get Name="Get" Id="{771dae05-ba36-4a2c-8881-58d86477e7a5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Context := This^._nfContext;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="EndCycleCount" Id="{7f8b0607-3f9b-494e-9bfe-efe6e29c64b8}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY EndCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{731f2b5e-c8cb-49eb-9691-ed799091fbcd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[EndCycleCount := THIS^._nfContext._endCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Environment" Id="{d1a01723-0b40-4c99-b7fc-fb079a27e2fa}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Environment : TcoCore.ITcoContextEnvironment
+]]></Declaration>
+      <Get Name="Get" Id="{50cf3364-0c7f-4d5e-aeb0-33807d1afd20}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Environment := THIS^._nfContext._settings;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="GivenThatEverythingWorksExpectCompleteSequenceToFinishInDone" Id="{f4ae7662-9182-48ca-8a7e-b7ff1d97b1a3}">
+      <Declaration><![CDATA[METHOD PRIVATE GivenThatEverythingWorksExpectCompleteSequenceToFinishInDone
+
+VAR
+    state                : INT;
+    context              : ITcoContext;
+    autoRestorable       : BOOL;
+    currentStep          : StepDetails;
+    euqalsTo             : BOOL;
+    identity             : ULINT;
+    isAutoRestoreEnabled : BOOL;
+    isFreshState         : BOOL;
+    lastStateChangeCycle : ULINT;
+    messenger            : ITcoMessenger;
+    modeController       : ITcoSequencerModeController;
+    observer             : ITcoSequencerObserver;
+    parent               : ITcoObject;
+
+END_VAR
+
+VAR
+    currentStepActive : StepDetails;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//{warning disable C0371}
+TcUnit.TEST('GivenThatEverythingWorksExpectCompleteSequenceToFinishInDone');
+//Arrange
+
+//autoSequenceTryOutTest.Restore();
+currentStepActive.ID := 0;
+
+////Act
+autoSequenceTryOutTest.Run();
+
+////Assert
+
+//AssertEquals(Expected := currentStepActive.ID, Actual := autoSequenceTryOutTest.CurrentStep.ID, Message := 'Muss Step 999 sein');
+
+state                := autoSequenceTryOutTest.State;
+context              := autoSequenceTryOutTest.Context;
+autorestorable       := autoSequenceTryOutTest.AutoRestorable;
+currentStep          := autoSequenceTryOutTest.CurrentStep;
+Identity             := autoSequenceTryOutTest.Identity;
+isAutoRestoreEnabled := autoSequenceTryOutTest.IsAutoRestoreEnabled;
+isFreshState         := autoSequenceTryOutTest.IsFreshState;
+LastStateChangeCycle := autoSequenceTryOutTest.LastStateChangeCycle;
+messenger            := autoSequenceTryOutTest.Messenger;
+ModeController       := autoSequenceTryOutTest.ModeController;
+Observer             := autoSequenceTryOutTest.Observer;
+Parent               := autoSequenceTryOutTest.Parent;
+
+IF (autoSequenceTryOutTest.CurrentStep.Duration >= T#10MS) OR autoSequenceTryOutTest.State = 999 THEN
+    //autoSequenceTryOutTest.Restore();
+    currentStepActive.ID := 999;
+    AssertEquals
+    (
+        Expected  := currentStepActive.ID
+        , Actual  := autoSequenceTryOutTest.CurrentStep.ID
+        , Message := 'Muss Step 999 sein'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Identity" Id="{4169a6fb-4bb7-417d-b0b2-d1fdeea1b697}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Identity : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{be805f3f-8dce-42c6-9056-be85ce877679}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Identity := THIS^._nfContext._Identity;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Logger" Id="{e01a71bc-b630-4fdb-a5c4-5d39487ef7dc}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Logger : TcoCore.ITcoLogger
+]]></Declaration>
+      <Get Name="Get" Id="{9d1f1847-5940-4a6b-9832-7ea27d0b4e4b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Logger := THIS^._nfContext._logger;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RealTimeClock" Id="{a07b27c7-2adb-4db6-be1c-af3e33f3a778}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY RealTimeClock : TcoCore.ITcoRtc
+]]></Declaration>
+      <Get Name="Get" Id="{5dcd2311-3c07-482c-b8b8-f2302784d485}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RealTimeClock := THIS^._nfContext._rtc;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="StartCycleCount" Id="{c827c3ac-666e-4b02-85f5-0c6dd3fb9021}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY StartCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{47fe0828-0037-4cb7-a13b-0b4311c9546e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StartCycleCount := THIS^._nfContext._startCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

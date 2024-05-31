@@ -1,0 +1,835 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="RfidHead_Test" Id="{54c077fd-5c4f-4d1b-b1e6-9edd56cccd39}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK RfidHead_Test EXTENDS TcUnit.FB_TestSuite IMPLEMENTS TcoCore.ITcoContext
+VAR
+    //Context for TcOpen
+    _nfContext : TcoCore.TcoContextNfCompatibility;
+END_VAR
+VAR
+    _wrapper_RfidMockNoRfidInRange : RfidMockNoRfidInRange;
+
+    sut_readDataNoTag                  : RfidHead(THIS^, _wrapper_RfidMockNoRfidInRange, T#10MS);
+    sut_readUidNoTag                   : RfidHead(THIS^, _wrapper_RfidMockNoRfidInRange, T#10MS);
+    _wrapper_readUid                   : RfidMockWorking;
+    sut_readUidSuccess                 : RfidHead(THIS^, _wrapper_readUid, T#10MS);
+    _wrapper_readData                  : RfidMockWorking;
+    sut_readDataSuccess                : RfidHead(THIS^, _wrapper_readData, T#10MS);
+    _wrapper_RfidMockTooLong           : RfidMockWorking;
+    sut_readDataTooLongString          : RfidHead(THIS^, _wrapper_RfidMockTooLong, T#10MS);
+    _wrapper_writeData                 : RfidMockWorking;
+    sut_writeDataSuccess               : RfidHead(THIS^, _wrapper_writeData, T#10MS);
+    _wrapper_readDataWithOffset        : RfidMockWorking;
+    sut_readDataWithOffset             : RfidHead(THIS^, _wrapper_readDataWithOffset, T#10MS);
+    _wrapper_writeDataWithOffset       : RfidMockWorking;
+    sut_writeDataWithOffsetSuccess     : RfidHead(THIS^, _wrapper_writeDataWithOffset, T#10MS);
+    _wrapper_readDataWithOffsetTooLong : RfidMockWorking;
+    sut_readDataWithOffsetTooLong      : RfidHead(THIS^, _wrapper_readDataWithOffsetTooLong, T#10MS);
+    _wrapper_lock                      : RfidMockWorking;
+    sut_lockSuccess                    : RfidHead(THIS^, _wrapper_lock, T#10MS);
+    _wrapper_RfidMockCreateError       : RfidMockWorking;
+    sut_readDataCreateEmptyString      : RfidHead(THIS^, _wrapper_RfidMockCreateError, T#10MS);
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_nfContext.VolatileOpen(); //Required for TCopen
+//==============================================
+
+//
+ExecuteReadDataWithTooLongDataLength_ExpectErrorWithErroId();
+ExecuteReadDataWithOffsetTooHigh_ExpectErrorWithErroId();
+//
+ExecuteReadUidsNoTagInRange_ExpectErrorWithNoTag();
+ExecuteReadDataNoTagInRange_ExpectErrorWithNoTag();
+
+//
+ExecuteReadUid_ExpectUidAsStringStatusDone();
+ExecuteReadData_ExpectDataAsStringStatusDone();
+ExecuteReadDataWithOffset_ExpectDataAsString();
+
+//
+ExecuteWriteData_ExpectStatusDone();
+ExecuteReadDataWrongParameter_ExpectErrorAndStringError();
+// Lock testen,
+// Locken, muss Status done, Schreiben mit Error
+ExecuteLock_ExpectStatusDone();
+//==============================================
+_nfContext.VolatileClose();
+]]></ST>
+    </Implementation>
+    <Folder Name="Error" Id="{67e47568-0ef7-41ca-9a71-f0e93c216484}" />
+    <Folder Name="ITcoContext" Id="{a78f9d05-907d-4570-8b52-c25585e45623}" />
+    <Folder Name="Lock" Id="{d230f9e1-f9fc-46e1-bb2c-9d9969c46ff5}" />
+    <Folder Name="Read" Id="{131da84f-5cdc-40cd-8954-934896462131}" />
+    <Folder Name="Write" Id="{34d98dd8-27b1-4a3f-8ce9-00b6f8af0d4c}" />
+    <Property Name="Context" Id="{bc3f1014-f14f-46b6-8214-a55a44725d66}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Context : TcoCore.ITcoContext
+]]></Declaration>
+      <Get Name="Get" Id="{9f945107-10d6-4d0f-8729-1417f2e70bb6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Context := This^._nfContext;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="EndCycleCount" Id="{cb7009aa-7e70-4d67-88ba-d9d201a2a713}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY EndCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{7b3ce895-f66e-4142-969d-a927ea3f37d7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[EndCycleCount := THIS^._nfContext._endCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Environment" Id="{a910cdbf-9cec-4ffd-a81e-152706761e23}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Environment : TcoCore.ITcoContextEnvironment
+]]></Declaration>
+      <Get Name="Get" Id="{ce61decb-173f-48fd-b4fa-af6357294a64}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Environment := THIS^._nfContext._settings;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ExecuteLock_ExpectStatusDone" Id="{8828d299-ba97-41e5-aee7-8f4248835112}" FolderPath="Lock\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteLock_ExpectStatusDone
+VAR_INST
+    _udiDataLength : UINT := 4;
+    _offSet        : BYTE := 1;
+    _result        : BOOL;
+
+    _first : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TcUnit.TEST('ExecuteLock_ExpectStatusDone');
+//Arrange
+sut_lockSuccess();
+
+//Act
+sut_lockSuccess.LockMethod(udiDataLength := _udiDataLength, StartAdress := _offSet);
+
+_result := TRUE;
+
+//Needs two Cycles to get from Status Requested to Buisy (TcOpen Framework)
+sut_lockSuccess();
+
+IF _first THEN
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_lockSuccess.pLockTask.Busy
+        , Message := 'Status Busy muss true sein'
+    );
+
+    _first := FALSE;
+END_IF
+
+IF sut_lockSuccess.pLockTask.Done THEN
+
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_lockSuccess.pLockTask.Busy
+        , Message := 'Status Busy muss false sein'
+    );
+
+    _result := TRUE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_lockSuccess.LockMethod(udiDataLength := _udiDataLength, StartAdress := _offSet).Done
+        , Message := 'Status Done muss true sein'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadData_ExpectDataAsStringStatusDone" Id="{858f0307-d8be-4bc9-9f84-98b36f1d9864}" FolderPath="Read\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteReadData_ExpectDataAsStringStatusDone
+VAR_INST
+    _data          : T_MaxString;
+    _expectedData  : T_MaxString := '16# 05 06 07 08';
+    _result        : BOOL;
+    _udiDataLength : uINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//{warning disable C0371}
+TcUnit.TEST('ExecuteReadData_ExpectDataAsStringStatusDone');
+//Arrange
+sut_readDataSuccess();
+
+//Act
+
+sut_readDataSuccess.ReadDataMethod(_udiDataLength, 0);
+//Assert
+
+IF sut_readDataSuccess.pReadDataTask.Done THEN
+    _data := sut_readDataSuccess.Data;
+
+    AssertEquals_STRING(Expected := _expectedData, Actual := _data, Message := 'Daten passt nicht');
+
+    //Busy off
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readDataSuccess.pReadDataTask.Busy
+        , Message := 'Status Busy muss false sein'
+    );
+
+    //Status Done mus True sein
+    _result := true;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readDataSuccess.ReadDataMethod(_udiDataLength, 0).Done
+        , Message := 'Status Done muss true sein'
+    );
+
+    //Status Done false again
+    sut_readDataSuccess.Restore();
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readDataSuccess.ReadDataMethod(_udiDataLength, 0).Done
+        , Message := 'Status Done muss false sein nach Reset'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadDataNoTagInRange_ExpectErrorWithNoTag" Id="{1ae31210-ff28-434d-83f8-dd1be1f73a06}" FolderPath="Error\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteReadDataNoTagInRange_ExpectErrorWithNoTag
+VAR_INST
+    _udiDataLength : uINT := 3;
+    _result        : BOOL;
+    _firstRun      : BOOL := TRUE;
+
+    _expectedErrorId : RFID_FB_U.ERROR;
+    _errorId         : RFID_FB_U.ERROR;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TcUnit.TEST('ExecuteReadDataNoTagInRange_ExpectErrorWithNoTag');
+
+//Assert Initial State
+_result := FALSE;
+
+IF _firstRun THEN
+    _firstRun := FALSE;
+    THIS^.
+        AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataNoTag.ReadDataMethod(_udiDataLength, 0).Error
+        , 'No Error should be Start Parameter'
+    );
+END_IF
+
+//Arrange
+sut_readDataNoTag();
+
+//Act, Use ReadDataMethod()
+sut_readDataNoTag.ReadDataMethod(_udiDataLength, 0);
+
+IF sut_readDataNoTag.isError THEN
+    //Assert
+    _result := TRUE;
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataNoTag.ReadDataMethod(_udiDataLength, 0).Error
+        , 'Method did not throw Error'
+    );
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataNoTag.pReadDataTask.Error
+        , 'Task did not throw Error'
+    );
+
+    _errorId         := sut_readDataNoTag.ErrorId;
+    _expectedErrorId := RFID_FB_U.ERROR.COMMAND_NO_TAG_FOUND;
+    AssertEquals(Expected := _expectedErrorId, Actual := _errorId, Message := 'ErrorId must match (No Tag Found)!');
+
+    //Act, Restore(), Error shall disappear
+    sut_readDataNoTag.Restore();
+    _result := FALSE;
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataNoTag.pReadDataTask.Error
+        , 'Reset did not Work, Still Status Error'
+    );
+
+    _errorId         := sut_readDataNoTag.ErrorId;
+    _expectedErrorId := RFID_FB_U.ERROR.NO_ERROR;
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataNoTag.pReadDataTask.Error
+        , 'Reset did not Work, ErrorID ahs to be No_Error'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadDataWithOffset_ExpectDataAsString" Id="{2efb575e-0412-4d0b-b37e-2297b15b2731}" FolderPath="Read\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteReadDataWithOffset_ExpectDataAsString
+VAR_INST
+    _data          : T_MaxString;
+    _expectedData  : T_MaxString := '16# 06 07 08 09'; // Ohne '16# 05 06 07 08' => mit 16# 06 07 08 00
+    _result        : BOOL;
+    _udiDataLength : uINT := 4;
+    _offSet        : BYTE := 1;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//{warning disable C0371}
+TcUnit.TEST('ExecuteReadDataWithOffset_ExpectDataAsString');
+//Arrange
+sut_readDataWithOffset();
+
+//Act
+
+sut_readDataWithOffset.ReadDataMethod(_udiDataLength, _offSet);
+//Assert
+
+IF sut_readDataWithOffset.pReadDataTask.Done THEN
+    _data := sut_readDataWithOffset.Data;
+
+    AssertEquals_STRING(Expected := _expectedData, Actual := _data, Message := 'Daten passt nicht');
+
+    //Busy off
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readDataWithOffset.pReadDataTask.Busy
+        , Message := 'Status Busy muss false sein'
+    );
+
+    //Status Done mus True sein
+    _result := true;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readDataWithOffset.ReadDataMethod(_udiDataLength, _offSet).Done
+        , Message := 'Status Done muss true sein'
+    );
+
+    //Status Done false again
+    sut_readDataWithOffset.Restore();
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readDataWithOffset.pReadDataTask.Done
+        , Message := 'Status Done muss false sein nach Reset'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadDataWithOffsetTooHigh_ExpectErrorWithErroId" Id="{3fc732b3-0ed3-4b03-83ee-d173b929eca3}" FolderPath="Error\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteReadDataWithOffsetTooHigh_ExpectErrorWithErroId
+VAR_INST
+    _udiDataLength : UINT := 4;
+    _offSet        : BYTE := 120;
+    _result        : BOOL;
+    _firstRun      : BOOL := TRUE;
+
+    _expectedErrorId : RFID_FB_U.ERROR;
+    _errorId         : RFID_FB_U.ERROR;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TcUnit.TEST('ExecuteReadDataWithOffsetTooHigh_ExpectErrorWithErroId');
+//28 blocks, 4 bytes each, => 112 bytes max user Memory!
+
+//Arrange
+sut_readDataWithOffsetTooLong();
+
+//Act, Use ReadDataMethod()
+sut_readDataWithOffsetTooLong.ReadDataMethod(udiDataLength := _udiDataLength, MemoryAddr := _offSet);
+
+IF sut_readDataWithOffsetTooLong.pReadDataTask.Error
+       OR sut_readUidNoTag.pReadDataTask.Done THEN
+
+    //Assert
+
+    _expectedErrorId := ERROR.COMMAND_ADDRESS_OUTSIDE_TAG_SPECS;
+    _errorId         := sut_readDataWithOffsetTooLong.ErrorId;
+    AssertEquals(Expected := _expectedErrorId, Actual := _errorId, Message := 'ErrorId must match!');
+
+    _result := TRUE;
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataWithOffsetTooLong.ReadDataMethod(_udiDataLength, 0).Error
+        , 'Method must throw Error'
+    );
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataWithOffsetTooLong.pReadDataTask.Error
+        , 'Task did not throw Error'
+    );
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataWithOffsetTooLong.isError
+        , 'FB must throw Error'
+    );
+
+    //Act, Restore(), Error shall disappear
+    sut_readDataWithOffsetTooLong.Restore();
+    // more Cycles needed
+    sut_readDataWithOffsetTooLong();
+    sut_readDataWithOffsetTooLong();
+    sut_readDataWithOffsetTooLong();
+
+    _result := FALSE;
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataWithOffsetTooLong.IsError
+        , 'Reset did not Work, Still Status Error'
+    );
+
+    _errorId         := sut_readDataWithOffsetTooLong.ErrorId;
+    _expectedErrorId := RFID_FB_U.ERROR.NO_ERROR;
+    AssertEquals(Expected := _expectedErrorId, Actual := _errorId, Message := 'ErrorId must match (No Error)!');
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadDataWithTooLongDataLength_ExpectErrorWithErroId" Id="{3b7c19c1-d077-489c-83b6-ec099c0aed75}" FolderPath="Error\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteReadDataWithTooLongDataLength_ExpectErrorWithErroId
+VAR_INST
+    _udiDataLength : uINT := 113;
+    _result        : BOOL;
+    _firstRun      : BOOL := TRUE;
+
+    _expectedErrorId : RFID_FB_U.ERROR;
+    _errorId         : RFID_FB_U.ERROR;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TcUnit.TEST('ExecuteReadDataWithTooLongDataLength_ExpectErrorWithErroId');
+//28 blocks, 4 bytes each, => 112 bytes max user Memory!
+
+//Arrange
+sut_readDataTooLongString();
+
+//Act, Use ReadDataMethod()
+sut_readDataTooLongString.ReadDataMethod(udiDataLength := _udiDataLength, MemoryAddr := 0);
+
+IF sut_readDataTooLongString.pReadDataTask.Error
+       OR sut_readUidNoTag.pReadDataTask.Done THEN
+
+    //Assert
+
+    _expectedErrorId := ERROR.COMMAND_LENGTH_OUTSIDE_TAG_SPECS;
+    _errorId         := sut_readDataTooLongString.ErrorId;
+    AssertEquals(Expected := _expectedErrorId, Actual := _errorId, Message := 'ErrorId must match!');
+
+    _result := TRUE;
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataTooLongString.ReadDataMethod(_udiDataLength, 0).Error
+        , 'Method must throw Error'
+    );
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataTooLongString.pReadDataTask.Error
+        , 'Task did not throw Error'
+    );
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataTooLongString.isError
+        , 'FB must throw Error'
+    );
+
+    //Act, Restore(), Error shall disappear
+    sut_readDataTooLongString.Restore();
+    // more Cycles needed
+    sut_readDataTooLongString();
+    sut_readDataTooLongString();
+    sut_readDataTooLongString();
+
+    _result := FALSE;
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataTooLongString.IsError
+        , 'Reset did not Work, Still Status Error'
+    );
+
+    _errorId         := sut_readDataTooLongString.ErrorId;
+    _expectedErrorId := RFID_FB_U.ERROR.NO_ERROR;
+    AssertEquals(Expected := _expectedErrorId, Actual := _errorId, Message := 'ErrorId must match (No Error)!');
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadDataWrongParameter_ExpectErrorAndStringError" Id="{a9089baf-c5e3-42cc-94ce-0517f2ba9c23}" FolderPath="Error\">
+      <Declaration><![CDATA[METHOD ExecuteReadDataWrongParameter_ExpectErrorAndStringError
+VAR_INST
+    _udiDataLength : UINT := 4;
+    _offSet        : BYTE := 120;
+    _result        : BOOL;
+    _resultString  : STRING := '--Error--';
+    _firstRun      : BOOL   := TRUE;
+
+    _expectedErrorId : RFID_FB_U.ERROR;
+    _errorId         : RFID_FB_U.ERROR;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TcUnit.TEST('ExecuteReadDataWrongParameter_ExpectErrorAndStringError');
+
+sut_readDataCreateEmptyString();
+
+//Act, Use ReadDataMethod()
+sut_readDataCreateEmptyString.ReadDataMethod(udiDataLength := _udiDataLength, MemoryAddr := _offSet);
+
+IF sut_readDataCreateEmptyString.pReadDataTask.Error THEN
+    //Assert
+
+    _result := TRUE;
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readDataCreateEmptyString.ReadDataMethod(_udiDataLength, 0).Error
+        , 'Method must throw Error'
+    );
+
+    AssertEquals_STRING
+    (
+        Expected  := _resultString
+        , actual  := sut_readDataCreateEmptyString.Data
+        , Message := 'Data String muss --Error-- sein '
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadUid_ExpectUidAsStringStatusDone" Id="{bc437288-c0db-452e-ae5e-850cbd293483}" FolderPath="Read\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteReadUid_ExpectUidAsStringStatusDone
+VAR_INST
+    _uId         : T_MaxString;
+    _expectedUid : T_MaxString := 'E0040150ACF4F3AD';
+    _result      : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TcUnit.TEST('ExecuteReadUid_ExpectUidAsStringStatusDone');
+//Arrange
+sut_readUidSuccess();
+
+//Act
+
+sut_readUidSuccess.ReadUidMethod();
+//Assert
+
+IF sut_readUidSuccess.pReadUidTask.Done THEN
+    _uId := sut_readUidSuccess.Uid;
+
+    AssertEquals_STRING(Expected := _expectedUid, Actual := _uId, Message := 'UID passt nicht');
+
+    //Busy off
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readUidSuccess.ReadUidMethod().Busy
+        , Message := 'Status Busy muss false sein'
+    );
+
+    //Status Done mus True sein
+    _result := true;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readUidSuccess.ReadUidMethod().Done
+        , Message := 'Status Done muss true sein'
+    );
+
+    //Status Done false again
+    sut_readUidSuccess.Restore();
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_readUidSuccess.ReadUidMethod().Done
+        , Message := 'Status Done muss false sein nach Reset'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadUidsNoTagInRange_ExpectErrorWithNoTag" Id="{7beca8cf-d7c5-4ca4-b955-c3ef4a09087b}" FolderPath="Error\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteReadUidsNoTagInRange_ExpectErrorWithNoTag
+VAR_INST
+    _udiDataLength : INT := 10;
+    _result        : BOOL;
+    _firstRun      : BOOL := TRUE;
+
+    _errorId         : RFID_FB_U.ERROR;
+    _expectedErrorId : RFID_FB_U.ERROR;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TcUnit.TEST('ExecuteReadUidMethodNoTagInRange_ExpectErrorWithTimeOut');
+
+//Assert Initial State
+_result := FALSE;
+
+IF _firstRun THEN
+    _firstRun := FALSE;
+    THIS^.
+        AssertEquals_BOOL
+    (
+        _result
+        , sut_readUidNoTag.ReadUidMethod().Error
+        , 'No Error should be Start Parameter'
+    );
+END_IF
+
+//Arrange
+sut_readUidNoTag();
+
+//Act, Use ReadUidMethod()
+IF sut_readUidNoTag.ReadUidMethod().Error
+       OR sut_readUidNoTag.ReadUidMethod().Done THEN
+    //Assert
+    _result := TRUE;
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readUidNoTag.ReadUidMethod().Error
+        , 'Method did not throw Error'
+    );
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readUidNoTag.pReadUidTask.Error
+        , 'Task did not throw Error'
+    );
+
+    _errorId         := sut_readUidNoTag.ErrorId;
+    _expectedErrorId := RFID_FB_U.ERROR.COMMAND_NO_TAG_FOUND;
+    AssertEquals(Expected := _expectedErrorId, Actual := _errorId, Message := 'ErrorId must match (No Tag Found)!');
+
+    //Act, Restore(), Error shall disappear
+    sut_readUidNoTag.Restore();
+    _result := FALSE;
+
+    AssertEquals_BOOL
+    (
+        _result
+        , sut_readUidNoTag.pReadUidTask.Error
+        , 'Reset did not Work, Still Status Error'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteReadWriteWithOffset_ExpectStatusDone" Id="{62c00409-1634-4380-8a4a-35eeee7d376e}" FolderPath="Write\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteReadWriteWithOffset_ExpectStatusDone
+VAR_INST
+    _data          : T_MaxString;
+    _expectedData  : T_MaxString := '16# 06 07 08 00'; // Ohne '16# 05 06 07 08' => mit 16# 06 07 08 00
+    _result        : BOOL;
+    _udiDataLength : uINT := 4;
+    _offSet        : BYTE := 1;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//{warning disable C0371}
+TcUnit.TEST('ExecuteReadWriteWithOffset_ExpectStatusDone');
+//Arrange
+sut_writeDataWithOffsetSuccess();
+
+//Act
+
+sut_writeDataWithOffsetSuccess.ReadDataMethod(_udiDataLength, _offSet);
+//Assert
+
+IF sut_writeDataWithOffsetSuccess.pReadDataTask.Done THEN
+    _data := sut_writeDataWithOffsetSuccess.Data;
+
+    AssertEquals_STRING(Expected := _expectedData, Actual := _data, Message := 'Daten passt nicht');
+
+    //Busy off
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_writeDataWithOffsetSuccess.pReadDataTask.Busy
+        , Message := 'Status Busy muss false sein'
+    );
+
+    //Status Done mus True sein
+    _result := true;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_writeDataWithOffsetSuccess.ReadDataMethod(_udiDataLength, _offSet).Done
+        , Message := 'Status Done muss true sein'
+    );
+
+    //Status Done false again
+    sut_writeDataWithOffsetSuccess.Restore();
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_writeDataWithOffsetSuccess.pReadDataTask.Done
+        , Message := 'Status Done muss false sein nach Reset'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteWriteData_ExpectStatusDone" Id="{f1c9a2e0-ea00-470e-88fb-03632f8a71af}" FolderPath="Write\">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteWriteData_ExpectStatusDone
+VAR_INST
+    _testArray : ARRAY[0..4] OF BYTE;
+
+    _result : BOOL;
+
+    _first  : BOOL := TRUE;
+    _offSet : BYTE := 1;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TcUnit.TEST('ExecuteWriteData_ExpectStatusDone');
+//Arrange
+sut_writeDataSuccess();
+
+//Act
+sut_writeDataSuccess.WriteDataMethod(WriteData := _testArray, MemoryAddr := 0);
+
+_result := TRUE;
+
+//Needs two Cycles to get from Status Requested to Buisy (TcOpen Framework)
+sut_writeDataSuccess();
+
+IF _first THEN
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_writeDataSuccess.pWriteDataTask.Busy
+        , Message := 'Status Busy muss true sein'
+    );
+
+    _first := FALSE;
+END_IF
+
+IF sut_writeDataSuccess.pWriteDataTask.Done THEN
+
+    _result := FALSE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_writeDataSuccess.pWriteDataTask.Busy
+        , Message := 'Status Busy muss false sein'
+    );
+
+    _result := TRUE;
+    AssertEquals_BOOL
+    (
+        Expected  := _result
+        , Actual  := sut_writeDataSuccess.WriteDataMethod(WriteData := _testArray, MemoryAddr := 0).Done
+        , Message := 'Status Done muss true sein'
+    );
+
+    TcUnit.TEST_FINISHED();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Identity" Id="{cd772e12-75fc-45c4-9242-4cd90e2351da}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Identity : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{9b592d05-1ebe-4ee9-9680-19d23695ff73}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Identity := THIS^._nfContext._Identity;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Logger" Id="{06ba8e3b-cea6-4edf-bf61-02bc08c184bc}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Logger : TcoCore.ITcoLogger
+]]></Declaration>
+      <Get Name="Get" Id="{c9b816a0-9b22-484a-b5be-83aec7f62517}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Logger := THIS^._nfContext._logger;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RealTimeClock" Id="{d747a2f3-4b67-4356-bad6-dc217729b997}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY RealTimeClock : TcoCore.ITcoRtc
+]]></Declaration>
+      <Get Name="Get" Id="{a3d59504-0db6-4a71-8961-f914f722e744}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RealTimeClock := THIS^._nfContext._rtc;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="StartCycleCount" Id="{bb649130-ab38-40af-ace9-25e0686a06de}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY StartCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{f0402143-4077-463d-9c12-1e13b78d8bce}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StartCycleCount := THIS^._nfContext._startCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_SequenceTest" Id="{2ca0ee34-b235-4932-82b8-cda816d898aa}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE
+    E_SequenceTest :
+    (
+        WaitForStart,
+        OpenValveAandB,
+        ConfirmValvesAandBOpend,
+        CloseValveA,
+        ConfirmClosedValveA,
+        Error,
+        Done
+    ) INT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

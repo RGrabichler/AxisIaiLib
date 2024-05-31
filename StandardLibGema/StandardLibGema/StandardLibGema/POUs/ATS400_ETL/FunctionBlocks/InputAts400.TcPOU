@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="InputAts400" Id="{5d570cb8-20ee-4157-98b1-95e06e64bd2c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK InputAts400 IMPLEMENTS IInputAts400
+VAR_INPUT
+    input : ARRAY[1..8] OF BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetInputData" Id="{b0529c67-6ace-40e9-ac29-5bc133d8a1d9}">
+      <Declaration><![CDATA[METHOD GetInputData : InputDataAts400
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetInputData.Pass          := input[1];
+GetInputData.Fail          := input[2];
+GetInputData.InOp          := input[3];
+GetInputData.ResultImpuls  := input[4];
+GetInputData.DummyOut      := input[5];
+GetInputData.Ready         := input[6];
+GetInputData.SafetyCircuit := input[7];
+GetInputData.ContactExits  := input[8];]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

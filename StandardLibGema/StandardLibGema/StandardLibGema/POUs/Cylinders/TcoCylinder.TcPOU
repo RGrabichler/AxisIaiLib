@@ -1,0 +1,505 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="TcoCylinder" Id="{c91673d1-b4c9-00f9-0197-0d052bc411ae}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute addProperty _moveHomeDefaultName "<#MOVE HOME#>"}
+{attribute addProperty _moveWorkDefaultName "<#MOVE TO WORK#>"}
+{attribute addProperty _stopDefaultName "<#STOP#>"}
+FUNCTION_BLOCK TcoCylinder EXTENDS TcoCylinderBase
+VAR
+    {attribute addProperty Name "|[[1]Attribute_moveHomeDefaultName]|"}
+    _moveHomeDefault : TcoCylinderMoveTask(THIS^);
+    {attribute addProperty Name "|[[1]Attribute_moveWorkDefaultName]|"}
+    _moveWorkDefault : TcoCylinderMoveTask(THIS^);
+    {attribute addProperty Name "|[[1]Attribute_stopDefaultName]|"}
+    _stopDefault : TcoCore.TcoTask(THIS^);
+    increment    : INT;
+END_VAR
+VAR
+    _config      : TcoCylinderConfig;
+    _status      : TcoCylinderStatus;
+    _refillTimer : TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^
+(
+    inoAtHomePos   := inoAtHomePos
+    , inoAtWorkPos := inoAtWorkPos
+    , inoToHomePos := inoToHomePos
+    , inoToWorkPos := inoToWorkPos
+);
+
+IF (_atHomePos AND _atWorkPos) THEN
+    Messenger.Error('<#Home and work position sensors are both active. Check the position of sensors!#>');
+END_IF;
+
+// Disables mutualy exclusive actions
+_moveWorkDefault.Enabled := TRUE; // NOT _moveHomeDefault.Busy;
+
+_moveHomeDefault
+(
+    PositionSensor           := _atHomePos AND NOT _atWorkPos
+    , MoveToPositionSignal   := _toHomePos
+    , InverseSignal          := _toWorkPos
+    , TimeToRefill           := _config.TimeToRefill
+    , MaxTimeToReachPosition := _config.TimeToReachHomePosition
+    , PositionName           := '<#Home#>'
+);
+
+IF _moveHomeDefault.Execute() THEN
+    _moveWorkDefault.Restore();
+END_IF
+
+// Disables mutualy exclusive actions
+_moveHomeDefault.Enabled := TRUE; //NOT _moveWorkDefault.Busy;
+
+_moveWorkDefault
+(
+    PositionSensor           := _atWorkPos AND NOT _atHomePos
+    , MoveToPositionSignal   := _toWorkPos
+    , InverseSignal          := _toHomePos
+    , TimeToRefill           := _config.TimeToRefill
+    , MaxTimeToReachPosition := _config.TimeToReachWorkPosition
+    , PositionName           := '<#Work#>'
+);
+
+IF _moveWorkDefault.Execute() THEN
+    _moveHomeDefault.Restore();
+END_IF
+
+IF (_stopDefault.Execute()) THEN
+    _toHomePos := FALSE;
+    _toWorkPos := FALSE;
+    _moveHomeDefault.Abort();
+    _moveWorkDefault.Abort();
+    _stopDefault.Abort();
+    _moveHomeDefault.Restore();
+    _moveWorkDefault.Restore();
+    _stopDefault.Restore();
+    _stopDefault.DoneWhen(TRUE);
+END_IF
+
+// For further discussion about Status
+IF (_moveHomeDefault.Busy) THEN
+    _status.ActionDescription := 'Moving to home position';
+ELSIF (_moveWorkDefault.Busy) THEN
+    _status.ActionDescription := 'Moving to work position';
+ELSIF (_stopDefault.Busy) THEN
+    _status.ActionDescription := 'Stopping pressure';
+ELSE
+    _status.ActionDescription := 'Idle';
+END_IF
+
+SUPER^
+(
+    inoAtHomePos   := inoAtHomePos
+    , inoAtWorkPos := inoAtWorkPos
+    , inoToHomePos := inoToHomePos
+    , inoToWorkPos := inoToWorkPos
+);]]></ST>
+    </Implementation>
+    <Folder Name="Suspend" Id="{711cba59-fac4-4bda-af3d-1bbd4544849c}" />
+    <Folder Name="Tasks" Id="{1b11f398-b652-400f-8fe2-f939d294c2a6}" />
+    <Method Name="AbortMoveHome" Id="{70bc01ec-fe2d-412c-8a49-cb4c0eb08972}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Aborts the movement to home position when the condition is 'true'.
+        </summary>
+        <remarks>
+                <note type="warning">
+                    The call of this method will be effective only when called AFTER the initialization of the instance of given TcoCylinder.
+                </note>
+        </remarks>
+    </docu>
+~*)
+METHOD AbortMoveHome : BOOL
+VAR_IN_OUT
+    (*~
+    <docu>
+        <summary>
+            Condition to abort the movement of the cylinder.
+        </summary>
+    </docu>
+    ~*)
+    inoDisableCondition : BOOL;
+END_VAR
+VAR
+    _signalInfo : TcoSignalInfo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_toHomePos OR _moveHomeDefault.Busy) AND inoDisableCondition THEN
+    _signalInfo.GetSignalInfo(SIZEOF(inoDisableCondition), ADR(inoDisableCondition));
+    Messenger.Build().Append('<#Movement aborted due to#> : ').Append(_signalInfo.SymbolPath).As().AsError().Pin();
+    _toHomePos := FALSE;
+    IF (__ISVALIDREF(THIS^.inoToHomePos)) THEN
+        THIS^.inoToHomePos := FALSE;
+    END_IF;
+
+    _moveHomeDefault.Abort();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AbortMoveWork" Id="{ab51efa4-88cd-44ab-aa5e-99b72a08746f}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Aborts the movement to work position when the condition is 'true'.
+        </summary>
+        <remarks>
+                <note type="warning">
+                    The call of this method will be effective only when called AFTER the initialization of the instance of given TcoCylinder.
+                </note>
+        </remarks>
+    </docu>
+~*)
+METHOD AbortMoveWork : BOOL
+VAR_IN_OUT
+    (*~
+        <docu>
+            <summary>
+                Condition to abort the movement of the cylinder.
+            </summary>
+        </docu>
+    ~*)
+    inoDisableCondition : BOOL;
+END_VAR
+VAR
+    _signalInfo : TcoSignalInfo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_toWorkPos OR _moveWorkDefault.Busy) AND inoDisableCondition THEN
+    _signalInfo.GetSignalInfo(SIZEOF(inoDisableCondition), ADR(inoDisableCondition));
+    Messenger.Build().Append('<#Movement aborted due to#> : ').Append(_signalInfo.SymbolPath).As().AsError().Pin();
+    _toWorkPos := FALSE;
+    IF (__ISVALIDREF(THIS^.inoToWorkPos)) THEN
+        THIS^.inoToWorkPos := FALSE;
+    END_IF;
+
+    _moveWorkDefault.Abort();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Config" Id="{7e58b211-6e83-4116-b799-6506d2fc4730}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Gets the configuration of the cylinder.
+        </summary>
+    </docu>
+~*)
+PROPERTY Config : REFERENCE TO TcoCylinderConfig]]></Declaration>
+      <Get Name="Get" Id="{36604bf8-1d03-4d1c-8818-86fdc6cfead3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Config REF= _config;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MoveHomeTask" Id="{5b0d7e79-49aa-4e9d-82c8-93f52675b82d}" FolderPath="Tasks\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Gets the `MoveHomeTask` task that controls the moving of the cyclinder in home position.
+        </summary>
+    </docu>
+~*)
+PROPERTY MoveHomeTask : TcoCore.ITcoTask]]></Declaration>
+      <Get Name="Get" Id="{604fb232-d6da-47a3-8376-58ebbab3fe06}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveHomeTask := _moveHomeDefault;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MoveWorkTask" Id="{80b354b1-0f1d-4a29-b15d-262e640030b6}" FolderPath="Tasks\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Gets the `MoveWorkTask` task that controls the moving of the cyclinder into work position.
+        </summary>
+    </docu>
+~*)
+PROPERTY MoveWorkTask : TcoCore.ITcoTask]]></Declaration>
+      <Get Name="Get" Id="{e4d4bb84-24c3-4874-a1a5-209028f3b29a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveWorkTask := _moveWorkDefault;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Refill" Id="{f466b554-b5e6-4080-92cf-60edea15d2dd}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Refill cylinder after booth outputs are off .
+        </summary>
+        <remarks>
+                <note type="warning">
+                    The call of this method will be effective only when called AFTER the initialization of the instance of given TcoCylinder and methods like AbortMoveHone,SuspendMoveHom...
+                </note>
+        </remarks>
+    </docu>
+~*)
+METHOD Refill : BOOL
+VAR_INPUT
+    (*~
+    <docu>
+        <summary>
+            Time of refill cylinder after aborting or suspending
+        </summary>
+    </docu>
+    ~*)
+    inRefillTime : TIME;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+_refillTimer(In := inoToHomePos XOR inoToWorkPos, Pt := T#49D);
+
+_config.TimeToRefill := inRefillTime;
+
+IF _refillTimer.ET > T#0MS
+       AND _refillTimer.ET < _config.TimeToRefill
+       AND _config.TimeToRefill <> T#0S THEN
+    _toHomePos := TRUE;
+    _toWorkPos := TRUE;
+END_IF;
+
+SUPER^
+(
+    inoAtHomePos   := inoAtHomePos
+    , inoAtWorkPos := inoAtWorkPos
+    , inoToHomePos := inoToHomePos
+    , inoToWorkPos := inoToWorkPos
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Status" Id="{797dfc38-75c0-4007-920a-c1cd14db1175}">
+      <Declaration><![CDATA[PROPERTY Status : REFERENCE TO TcoCylinderStatus]]></Declaration>
+      <Get Name="Get" Id="{947247aa-4156-4af9-9427-2673f3cfe83a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Status REF= _status;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="StopTask" Id="{c3075719-8e32-4e72-b97e-b7469f36ef7b}" FolderPath="Tasks\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Gets the `StopTask` task that controls the stopping of the cyclinder.
+        </summary>
+    </docu>
+~*)
+PROPERTY StopTask : TcoCore.ITcoTask]]></Declaration>
+      <Get Name="Get" Id="{1fa67e3f-1fbe-49c2-9571-8294e2edb71e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StopTask := _stopDefault;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SuspendMoveHome" Id="{25d725c5-225c-48cc-94d1-6d7f4bffe318}" FolderPath="Suspend\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Suspend the movement to home position when the condition is 'true'. Task is still busy
+        </summary>
+        <remarks>
+                <note type="warning">
+                    The call of this method will be effective only when called AFTER the initialization of the instance of given TcoCylinder.
+                </note>
+        </remarks>
+    </docu>
+~*)
+METHOD SuspendMoveHome : BOOL
+VAR_IN_OUT
+    (*~
+    <docu>
+        <summary>
+            Condition to abort the movement of the cylinder.
+        </summary>
+    </docu>
+    ~*)
+    inoDisableCondition : BOOL;
+END_VAR
+VAR
+    _signalInfo : TcoSignalInfo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_toHomePos OR _moveHomeDefault.Busy) AND inoDisableCondition THEN
+    _signalInfo.GetSignalInfo(SIZEOF(inoDisableCondition), ADR(inoDisableCondition));
+    Messenger.Warning(CONCAT('<#Movement suspended due to#> : ', _signalInfo.SymbolPath));
+    _toHomePos := FALSE;
+    IF (__ISVALIDREF(THIS^.inoToHomePos)) THEN
+        THIS^.inoToHomePos := FALSE;
+    END_IF;
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SuspendMoveHomeExpression" Id="{67c2ef5b-a64b-4b49-adc5-0fd04a1f7637}" FolderPath="Suspend\">
+      <Declaration><![CDATA[METHOD SuspendMoveHomeExpression : BOOL
+VAR_INPUT
+    inDisableCondition : BOOL;
+    inMessage          : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_toHomePos OR _moveHomeDefault.Busy) AND inDisableCondition THEN
+    Messenger.Warning(CONCAT('<#Movement suspended due to#> : ', inMessage));
+    _toHomePos := FALSE;
+    IF (__ISVALIDREF(THIS^.inoToHomePos)) THEN
+        THIS^.inoToHomePos := FALSE;
+    END_IF;
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SuspendMoveHomeInverted" Id="{a4bb83b4-59be-4845-ad23-6acb1987e441}" FolderPath="Suspend\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Suspend the movement to home position when the condition is NOT 'true'. Task is still busy
+        </summary>
+        <remarks>
+                <note type="warning">
+                    The call of this method will be effective only when called AFTER the initialization of the instance of given TcoCylinder.
+                </note>
+        </remarks>
+    </docu>
+~*)
+METHOD SuspendMoveHomeInverted : BOOL
+VAR_IN_OUT
+    (*~
+    <docu>
+        <summary>
+            Condition to abort the movement of the cylinder.
+        </summary>
+    </docu>
+    ~*)
+    inoDisableCondition : BOOL;
+END_VAR
+VAR
+    _signalInfo : TcoSignalInfo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_toHomePos OR _moveHomeDefault.Busy) AND not inoDisableCondition THEN
+    _signalInfo.GetSignalInfo(SIZEOF(inoDisableCondition), ADR(inoDisableCondition));
+    Messenger.Warning(CONCAT('<#Movement suspended due to NOT#> : ', _signalInfo.SymbolPath));
+    _toHomePos := FALSE;
+    IF (__ISVALIDREF(THIS^.inoToHomePos)) THEN
+        THIS^.inoToHomePos := FALSE;
+    END_IF;
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SuspendMoveWork" Id="{c275665a-fd72-4507-a576-a99aef478b8c}" FolderPath="Suspend\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Suspend the movement to work position when the condition is 'true'. Task is still bussy
+        </summary>
+        <remarks>
+                <note type="warning">
+                    The call of this method will be effective only when called AFTER the initialization of the instance of given TcoCylinder.
+                </note>
+        </remarks>
+    </docu>
+~*)
+METHOD SuspendMoveWork : BOOL
+VAR_IN_OUT
+    (*~
+        <docu>
+            <summary>
+                Condition to abort the movement of the cylinder.
+            </summary>
+        </docu>
+    ~*)
+    inoDisableCondition : BOOL;
+END_VAR
+VAR
+    _signalInfo : TcoSignalInfo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_toWorkPos OR _moveWorkDefault.Busy) AND inoDisableCondition THEN
+    _signalInfo.GetSignalInfo(SIZEOF(inoDisableCondition), ADR(inoDisableCondition));
+    Messenger.Warning(CONCAT('<#Movement suspended due to#> : ', _signalInfo.SymbolPath));
+    _toWorkPos := FALSE;
+    IF (__ISVALIDREF(THIS^.inoToWorkPos)) THEN
+        THIS^.inoToWorkPos := FALSE;
+    END_IF;
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SuspendMoveWorkExpression" Id="{f9a7156f-3202-4723-96bf-94bbddc0b134}" FolderPath="Suspend\">
+      <Declaration><![CDATA[METHOD SuspendMoveWorkExpression : BOOL
+VAR_INPUT
+    inDisableCondition : BOOL;
+    inMessage          : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_toWorkPos OR _moveWorkDefault.Busy) AND inDisableCondition THEN
+    Messenger.Warning(CONCAT('<#Movement suspended due to#> : ', inMessage));
+    _toWorkPos := FALSE;
+    IF (__ISVALIDREF(THIS^.inoToWorkPos)) THEN
+        THIS^.inoToWorkPos := FALSE;
+    END_IF;
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SuspendMoveWorkInverted" Id="{3d34e68e-6bfb-4364-a472-8802487a65bb}" FolderPath="Suspend\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Suspend the movement to work position when the condition is NOT 'true'. Task is still busy
+        </summary>
+        <remarks>
+                <note type="warning">
+                    The call of this method will be effective only when called AFTER the initialization of the instance of given TcoCylinder.
+                </note>
+        </remarks>
+    </docu>
+~*)
+METHOD SuspendMoveWorkInverted : BOOL
+VAR_IN_OUT
+    (*~
+        <docu>
+            <summary>
+                Condition to abort the movement of the cylinder.
+            </summary>
+        </docu>
+    ~*)
+    inoDisableCondition : BOOL;
+END_VAR
+VAR
+    _signalInfo : TcoSignalInfo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_toWorkPos OR _moveWorkDefault.Busy) AND not inoDisableCondition THEN
+    _signalInfo.GetSignalInfo(SIZEOF(inoDisableCondition), ADR(inoDisableCondition));
+    Messenger.Warning(CONCAT('<#Movement suspended due to NOT#> : ', _signalInfo.SymbolPath));
+    _toWorkPos := FALSE;
+    IF (__ISVALIDREF(THIS^.inoToWorkPos)) THEN
+        THIS^.inoToWorkPos := FALSE;
+    END_IF;
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

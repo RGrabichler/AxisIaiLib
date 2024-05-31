@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CylCustom_Test" Id="{3b4c29e4-360d-4f1b-bd78-04b5c3e6d8c7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CylCustom_Test EXTENDS TcUnit.FB_TestSuite IMPLEMENTS TcoCore.ITcoContext
+VAR
+    //Context for TcOpen
+    _nfContext : TcoCore.TcoContextNfCompatibility;
+END_VAR
+
+VAR
+    fbTestTimer : TON := (PT := T#30ms);
+    cyl         : TcoCylinder(THIS^);
+    sensor      : ARRAY[0..1] OF BOOL;
+    actuator    : ARRAY[0..1] OF BOOL;
+    nTestState  : INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_nfContext.VolatileOpen(); //Required for TCopen
+//==============================================
+
+ExecuteMoveToWork_SignalAtWorkShouldBeTrue();
+
+//==============================================
+_nfContext.VolatileClose();
+]]></ST>
+    </Implementation>
+    <Folder Name="ITcoContext" Id="{c30550f5-1c28-485f-bff7-3d1f06f4172d}" />
+    <Property Name="Context" Id="{8d5cfcaf-62a5-48f9-8545-54f518ca6baa}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Context : TcoCore.ITcoContext
+]]></Declaration>
+      <Get Name="Get" Id="{6f448198-b903-4be2-ab39-b0580d667a78}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Context := This^._nfContext;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="EndCycleCount" Id="{1701dea5-0b2f-4749-a493-ddd975ae114f}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY EndCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{50612d92-a93c-45a5-8d3e-e29c6c0ea270}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[EndCycleCount := THIS^._nfContext._endCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Environment" Id="{1689a78d-0f9f-4e1f-9b18-95a364ab2905}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Environment : TcoCore.ITcoContextEnvironment
+]]></Declaration>
+      <Get Name="Get" Id="{409cd25d-54d1-49f4-96ed-a0bf49aae6c5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Environment := THIS^._nfContext._settings;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ExecuteMoveToWork_SignalAtWorkShouldBeTrue" Id="{124bdecc-eff6-4540-89b7-1a45c3be0484}">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteMoveToWork_SignalAtWorkShouldBeTrue
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Test('ExecuteMoveToWork_SignalAtWorkShouldBeTrue');
+fbTestTimer(IN := TRUE);
+cyl
+(
+    inoAtHomePos   := sensor[0]
+    , inoAtWorkPos := sensor[1]
+    , inoToHomePos := actuator[0]
+    , inoToWorkPos := actuator[1]
+);
+
+CASE nTestState OF
+    0:
+        sensor[0]  := TRUE;
+        nTestState := nTestState + 1;
+    1:
+        // Retracted
+        AssertTrue(cyl.AtHome, 'Should be AtHome');
+        nTestState := nTestState + 1;
+    2:
+        sensor[0] := FALSE;
+        cyl.MoveToWork();
+        nTestState := nTestState + 1;
+    3:
+        AssertTrue(actuator[1], 'should turn True');
+        nTestState := nTestState + 1;
+    4:
+        sensor[1]  := TRUE;
+        nTestState := nTestState + 1;
+    5:
+        AssertTrue(cyl.AtWork, 'should reach Work');
+END_CASE
+
+IF fbTestTimer.Q THEN
+    Assertequals_INT(Expected := 5, Actual := nTestState, Message := 'Didnt reach the last state');
+    TEST_FINISHED();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Identity" Id="{e6cf42c2-97d6-4d1b-8860-590564da8696}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Identity : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{e416dd72-8309-4389-9924-c10b8e7b4a0d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Identity := THIS^._nfContext._Identity;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Logger" Id="{41f32357-247c-4305-8a6f-70c03dbbf887}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Logger : TcoCore.ITcoLogger
+]]></Declaration>
+      <Get Name="Get" Id="{179cfd54-04d0-4bf9-90b8-1e57cf1533d7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Logger := THIS^._nfContext._logger;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RealTimeClock" Id="{e5b28848-8d33-40e9-80fe-73d0ea6e7943}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY RealTimeClock : TcoCore.ITcoRtc
+]]></Declaration>
+      <Get Name="Get" Id="{d6edc195-ff1c-41d0-93ea-47933d5d6a15}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RealTimeClock := THIS^._nfContext._rtc;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="StartCycleCount" Id="{7747fc4f-8114-4de3-a40a-fdbfa61ceed6}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY StartCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{124e6984-7fc4-4eb5-8039-84014861d565}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StartCycleCount := THIS^._nfContext._startCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

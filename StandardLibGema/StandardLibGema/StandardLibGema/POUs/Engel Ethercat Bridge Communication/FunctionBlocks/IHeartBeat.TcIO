@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IHeartBeat" Id="{91448687-689a-4ab3-9ef3-21f38db9796a}">
+    <Declaration><![CDATA[INTERFACE IHeartBeat EXTENDS __SYSTEM.IQueryInterface
+ ]]></Declaration>
+    <Property Name="GetErrorMessage" Id="{69c031b9-aefa-4d4b-a8cf-a96d5c13d03f}">
+      <Declaration><![CDATA[PROPERTY GetErrorMessage : T_MaxString;]]></Declaration>
+      <Get Name="Get" Id="{1ab98fdd-ac77-4486-8b8a-b0183f154cc1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="GetHeartBeat" Id="{f6c088ce-333c-4776-8a3c-5a7c4fa1691d}">
+      <Declaration><![CDATA[//actual Heartbeat of PLC
+PROPERTY GetHeartBeat : UINT]]></Declaration>
+      <Get Name="Get" Id="{02911b99-b9ca-4180-9d7f-4cb2e7fd7847}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="GetHeartbeatTimeoutTime" Id="{11df7e1c-b9a9-4a09-b6de-9de3fd4ebcf8}">
+      <Declaration><![CDATA[PROPERTY GetHeartbeatTimeoutTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{1c5c5f70-a0f8-4618-b225-591fb617cfc5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="GetState" Id="{f029fddf-911a-41cb-92f7-e1e515c28dd5}">
+      <Declaration><![CDATA[PROPERTY GetState : eHeartBeatState]]></Declaration>
+      <Get Name="Get" Id="{1fc311b5-5681-4098-b262-8f36d6a388a6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="IncreaseHeartBeat" Id="{ac456990-abbb-42a9-9cb3-a4c41faab5f9}">
+      <Declaration><![CDATA[METHOD IncreaseHeartBeat : UINT
+VAR_INPUT
+    externalHeartBeat : UINT;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

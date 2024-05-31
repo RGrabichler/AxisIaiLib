@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="InputAts400MockStatusReady" Id="{6a4def4d-68fb-4ef4-a204-f8db62137245}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK InputAts400MockStatusReady IMPLEMENTS IInputAts400]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetInputData" Id="{d2d647f8-c582-47dd-b0e4-dd103bdd8254}">
+      <Declaration><![CDATA[METHOD GetInputData : InputDataAts400
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetInputData.Ready := true;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

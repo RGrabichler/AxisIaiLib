@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_DualPositionActuator" Id="{f4bd36f2-33f9-4ff7-bf19-c0ec6daef537}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_DualPositionActuator IMPLEMENTS I_DualPositionActuator
+VAR
+    {attribute 'TcHmiSymbol.Show'}
+    {attribute 'TcHmiSymbol.ReadOnly'}
+    eState                             : E_DualPositionActuatorState;
+    fbTimerActivatingTimeout           : TON;
+    fbTimerDisablingTimeout            : TON;
+    bIsActiveFeedbackSensorAvailable   : BOOL;
+    bIsDisabledFeedbackSensorAvailable : BOOL;
+
+    bIsNormallyDisabled : BOOL; // [True = Normally disabled, False = Normally activated]
+END_VAR
+VAR_INPUT
+    bActiveFeedback  : BOOL; // Sensor input
+    bDisableFeedback : BOOL; // Sensor input
+END_VAR
+VAR_OUTPUT
+    bActivate : BOOL; // Actuator output
+    bDisable  : BOOL; // Actuator output
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE eState OF
+    E_DualPositionActuatorState.Unknown:
+        CheckFeedback();
+
+    E_DualPositionActuatorState.Active:
+        CheckFeedback();
+
+    E_DualPositionActuatorState.Disabled:
+        CheckFeedback();
+
+    E_DualPositionActuatorState.TimeoutActivating:
+        IF bIsNormallyDisabled THEN
+            bActivate := FALSE;
+        ELSE
+            CheckFeedback();
+        END_IF
+
+    E_DualPositionActuatorState.TimeoutDisabling:
+        IF NOT bIsNormallyDisabled THEN
+            bDisable := FALSE;
+        ELSE
+            CheckFeedback();
+        END_IF
+
+    E_DualPositionActuatorState.Activating:
+        IF NOT bIsActiveFeedbackSensorAvailable AND NOT bIsDisabledFeedbackSensorAvailable THEN
+            SetState(eState := E_DualPositionActuatorState.Active);
+        ELSIF NOT bIsActiveFeedbackSensorAvailable AND NOT bDisableFeedback THEN
+            SetState(eState := E_DualPositionActuatorState.Active);
+        ELSIF NOT bIsActiveFeedbackSensorAvailable AND bDisableFeedback THEN
+            fbTimerActivatingTimeout(IN := TRUE);
+
+            IF fbTimerActivatingTimeout.Q THEN
+                SetState(eState := E_DualPositionActuatorState.TimeoutActivating);
+            END_IF
+        ELSE
+            fbTimerActivatingTimeout(IN := TRUE);
+
+            IF fbTimerActivatingTimeout.Q THEN
+                SetState(eState := E_DualPositionActuatorState.TimeoutActivating);
+            END_IF
+
+            CheckFeedback();
+        END_IF
+
+    E_DualPositionActuatorState.Disabling:
+        IF NOT bIsDisabledFeedbackSensorAvailable AND NOT bIsActiveFeedbackSensorAvailable THEN
+            SetState(eState := E_DualPositionActuatorState.Disabled);
+        ELSIF NOT bIsDisabledFeedbackSensorAvailable AND NOT bActiveFeedback THEN
+            SetState(eState := E_DualPositionActuatorState.Disabled);
+        ELSIF NOT bIsDisabledFeedbackSensorAvailable AND bActiveFeedback THEN
+            fbTimerDisablingTimeout(IN := TRUE);
+
+            IF fbTimerDisablingTimeout.Q THEN
+                SetState(eState := E_DualPositionActuatorState.TimeoutDisabling);
+            END_IF
+        ELSE
+            fbTimerDisablingTimeout(IN := TRUE);
+
+            IF fbTimerDisablingTimeout.Q THEN
+                SetState(eState := E_DualPositionActuatorState.TimeoutDisabling);
+            END_IF
+
+            CheckFeedback();
+        END_IF
+END_CASE]]></ST>
+    </Implementation>
+    <Method Name="Activate" Id="{70347bac-1909-4171-97e8-91a62e2f4e9b}">
+      <Declaration><![CDATA[METHOD PUBLIC Activate]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF GetState() = E_DualPositionActuatorState.Activating OR GetState() = E_DualPositionActuatorState.Active THEN
+    RETURN;
+END_IF
+
+SetState(eState := E_DualPositionActuatorState.Activating);
+fbTimerActivatingTimeout(IN := FALSE);
+bDisable  := FALSE;
+bActivate := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckFeedback" Id="{224e80d7-dc3c-4a7a-920e-c10ec074a089}">
+      <Declaration><![CDATA[METHOD PRIVATE CheckFeedback]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF eState = E_DualPositionActuatorState.TimeoutActivating OR eState = E_DualPositionActuatorState.TimeoutDisabling THEN
+    RETURN;
+ELSIF bActiveFeedback AND NOT bDisableFeedback AND eState <> E_DualPositionActuatorState.Disabling THEN
+    SetState(eState := E_DualPositionActuatorState.Active);
+ELSIF bDisableFeedback AND NOT bActiveFeedback AND eState <> E_DualPositionActuatorState.Activating THEN
+    SetState(eState := E_DualPositionActuatorState.Disabled);
+ELSIF NOT bActiveFeedback
+          AND bIsActiveFeedbackSensorAvailable
+          AND NOT bIsDisabledFeedbackSensorAvailable
+          AND eState <> E_DualPositionActuatorState.Activating THEN
+    SetState(eState := E_DualPositionActuatorState.Disabled);
+ELSIF NOT bDisableFeedback
+          AND bIsDisabledFeedbackSensorAvailable
+          AND NOT bIsActiveFeedbackSensorAvailable
+          AND eState <> E_DualPositionActuatorState.Disabling THEN
+    SetState(eState := E_DualPositionActuatorState.Active);
+ELSIF bActiveFeedback AND bDisableFeedback THEN
+    SetState(eState := E_DualPositionActuatorState.Unknown);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Disable" Id="{5a755a85-2d75-43ea-98d7-1c5df63b9e12}">
+      <Declaration><![CDATA[METHOD PUBLIC Disable
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF GetState() = E_DualPositionActuatorState.Disabling OR GetState() = E_DualPositionActuatorState.Disabled THEN
+    RETURN;
+END_IF
+
+SetState(eState := E_DualPositionActuatorState.Disabling);
+fbTimerDisablingTimeout(IN := FALSE);
+bDisable  := TRUE;
+bActivate := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{c57b4670-6f0b-4a1d-aad1-960aaa31c7be}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains     : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode      : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    tActivateTimeout : TIME;
+    tDisableTimeout  : TIME;
+    bIsActiveFeedbackSensorAvailable
+        : BOOL;                                // Set this to true if feedback is provided by a sensor
+    bIsDisabledFeedbackSensorAvailable : BOOL; // Set this to true if feedback is provided by a sensor
+    bNormallyDisabled                  : BOOL; // [True = Normally disabled, False = Normally activated]
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbTimerActivatingTimeout.PT := tActivateTimeout;
+fbTimerDisablingTimeout.PT  := tDisableTimeout;
+
+THIS^.bIsActiveFeedbackSensorAvailable   := bIsActiveFeedbackSensorAvailable;
+THIS^.bIsDisabledFeedbackSensorAvailable := bIsDisabledFeedbackSensorAvailable;
+
+IF bNormallyDisabled AND NOT bIsDisabledFeedbackSensorAvailable THEN
+    SetState(eState := E_DualPositionActuatorState.Disabled);
+ELSIF NOT bNormallyDisabled AND NOT bIsActiveFeedbackSensorAvailable THEN
+    SetState(eState := E_DualPositionActuatorState.Active);
+END_IF
+
+THIS^.bIsNormallyDisabled := bNormallyDisabled;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetDisableTimeoutTime" Id="{496299b8-2824-468b-82cf-fe32ccf5d696}">
+      <Declaration><![CDATA[METHOD GetDisableTimeoutTime : TIME]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetDisableTimeoutTime := fbTimerDisablingTimeout.PT;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEnableTimeoutTime" Id="{a5328f31-bf79-41ec-92c2-42fc840269f5}">
+      <Declaration><![CDATA[METHOD GetEnableTimeoutTime : TIME]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetEnableTimeoutTime := fbTimerActivatingTimeout.PT;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetState" Id="{9fe9fd21-1d9f-49a5-af6f-e669f4a06607}">
+      <Declaration><![CDATA[METHOD PUBLIC GetState : E_DualPositionActuatorState]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetState := THIS^.eState;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDisableTimeoutTime" Id="{54640bff-6de8-4682-80cd-f26316b542ca}">
+      <Declaration><![CDATA[METHOD SetDisableTimeoutTime
+VAR_INPUT
+    tDisableTimeoutTime : TIME;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbTimerDisablingTimeout.PT := tDisableTimeoutTime;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEnableTimeoutTime" Id="{86a36c0f-dcaf-47e1-a402-efa2e0663a9b}">
+      <Declaration><![CDATA[METHOD SetEnableTimeoutTime
+VAR_INPUT
+    tEnableTimeoutTime : TIME;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbTimerActivatingTimeout.PT := tEnableTimeoutTime;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetState" Id="{ee08fb1e-6208-4428-8f9f-d1ef23b1d9d0}">
+      <Declaration><![CDATA[METHOD PRIVATE SetState
+VAR_INPUT
+    eState : E_DualPositionActuatorState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.eState := eState;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

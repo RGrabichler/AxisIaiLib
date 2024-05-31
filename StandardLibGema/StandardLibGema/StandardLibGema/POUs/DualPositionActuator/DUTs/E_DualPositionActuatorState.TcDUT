@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_DualPositionActuatorState" Id="{f65283ae-6f87-4a51-b2de-26f7553b2763}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE
+    E_DualPositionActuatorState :
+    (
+        Unknown := 0,
+        Active,
+        Disabled,
+        TimeoutActivating,
+        TimeoutDisabling,
+        Activating,
+        Disabling
+    ) INT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

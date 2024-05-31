@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ReadUidTask" Id="{6a46a5df-c0f4-4ece-bcac-a4da1e86060c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ReadUidTask EXTENDS TcoCore.TcoTask
+VAR_IN_OUT
+    rfidInOut : RfidInOut;
+END_VAR
+VAR_INPUT
+    ActionDesc : STRING(25);
+END_VAR
+
+VAR
+    _stringBuilder : TcoCore.StringBuilder;
+    _state         : INT;
+    _coding        : ARRAY[0..7] OF BYTE;
+    _index         : INT;
+    _hex           : Tc2_System.T_MaxString := '16# ';
+    _uidDataLength : UINT                   := 8;
+
+    _eErrorID   : RFID_FB_U.ERROR;
+    _noTagFound : BOOL;
+    _uid        : Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF (THIS^.Execute()) THEN
+    THIS^.ThrowWhen(rfidInOut.xError);
+
+    CASE _state OF
+
+        10:
+            // Tag vorhanden
+            IF NOT rfidInOut.xTP THEN
+                THIS^.Messenger.Error
+                (
+                    _stringBuilder.Append(ActionDesc)
+                        .Append('Tag nicht vorhanden bei Leseversuch')
+                        .ToString()
+                );
+
+                _noTagFound := TRUE;
+                ThrowWhen(TRUE);
+            ELSE
+                _state := 20;
+            END_IF
+        20:
+            //Command setzen
+            rfidInOut.eCommand     := command.INVENTORY;
+            rfidInOut.uiDataLenght := _uidDataLength;
+            _state                 := 30;
+        30:
+            // Start der Operation
+            rfidInOut.xExecute := TRUE;
+            _uid               := '';
+
+            _state := 40;
+        40:
+            // Warte auf Ende Operation
+            rfidInOut.myReadData[_index] :=
+                (THIS^.rfidInOut.myReadData[_index]);
+
+            IF rfidInOut.xError THEN
+                _uid := '--Error--';
+            ELSIF rfidInOut.xDone THEN
+                FOR _index := 0 TO UINT_TO_INT(rfidInOut.uiDataLenght - 1) DO
+
+                    _uid := Concat
+                    (
+                        _uid
+                        , BYTE_TO_HEXSTR(in := rfidInOut.myReadData[_index], iPrecision := 2, bLoCase := FALSE)
+                    );
+                END_FOR
+
+                THIS^.DoneWhen(rfidInOut.xDone);
+                THIS^.Messenger.Info('Lesen UID erfolgreich');
+                _state := 0;
+            END_IF
+    END_CASE
+END_IF
+]]></ST>
+    </Implementation>
+    <Folder Name="Status" Id="{058a7ce5-4d3d-49d6-a856-80bf24eb5126}" />
+    <Folder Name="TcOpen" Id="{29e09504-a92c-4a6a-85ea-07da855a8abd}" />
+    <Property Name="ErrorId" Id="{eefac3e3-9bb9-4dcf-bf93-3ae344742fd8}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : RFID_FB_U.ERROR]]></Declaration>
+      <Get Name="Get" Id="{55a32637-876f-431f-b03e-f2f9a4005bef}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[{warning disable C0371}
+ErrorId := _eErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{5edb4667-7cd9-47fb-a7a6-2906bf7cc703}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject : ITcoObject;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// This is not clear to me... I from time to time the consumer code does not see 'FB_init' of 'TcoObject', that's why overridden here with super call...
+{warning disable C0316}
+SUPER^.FB_init(bInitRetains, bInCopyCode, ParentObject);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnAbort" Id="{cd1ddfa6-da13-45f0-8f09-d8e424e4f814}" FolderPath="TcOpen\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task is aborted.
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnAbort
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[{warning disable C0371}
+RfidInOut.eCommand := RFID_FB_U.COMMAND.IDLE;
+RfidInOut.xExecute := FALSE;
+RfidInOut.xAbort   := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDone" Id="{232048e6-a791-4801-a99d-1fbf5d5a564a}" FolderPath="TcOpen\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task reaches the ```Done``` state .
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnDone
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[{warning disable C0371}
+rfidInOut.xExecute := FALSE;
+rfidInOut.eCommand := RFID_FB_U.COMMAND.IDLE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{51ca5c21-32d5-41a9-afb6-205f190d2f49}" FolderPath="TcOpen\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task reaches the ```Error``` state.
+            <para>
+                Do not confuse with <see cref="PlcDocu.TcoCore.TcoTask.WhileError()"/>, that is called cyclically until '''Error''' state is left.
+            </para>
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnError
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[{warning disable C0371}
+
+IF _noTagFound THEN
+    _eErrorID := RFID_FB_U.ERROR.COMMAND_NO_TAG_FOUND;
+ELSE
+    _eErrorID := rfidInOut.eErrorID;
+END_IF
+
+THIS^.Messenger.Build().Append('Rfid Schreib/Lesekopf Fehler : ').Append(to_string(THIS^._eErrorID)).As().AsError();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnStart" Id="{b3b43699-bb49-46ff-948d-5c77e2eb8a50}" FolderPath="TcOpen\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes ones when the task starts (at the moment of transition from the ```Requested``` state into the ```Busy``` state).
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnStart
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[{warning disable C0371}
+rfidInOut.eCommand := RFID_FB_U.COMMAND.IDLE;
+rfidInOut.xExecute := FALSE;
+rfidInOut.xAbort   := FALSE;
+_state             := 10;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Restore" Id="{b60754f1-4a68-4f57-8b56-c40353aeaa04}" FolderPath="TcOpen\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Restores this instance to the Ready state. Can be called explicitly or from within one of the restore mechanisms.
+            <para>
+                See also <see cref="PlcDocu.TcoCore.TcoTask.AutoRestorable()"/>
+            </para>
+        </summary>
+    </docu>
+~*)
+METHOD Restore : ITcoRestorable
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[{warning disable C0371}
+RfidInOut.eCommand := RFID_FB_U.COMMAND.IDLE;
+RfidInOut.xExecute := FALSE;
+RfidInOut.xAbort   := FALSE;
+_eErrorID          := RFID_FB_U.ERROR.NO_ERROR;
+SUPER^.Restore();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Uid" Id="{b16c981e-a1c7-4a3b-842c-848f425af3ea}" FolderPath="Status\">
+      <Declaration><![CDATA[PROPERTY Uid : Tc2_System.T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{683b7c7a-a246-4b02-9cb0-d5ad2fc6663e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Uid := _uId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

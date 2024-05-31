@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="SequenceTryout" Id="{860826b7-16a6-49c4-a25c-c43416650a53}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SequenceTryout EXTENDS TcoCore.TcoSequencer
+VAR
+    counter : INT;
+END_VAR
+VAR
+    //    eSequenceTest : E_SequenceTest := E_SequenceTest.WaitForStart;
+    eSequenceTest : stSequenceTest;
+    itfValveA     : I_DualPositionActuator := valveA;
+    //~
+    valveA : FB_DualPositionActuator
+    (
+        tActivateTimeout                     := T#3S
+        , tDisableTimeout                    := T#3S
+        , bIsActiveFeedbackSensorAvailable   := TRUE
+        , bIsDisabledFeedbackSensorAvailable := TRUE
+        , bNormallyDisabled                  := TRUE
+    );
+    //~
+END_VAR
+VAR CONSTANT
+    simV : INT := 4;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Main" Id="{52eba5f4-2f85-0df9-2be3-e03e48009737}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Main method of the sequener. Custom code needs to be placed here. The sequencer is executed by call of InstanceName.Run() method.
+            This method is abstract, and it must be overridden in derived block.
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED Main : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[counter := counter + 1;
+
+IF (Step(eSequenceTest.WaitForStart, TRUE, 'Restore und Start')) THEN
+    //    eSequenceTest := stSequenceTest.OpenValveAandB;
+    StepCompleteWhen(counter MOD simV = 0);
+END_IF
+
+IF (Step(eSequenceTest.OpenValveAandB, TRUE, 'Zweiter Step')) THEN
+    StepCompleteWhen(counter MOD simV = 0);
+END_IF
+
+IF (Step(999, TRUE, 'SEQUENCE COMPLETE')) THEN
+    //--------------------------------------------
+    CompleteSequence();
+    //--------------------------------------------
+END_IF;
+
+IF (step(909, TRUE, 'ERROR Handling')) THEN
+    ;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnStepCompleted" Id="{91171987-4419-0888-30a1-a01a8d0ab40b}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            This method is executed upon step completion.
+            This method can be overridden in derived block by custom logic.
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnStepCompleted
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[counter := 1;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="eHeartBeatState" Id="{dff0a352-0bdb-45fc-be1e-df71db3d6557}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE
+    eHeartBeatState :
+    (
+        Unknown := 0,
+        Valid,
+        Timeout
+    ) INT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

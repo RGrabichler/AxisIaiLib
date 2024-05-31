@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="InputAts400_Test" Id="{a3721d5c-d50f-4a1c-a47d-3cdd33be6313}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK InputAts400_Test EXTENDS TcUnit.FB_TestSuite
+VAR
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ParseVariantOne();]]></ST>
+    </Implementation>
+    <Method Name="ParseVariantOne" Id="{566181aa-3371-42bd-9311-aec148b72f3c}">
+      <Declaration><![CDATA[METHOD PRIVATE ParseVariantOne
+VAR
+    aInput : ARRAY[1..8] OF BOOL;
+
+    input : InputAts400;
+
+    inputData : InputDataAts400;
+    i         : UINT;
+END_VAR
+VAR CONSTANT
+    lower : UINT := 1;
+    upper : UINT := 8;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Test('ParseVariantOne');
+
+input(input := aInput);
+// just for validation an example
+AssertFalse(Condition := inputData.ContactExits, 'Contact Exits muss falsch sein');
+
+FOR i := lower TO upper DO
+    aInput[i] := TRUE;
+END_FOR
+
+input(input := aInput);
+
+inputData := input.GetInputData();
+AssertTrue(Condition := inputData.Pass, ' Pass must be true');
+AssertTrue(Condition := inputData.Fail, ' Fail must be true');
+AssertTrue(Condition := inputData.InOp, ' In Op must be true');
+AssertTrue(Condition := inputData.ResultImpuls, ' Result Impuls must be true');
+AssertTrue(Condition := inputData.DummyOut, 'Dummy Out must be true');
+AssertTrue(Condition := inputData.Ready, 'Ready must be true');
+AssertTrue(Condition := inputData.SafetyCircuit, 'Safety must be true');
+AssertTrue(Condition := inputData.ContactExits, 'KontaktExists must be true');
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

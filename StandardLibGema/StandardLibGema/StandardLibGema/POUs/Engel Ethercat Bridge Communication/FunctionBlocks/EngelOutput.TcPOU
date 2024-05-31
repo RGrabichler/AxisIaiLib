@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="EngelOutput" Id="{e5629c43-3347-40b8-aa07-2ab850eb101e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EngelOutput IMPLEMENTS IOutput
+VAR_OUTPUT
+    output : ARRAY[0..42] OF BYTE;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="SetAutomaticActive" Id="{19407746-1a90-45a3-9f28-077b8dfb8dc3}">
+      <Declaration><![CDATA[METHOD PUBLIC SetAutomaticActive
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+output[39].1 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetHeartBeat" Id="{861bbb8b-1aee-4377-b3e6-c84dfee050d6}">
+      <Declaration><![CDATA[METHOD SetHeartBeat
+VAR_INPUT
+    heartBeat : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[1].0 := heartBeat.0;
+output[1].1 := heartBeat.1;
+output[1].2 := heartBeat.2;
+output[1].3 := heartBeat.3;
+output[1].4 := heartBeat.4;
+output[1].5 := heartBeat.5;
+output[1].6 := heartBeat.6;
+output[1].7 := heartBeat.7;
+
+output[2].0 := heartBeat.8;
+output[2].1 := heartBeat.9;
+output[2].2 := heartBeat.10;
+output[2].3 := heartBeat.11;
+output[2].4 := heartBeat.12;
+output[2].5 := heartBeat.13;
+output[2].6 := heartBeat.14;
+output[2].7 := heartBeat.15;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetHomeDone" Id="{f8e3fb5c-52ae-4370-a529-ae0a1c62d872}">
+      <Declaration><![CDATA[METHOD PUBLIC SetHomeDone
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].4 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetManualActive" Id="{6b042214-0351-4e4b-a104-6db2855c91cb}">
+      <Declaration><![CDATA[METHOD PUBLIC SetManualActive
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].0 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetRequestHome" Id="{d5aef21f-256c-4ef9-8103-d9da6e61a11f}">
+      <Declaration><![CDATA[METHOD PUBLIC SetRequestHome
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].3 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetSafetyClosed" Id="{3c8fc705-5b44-4d56-82ab-8842735b81e8}">
+      <Declaration><![CDATA[METHOD PUBLIC SetSafetyClosed
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].5 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetSafetyOpeningRequest" Id="{b9e2eed6-1e91-4bde-bf50-49adfe9dee4d}">
+      <Declaration><![CDATA[METHOD PUBLIC SetSafetyOpeningRequest
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].6 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetStart" Id="{85a17433-aec3-4045-8824-65f3174c3d3c}">
+      <Declaration><![CDATA[METHOD PUBLIC SetStart
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].2 := enable;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

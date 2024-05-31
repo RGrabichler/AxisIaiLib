@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="I_DualPositionActuator" Id="{96153ad2-1837-4ab0-b1c7-7d77b200ef74}">
+    <Declaration><![CDATA[INTERFACE I_DualPositionActuator]]></Declaration>
+    <Method Name="Activate" Id="{72b183e9-6057-431e-881e-7e8c84fefbb8}">
+      <Declaration><![CDATA[METHOD PUBLIC Activate]]></Declaration>
+    </Method>
+    <Method Name="Disable" Id="{0e53722d-dae9-4737-8f61-6bc15d545bfd}">
+      <Declaration><![CDATA[METHOD PUBLIC Disable
+]]></Declaration>
+    </Method>
+    <Method Name="GetDisableTimeoutTime" Id="{ea7bef2c-f934-4142-ade7-527178a732da}">
+      <Declaration><![CDATA[METHOD GetDisableTimeoutTime : TIME]]></Declaration>
+    </Method>
+    <Method Name="GetEnableTimeoutTime" Id="{bc94750c-191f-41f8-89a6-fb42e1e32b35}">
+      <Declaration><![CDATA[METHOD GetEnableTimeoutTime : TIME]]></Declaration>
+    </Method>
+    <Method Name="GetState" Id="{2421db97-9733-4383-a8ba-a03ff838cfce}">
+      <Declaration><![CDATA[METHOD GetState : E_DualPositionActuatorState]]></Declaration>
+    </Method>
+    <Method Name="SetDisableTimeoutTime" Id="{21ca87ac-6962-447d-b832-7d7c60e0562f}">
+      <Declaration><![CDATA[METHOD SetDisableTimeoutTime
+VAR_INPUT
+    tDisableTimeoutTime : TIME;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="SetEnableTimeoutTime" Id="{9aaf12a8-12a0-47af-89b0-8efea9626225}">
+      <Declaration><![CDATA[METHOD SetEnableTimeoutTime
+VAR_INPUT
+    tEnableTimeoutTime : TIME;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

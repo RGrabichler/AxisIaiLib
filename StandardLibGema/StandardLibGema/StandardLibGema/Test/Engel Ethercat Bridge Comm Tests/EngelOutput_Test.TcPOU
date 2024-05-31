@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="EngelOutput_Test" Id="{9bb033ee-1366-4555-a805-401379e3913f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EngelOutput_Test EXTENDS FB_TestSuite
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SetOutputsAndVerify();]]></ST>
+    </Implementation>
+    <Method Name="SetOutputsAndVerify" Id="{5f5a1aed-aa2f-4864-a4b7-cfd8bcdd113f}">
+      <Declaration><![CDATA[METHOD PRIVATE SetOutputsAndVerify
+VAR
+    out : EngelOutput;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetOutputsAndVerify');
+
+out.SetManualActive(TRUE);
+AssertEquals_BYTE(Expected := 2#0000_0001, Actual := out.output[39], 'SetManualActive is true');
+out.SetManualActive(FALSE);
+
+out.SetAutomaticActive(TRUE);
+AssertEquals_BYTE(Expected := 2#0000_0010, Actual := out.output[39], 'SetAutomaticeActive is true');
+out.SetAutomaticActive(FALSE);
+
+out.SetStart(TRUE);
+AssertEquals_BYTE(Expected := 2#0000_0100, Actual := out.output[39], 'SetStart is true');
+out.SetStart(FALSE);
+
+out.SetRequestHome(TRUE);
+AssertEquals_BYTE(Expected := 2#0000_1000, Actual := out.output[39], 'SetRequestHome is true');
+out.SetRequestHome(FALSE);
+
+out.SetHomeDone(TRUE);
+AssertEquals_BYTE(Expected := 2#0001_0000, Actual := out.output[39], 'SetHomeDone is true');
+out.SetHomeDone(FALSE);
+
+out.SetSafetyClosed(TRUE);
+AssertEquals_BYTE(Expected := 2#0010_0000, Actual := out.output[39], 'SetSafetyClosed is true');
+out.SetSafetyClosed(FALSE);
+
+out.SetSafetyOpeningRequest(TRUE);
+AssertEquals_BYTE(Expected := 2#0100_0000, Actual := out.output[39], 'SetSafetyOpeningRequest is true');
+out.SetSafetyOpeningRequest(FALSE);
+
+out.SetHeartBeat(65535);
+AssertEquals_BYTE(Expected := 255, Actual := out.output[1], 'Byte  1 Heartbeat shall be 255');
+AssertEquals_BYTE(Expected := 255, Actual := out.output[2], 'Byte  2 Heartbeat shall be 255');
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

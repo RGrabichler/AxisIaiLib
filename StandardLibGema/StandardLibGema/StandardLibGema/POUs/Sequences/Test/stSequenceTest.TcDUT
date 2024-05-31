@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="stSequenceTest" Id="{f2de1008-e973-410b-a43d-66735bffca97}">
+    <Declaration><![CDATA[TYPE
+    stSequenceTest :
+    STRUCT
+        WaitForStart   : INT := 10;
+        OpenValveAandB : INT := 20;
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

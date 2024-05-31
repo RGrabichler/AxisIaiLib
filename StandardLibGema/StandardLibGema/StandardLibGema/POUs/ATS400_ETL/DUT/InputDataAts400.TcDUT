@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="InputDataAts400" Id="{940f2833-8f33-48e6-bce4-3bce4c364ba6}">
+    <Declaration><![CDATA[TYPE
+    InputDataAts400 :
+    STRUCT
+        Pass         : BOOL;
+        Fail         : BOOL;
+        InOp         : BOOL; // Digitale AUsgabe als Feedback einer aktiven sicherheitstechnischen Pruefung des Systems. Wechselt zwischen dne Pruefungen zwischen 1 auf 0
+        ResultImpuls :
+            BOOL; // Einstellbare digitale Ausgavbe eines Impuls. Z.B. Gesamtergebnis schlecht, Gesamtergebnis gut etc.
+        DummyOut :
+            BOOL; //Anofrderung Dummypruefung durch SPS, wartet auf weiteres Feeedback bis Dummy-Pruefobjekt bereit ist
+        Ready :
+            BOOL;             // wartet auf Start
+        SafetyCircuit : BOOL; // 1 = closed, 0 = Open, oder externes Relais, Anzugs- oder Abfallzeit <= 200ms !!
+        ContactExits  : BOOL; // Kontaktueberwachung, 1 = Kontakt vorhanden, oder externes Relais
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

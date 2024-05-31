@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="HeartBeat" Id="{ee4061e3-eb88-4f2e-9ff8-17a927f64d57}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK HeartBeat IMPLEMENTS IHeartBeat
+VAR_INPUT
+    execute : BOOL;
+END_VAR
+
+VAR
+    heartBeatTimer : TON;
+    eState         : eHeartBeatState;
+    erroString     : T_MaxString;
+    heartBeat      : UINT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF execute THEN
+    heartBeatTimer();
+
+    CASE eState OF
+        eHeartBeatState.Unknown:
+            CheckStates();
+        eHeartBeatState.Valid:
+            heartBeatTimer(in := TRUE);
+            erroString := '';
+            CheckStates();
+        eHeartBeatState.Timeout:
+            erroString := CONCAT
+            (
+                'Timeout, da keine Erhoehung Heartbeat stattgefunden hat in '
+                , TO_STRING(GetHeartBeatTimeOutTime)
+            );
+    ELSE
+        ;
+    END_CASE
+END_IF]]></ST>
+    </Implementation>
+    <Folder Name="Internal" Id="{188670b9-61eb-46c0-979d-5a8140927f0b}" />
+    <Method Name="CheckStates" Id="{0cde56eb-ac12-42dd-8fa1-6d09c3950dc8}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD PRIVATE CheckStates : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF execute THEN
+    IF heartBeatTimer.Q THEN
+        SetState(eHeartBeatState.Timeout);
+    END_IF
+ELSE
+    SetState(eHeartBeatState.Unknown);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{79447fbd-abbd-47aa-b2e3-6c670049739e}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains         : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode          : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    heartBeatTimeoutTime : TIME;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[heartBeatTimer.PT := heartBeatTimeoutTime;
+
+this^.eState := eHeartBeatState.Unknown;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="GetErrorMessage" Id="{941d94d5-4d6e-4fd8-bcaf-3ea4be5ee8d4}">
+      <Declaration><![CDATA[PROPERTY GetErrorMessage : T_MaxString;]]></Declaration>
+      <Get Name="Get" Id="{ec45e730-e62e-417b-8f00-1bea7a23b5e4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[GetErrorMessage := erroString;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="GetHeartBeat" Id="{d93a09ad-396d-42a6-849a-9b277416c91b}">
+      <Declaration><![CDATA[//actual Heartbeat of PLC
+PROPERTY GetHeartBeat : UINT]]></Declaration>
+      <Get Name="Get" Id="{b04b4ec0-afab-47d4-a78d-01e8ed2a4365}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF NOT execute THEN
+    THIS^.erroString := 'Bitte Execute auf True setzten!';
+    RETURN;
+END_IF
+
+GetHeartBeat := heartBeat;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="GetHeartbeatTimeoutTime" Id="{38474ff6-b3f6-48be-a0ef-15a8ecdddffa}">
+      <Declaration><![CDATA[PROPERTY GetHeartbeatTimeoutTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{ee0aaafd-be71-4d82-af86-7257fbfbdd9a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[GetHeartbeatTimeoutTime := heartBeatTimer.PT;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="GetState" Id="{a6cc20d1-7f07-4202-98d5-94e2eca3d4d3}">
+      <Declaration><![CDATA[PROPERTY GetState : eHeartBeatState]]></Declaration>
+      <Get Name="Get" Id="{cd7b894e-4ede-4efb-9f6c-28fb898668c4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[GetState := eState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="IncreaseHeartBeat" Id="{9c42c4c4-9837-434e-b4d8-1552e77481a3}">
+      <Declaration><![CDATA[// Increases HB +1 from InputValue
+METHOD IncreaseHeartBeat : UINT
+VAR_INPUT
+    externalHeartBeat : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT execute THEN
+    THIS^.erroString  := 'Bitte Execute auf True setzten!';
+    IncreaseHeartBeat := 0;
+    RETURN;
+END_IF
+
+SetState(eHeartBeatState.Valid);
+ResetTimer();
+
+IF externalHeartBeat >= 255 THEN
+    IncreaseHeartBeat := 0;
+ELSE
+    IncreaseHeartBeat := externalHeartBeat + 1;
+END_IF
+
+heartBeat := IncreaseHeartBeat;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetTimer" Id="{b723a9ea-6b77-4a62-be72-8719b0e79962}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD PRIVATE ResetTimer
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.heartBeatTimer(IN := false);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetState" Id="{205b7af2-e86b-4f19-8947-d3ee78a5fa9f}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD PRIVATE SetState
+VAR_INPUT
+    eState : eHeartBeatState;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[This^.eState := eState;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

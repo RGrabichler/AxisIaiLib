@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IOutputAts400" Id="{4420b0ec-1df1-43d2-98a1-6f1a2655aaf3}">
+    <Declaration><![CDATA[INTERFACE IOutputAts400 EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="AbortTest" Id="{3ab7e096-3147-46cc-af48-8f13443314c0}">
+      <Declaration><![CDATA[METHOD AbortTest
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SelectProgramm" Id="{55a888aa-09eb-4122-92bb-38edb3631dfc}">
+      <Declaration><![CDATA[METHOD SelectProgramm : TcoCore.ITcoTaskStatus
+VAR_INPUT
+    programm : UINT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetDummyReady" Id="{8787423f-7186-4055-addf-3b0dfe75ceb7}">
+      <Declaration><![CDATA[METHOD SetDummyReady
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetManualFail" Id="{35d1da70-7741-4c0f-bb2b-dea1c815f5f5}">
+      <Declaration><![CDATA[METHOD SetManualFail
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetManualPass" Id="{99d3b94c-f50c-404d-a69d-036e3a70f214}">
+      <Declaration><![CDATA[METHOD SetManualPass
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Start" Id="{a4d5e894-7da7-4732-a9a3-d58016b687a0}">
+      <Declaration><![CDATA[METHOD Start
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,338 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="RfidHead" Id="{b9804aa8-9ded-4408-aa6f-fd33a940430f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK RfidHead EXTENDS TcoCore.TcoComponent
+VAR_OUTPUT
+
+END_VAR
+VAR
+    _itfRfidHeadWrapper : IRfidHeadWrapper;
+    _readUidTask        : ReadUidTask(THIS^);
+    _readDataTask       : ReadDataTask(THIS^);
+    _writeDataTask      : WriteDataTask(THIS^);
+    _lockTask           : LockTask(THIS^);
+    _resetTask          : ResetTaskRfid(THIS^);
+
+    _rfidInOut      : RfidInOut;
+    _errorId        : RFID_FB_U.ERROR;
+    _uiDataRxLength : UINT;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Map();
+
+_readUidTask(rfidInOut := _rfidInOut, ActionDesc := '<#ReadUid#>');
+_readDataTask(rfidInOut := _rfidInOut, ActionDesc := '<#ReadData#>');
+_writeDataTask(rfidInOut := _rfidInOut, ActionDesc := '<#WriteData#>');
+_lockTask(rfidInOut := _rfidInOut, ActionDesc := '<#WriteData#>');
+_resetTask(rfidInOut := _rfidInOut, ActionDesc := '<#ResetTask#>');]]></ST>
+    </Implementation>
+    <Folder Name="Map" Id="{3dfaf2b8-ee21-4439-afca-07a7d42a308e}" />
+    <Folder Name="Operations" Id="{df559028-2e02-4963-aa18-db1bf643b042}" />
+    <Folder Name="Output" Id="{fadfd011-b785-4463-ad2e-7e9e2fbad96c}" />
+    <Folder Name="Status" Id="{cdd118b6-d89c-4268-9c74-33451fb6a01f}" />
+    <Folder Name="Tasks" Id="{d35bf5df-58c3-4edc-bf2e-00dbc08d63df}" />
+    <Property Name="Data" Id="{1fb1a294-0f74-49b6-aca2-ef87b4d04c1b}" FolderPath="Output\">
+      <Declaration><![CDATA[PROPERTY Data : Tc2_System.T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{0b8ab245-d033-4aa1-8c3b-3fa6bfeccb26}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Data := _readDataTask.Data;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="DataRxLength" Id="{70d6b81e-2898-4615-a665-a92937e07bee}" FolderPath="Output\">
+      <Declaration><![CDATA[PROPERTY DataRxLength : UINT]]></Declaration>
+      <Get Name="Get" Id="{acd058f0-6fbf-469a-848a-48f46330c28a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DataRxLength := _uiDataRxLength;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{35979862-d9a0-4a81-9c0f-e464d21ecf76}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : RFID_FB_U.ERROR]]></Declaration>
+      <Get Name="Get" Id="{ab9af534-dbda-476d-9287-e93a1b84bb40}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[{warning disable C0371}
+ErrorId := _readDataTask.ErrorId or _readUidTask.ErrorId or _writeDataTask.ErrorId OR _lockTask.ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{acc83f3d-a253-476c-ba4c-e2ba4ba3fab2}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains       : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode        : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject       : ITcoObject;
+    itfRfidHeadWrapper : IRfidHeadWrapper;
+    udiTimeOut         : TIME;
+END_VAR
+VAR
+    _microToMillis : UDINT := 1000;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// This is not clear to me... I from time to time the consumer code does not see 'FB_init' of 'TcoObject', that's why overridden here with super call...
+{warning disable C0316}
+SUPER^.FB_init(bInitRetains, bInCopyCode, ParentObject);
+
+THIS^._itfRfidHeadWrapper := itfRfidHeadWrapper;
+
+THIS^._rfidInOut.udiTimeOut := TIME_TO_UDINT(udiTimeOut) * _microToMillis;
+
+_readUidTask.FB_init
+(
+    bInitRetains   := bInitRetains
+    , bInCopyCode  := bInCopyCode
+    , ParentObject := ParentObject
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsError" Id="{d9d3a25a-cbe3-47a2-b502-99367ed0072f}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{dee70cac-df4b-4d91-a940-519204f87392}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[//collected Error from Tasks
+IsError :=
+    this^.pReadUidTask.Error or this^.pReadDataTask.Error or this^.pLockTask.Error or this^.pWriteDataTask.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="LockMethod" Id="{5b8af782-9258-483b-9db7-a2ba2851c196}" FolderPath="Operations\">
+      <Declaration><![CDATA[METHOD LockMethod : TcoCore.ITcoTaskStatus
+VAR_INPUT
+    udiDataLength : UINT;  //Length of the Data to read
+    StartAdress   : UDINT; // Memory Adress, from which to start
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (pLockTask <> 0) THEN
+    _rfidInOut.uiDataLenght   := udiDataLength;
+    _rfidInOut.udiStartAdress := StartAdress;
+    LockMethod                := pLockTask.Invoke();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Map" Id="{ff22a4d1-e2da-4e1f-915e-50fba519f1cc}" FolderPath="Map\">
+      <Declaration><![CDATA[METHOD Private Map : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_itfRfidHeadWrapper.Execute
+(
+    xExecute              := _rfidInOut.xExecute
+    , xAbort              := _rfidInOut.xAbort
+    , udiTimeOut          := _rfidInOut.udiTimeOut
+    , eCommand            := _rfidInOut.eCommand
+    , udiStartAdress      := _rfidInOut.udiStartAdress
+    , uiDataLenght        := _rfidInOut.uiDataLenght
+    , myWriteData         := _rfidInOut.myWriteData
+    , myReadData          => _rfidInOut.myReadData
+    , xDone               => _rfidInOut.xDone
+    , xBusy               => _rfidInOut.xBusy
+    , xError              => _rfidInOut.xError
+    , xAborted            => _rfidInOut.xAborted
+    , eErrorID            => _rfidInOut.eErrorID
+    , xTP                 => _rfidInOut.xTP
+    , xRWHeadNotCOnnected => _rfidInOut.xRWHeadNotCOnnected
+    , uiDataRxLength      => _rfidInOut.uiDataRxLength
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="pLockTask" Id="{ed95084c-9316-4d1b-9d7f-77e04b21bd90}" FolderPath="Tasks\">
+      <Declaration><![CDATA[PROPERTY pLockTask : TcoCore.ITcoTask
+]]></Declaration>
+      <Get Name="Get" Id="{804f4cee-15df-41ea-8b76-8e3b38f36ac1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[pLockTask := _lockTask;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="pReadDataTask" Id="{021e5c43-cbf7-42ab-bed9-348ea02c82b2}" FolderPath="Tasks\">
+      <Declaration><![CDATA[PROPERTY pReadDataTask : TcoCore.ITcoTask
+]]></Declaration>
+      <Get Name="Get" Id="{f9657344-727f-468c-94f0-a9392f36803f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[pReadDataTask := _readDataTask;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="pReadUidTask" Id="{75d0b3bb-dad0-46cc-b9ce-c4fe8da6c1a1}" FolderPath="Tasks\">
+      <Declaration><![CDATA[PROPERTY pReadUidTask : TcoCore.ITcoTask
+]]></Declaration>
+      <Get Name="Get" Id="{a4eea792-fc9d-4933-bed5-6171c33d92b8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[pReadUidTask := _readUidTask;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="pResetTask" Id="{b296bb90-d596-4976-bf8b-1db2b7483cbf}" FolderPath="Tasks\">
+      <Declaration><![CDATA[PROPERTY pResetTask : TcoCore.ITcoTask
+]]></Declaration>
+      <Get Name="Get" Id="{5d74eafc-aa46-4077-8d5f-1d19773ffd83}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[pResetTask := _resetTask;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="pWriteDataTask" Id="{51d3690b-728e-43b4-bd8e-60414670f7b3}" FolderPath="Tasks\">
+      <Declaration><![CDATA[PROPERTY pWriteDataTask : TcoCore.ITcoTask
+]]></Declaration>
+      <Get Name="Get" Id="{7ad9dcca-5d4b-43dd-9182-f8ead9f44ab3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[pWriteDataTask := _writeDataTask;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ReadDataMethod" Id="{3aee4692-ee7a-4a0f-8d95-4524ec406de7}" FolderPath="Operations\">
+      <Declaration><![CDATA[METHOD ReadDataMethod : TcoCore.ITcoTaskStatus
+VAR_INPUT
+    udiDataLength : UINT; //Length of the Data to read
+    MemoryAddr    : BYTE; // Memory Adress, from which to start
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (pReadDataTask <> 0) THEN
+    _rfidInOut.uiDataLenght   := udiDataLength;
+    _rfidInOut.udiStartAdress := MemoryAddr;
+    _uiDataRxLength           := _rfidInOut.uiDataRxLength;
+    ReadDataMethod            := pReadDataTask.Invoke();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadUidMethod" Id="{0635c5a9-1d48-4c5b-9edb-aa7456a44eb8}" FolderPath="Operations\">
+      <Declaration><![CDATA[METHOD ReadUidMethod : TcoCore.ITcoTaskStatus
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (pReadUidTask <> 0) THEN
+    ReadUidMethod := pReadUidTask.Invoke();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetMethod" Id="{abbada54-6015-4715-9323-328dc5d2a08d}" FolderPath="Operations\">
+      <Declaration><![CDATA[METHOD ResetMethod : TcoCore.ITcoTaskStatus
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (pResetTask <> 0) THEN
+    ResetMethod := pResetTask.Invoke();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Restore" Id="{60e8ad41-0936-485d-81f4-a441c90de548}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Restore all tasks of this instance into initial state.
+        </summary>
+    </docu>
+~*)
+METHOD Restore : ITcoRestorable
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF (pReadUidTask <> 0) THEN
+    pReadUidTask.Restore();
+END_IF;
+
+IF (pReadDataTask <> 0) THEN
+    pReadDataTask.Restore();
+END_IF;
+
+IF (pWriteDataTask) <> 0 THEN
+    pWriteDataTask.Restore();
+END_IF
+
+IF (pLockTask) <> 0 THEN
+    pLockTask.Restore();
+END_IF
+
+IF (pResetTask) <> 0 THEN
+    pResetTask.Restore();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ServiceMode" Id="{d3fef0af-a61e-4c69-9748-134dd26773e4}">
+      <Declaration><![CDATA[METHOD PROTECTED ServiceMode
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Uid" Id="{6d4473c0-eb64-4022-8d44-8853c97ae5f9}" FolderPath="Output\">
+      <Declaration><![CDATA[PROPERTY Uid : Tc2_System.T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{9e4f55a5-1e9c-40d8-9ab9-7c808c7c075a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Uid := _readUidTask.Uid;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="WriteDataMethod" Id="{e9cf36cf-4bbd-4615-8f53-70f3a520d6f9}" FolderPath="Operations\">
+      <Declaration><![CDATA[METHOD WriteDataMethod : TcoCore.ITcoTaskStatus
+VAR_IN_OUT
+    WriteData : ARRAY[*] OF BYTE; //Data to write to Tag
+END_VAR
+VAR_INPUT
+    MemoryAddr : BYTE; // Memory Adress, from which to start
+END_VAR
+VAR_INST
+    _i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (pWriteDataTask <> 0) THEN
+    _rfidInOut.uiDataLenght   := SIZEOF(WriteData);
+    _rfidInOut.udiStartAdress := MemoryAddr;
+
+    FOR _i := LOWER_BOUND(WriteData, 1) TO UPPER_BOUND(WriteData, 1) DO
+        _rfidInOut.myWriteData[_i] := WriteData[_i];
+    END_FOR
+
+    _uiDataRxLength := _rfidInOut.uiDataRxLength;
+    WriteDataMethod := pWriteDataTask.Invoke();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="ITcoCylinder" Id="{c2a322cf-4819-0c45-2ceb-e8e2d5c76d1c}">
+    <Declaration><![CDATA[INTERFACE ITcoCylinder EXTENDS __System.IQueryInterface
+]]></Declaration>
+    <Folder Name="Actions" Id="{2649e82c-8e33-45a9-803d-640d149687ef}" />
+    <Folder Name="States" Id="{4738758c-6953-4477-9b5e-15e80bc7db9b}" />
+    <Property Name="AtHome" Id="{5e74c99b-17c6-0faa-19b6-c3aa2e91d9d0}" FolderPath="States\">
+      <Declaration><![CDATA[PROPERTY AtHome : bool]]></Declaration>
+      <Get Name="Get" Id="{de6044f7-da19-05b4-1d21-84d3a92f9392}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="AtWork" Id="{52c8c179-3d08-043a-2ea6-c895ce8aeea4}" FolderPath="States\">
+      <Declaration><![CDATA[PROPERTY AtWork : bool]]></Declaration>
+      <Get Name="Get" Id="{b40d1659-1450-0717-2a1d-40c728fd8f20}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="MoveToHome" Id="{830993bd-7a96-4c67-8591-4118c70a06c3}" FolderPath="Actions\">
+      <Declaration><![CDATA[METHOD MoveToHome : TcoCore.ITcoTaskStatus
+]]></Declaration>
+    </Method>
+    <Method Name="MoveToWork" Id="{e39ebb1f-b52a-46d7-8208-8862f6812550}" FolderPath="Actions\">
+      <Declaration><![CDATA[METHOD MoveToWork : TcoCore.ITcoTaskStatus
+]]></Declaration>
+    </Method>
+    <Method Name="Stop" Id="{dfc06fc3-ec2b-4d8d-a75c-00578ca1d3b2}" FolderPath="Actions\">
+      <Declaration><![CDATA[(*~
+	<docu>
+		<summary>
+			Stops cyclinder movement.
+		 	<remarks>
+				<note type="important">
+					This method switched off the signals for the movement of the piston in both direction.
+					However depending on the pnemumatics configuration the movement may contintue if designed in that way.
+					THIS IS NOT A SAFETY FUCTION!
+				</note>
+			</remarks>
+		</summary>
+	</docu>
+~*)
+METHOD Stop : TcoCore.ITcoTaskStatus
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

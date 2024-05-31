@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IInputAts400" Id="{7fbd6e7a-9bf2-45e1-bfe5-8bb674e23833}">
+    <Declaration><![CDATA[INTERFACE IInputAts400 EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="GetInputData" Id="{587ee920-bcd1-446c-adb6-c607a9321c28}">
+      <Declaration><![CDATA[METHOD GetInputData : InputDataAts400
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

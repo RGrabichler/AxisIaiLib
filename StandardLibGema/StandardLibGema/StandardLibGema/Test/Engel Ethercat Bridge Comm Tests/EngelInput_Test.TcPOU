@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="EngelInput_Test" Id="{8d5015f6-1d33-46b1-a45f-a94dc152298b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EngelInput_Test EXTENDS TcUnit.FB_TestSuite
+VAR
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ParseVariantOne();]]></ST>
+    </Implementation>
+    <Method Name="ParseVariantOne" Id="{176e2a5f-3f1c-44b1-b54c-f8d6de9c8f9a}">
+      <Declaration><![CDATA[METHOD PRIVATE ParseVariantOne
+VAR
+    in : ARRAY[1..42] OF BYTE;
+
+    engelInput : EngelInput;
+
+    inputData : EngelInputData;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// lebenssignal: alle 6ms muss der Zaehler um 1 erhoet werden (0-255, 0-255)
+// will be the Counter be incremented from me and engel,
+// will there be 2 Counter, everybody responsible for his
+// what is the Result, if not incremented
+
+//
+
+Test('ParseVariantOne');
+
+in[1]  := 255;
+in[2]  := 255;
+in[39] := 2#1111_1111;
+
+engelInput(input := in);
+
+inputData := engelInput.GetInputData();
+
+AssertEquals_UINT(Expected := 65535, Actual := inputData.HeartBeat, 'Heartbeat not Correct');
+AssertTrue(Condition := inputData.AutoActive, ' AutomatikActive should be true');
+AssertTrue(Condition := inputData.HomeDone, 'HomeDoneshould be true');
+AssertTrue(Condition := inputData.ManualActive, 'ManualActive should be true');
+AssertTrue(Condition := inputData.HomeRequest, 'RequestHome should be true');
+AssertTrue(Condition := inputData.SafetyClosed, 'SafetyClosed should be true');
+AssertTrue(Condition := inputData.SafetyOpeningAllowed, 'SafetyOpeningAllowed should be true');
+AssertTrue(Condition := inputData.AutoStart, 'StartAuto should be true');
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

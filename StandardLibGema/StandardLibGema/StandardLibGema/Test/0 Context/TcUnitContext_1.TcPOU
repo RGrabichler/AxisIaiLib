@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <POU Name="TcUnitContext" Id="{0537339e-f15a-07ca-0b3a-11e01d7e3892}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK TcUnitContext EXTENDS TcoCore.TcoContext
+  <POU Name="TcUnitContext_1" Id="{dd18f4d7-6df7-4b05-803e-832112e31421}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK TcUnitContext_1 EXTENDS TcoCore.TcoContext
 VAR
-    _mainStation : MainStation(THIS^);
+    testStation : TestStation(THIS^);
 
     {attribute addProperty Name "Versionsnummer Plc"}
-    _sVersion : STRING(23);
+    version : STRING(23);
     //~
-    _stProgramVersion : ST_LibVersion;
+    programVersion : ST_LibVersion;
     //~
 
 END_VAR
@@ -16,7 +16,7 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="Main" Id="{9167253f-7073-00d1-1bc5-4e3d16aed3cb}">
+    <Method Name="Main" Id="{4948e276-ecde-4c1e-90c1-dcfc1933ff78}">
       <Declaration><![CDATA[(*~
     <docu>
         <summary>
@@ -30,7 +30,7 @@ METHOD PROTECTED Main
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[
-_mainStation();
+testStation();
 ]]></ST>
       </Implementation>
     </Method>

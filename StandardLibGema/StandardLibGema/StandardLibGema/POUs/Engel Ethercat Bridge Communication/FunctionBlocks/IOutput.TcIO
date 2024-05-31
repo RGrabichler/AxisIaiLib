@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IOutput" Id="{66cf7dfe-1a8a-4840-bc34-49638d73d6ae}">
+    <Declaration><![CDATA[INTERFACE IOutput EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+  </Itf>
+</TcPlcObject>
