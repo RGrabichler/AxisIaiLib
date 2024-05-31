@@ -1,49 +1,59 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FileVersion>1.0.0.0</FileVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{d82fc749-9cad-4ccf-8b04-92c10f9d2cb3}</ProjectGuid>
+    <ProjectGuid>{f0bab1e7-b207-4d97-b1f2-fe3d9803120c}</ProjectGuid>
     <SubObjectsSortedByName>True</SubObjectsSortedByName>
     <DownloadApplicationInfo>true</DownloadApplicationInfo>
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
-    <Name>AxisIaiLib</Name>
+    <Name>AxisIaiLibExample</Name>
     <ProgramVersion>3.1.4024.0</ProgramVersion>
-    <Application>{e1241689-0f27-4782-8333-790a4dd481d2}</Application>
-    <TypeSystem>{81998057-4287-4bf3-ba42-36011e0ed6d7}</TypeSystem>
-    <Implicit_Task_Info>{fdb10b49-8bbe-4d23-80b6-6e42fb8a0b74}</Implicit_Task_Info>
-    <Implicit_KindOfTask>{53842763-cd48-4e71-8be2-9a88dfb41047}</Implicit_KindOfTask>
-    <Implicit_Jitter_Distribution>{59a3eedd-2b8e-45e1-8c49-cd787c4195a3}</Implicit_Jitter_Distribution>
-    <LibraryReferences>{9b8fea92-88af-4d85-9333-61b7246bd202}</LibraryReferences>
+    <Application>{b006f182-345b-4b4f-b104-3c04ae78f1a5}</Application>
+    <TypeSystem>{fc012a3d-851c-47fb-b77b-8e301d9e2ab8}</TypeSystem>
+    <Implicit_Task_Info>{31a0500a-47c8-460f-90d0-692599a00169}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{adfa0afd-73ab-4c3e-ada5-b51c7f6d2bd9}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{c5650add-d05a-4207-bb38-e1db2070de17}</Implicit_Jitter_Distribution>
+    <LibraryReferences>{08cfa5ec-be79-4a04-ada0-80de2c70a767}</LibraryReferences>
     <Company>Gema</Company>
     <Released>false</Released>
-    <Title>AxisIaiLibrary</Title>
-    <ProjectVersion>0.0.0.3</ProjectVersion>
-    <LibraryCategories>
-      <LibraryCategory xmlns="">
-        <Id>{be549c8e-54c2-41a3-bf8e-7f8b7c7453e8}</Id>
-        <Version>1.0.0.0</Version>
-        <DefaultName>RG</DefaultName>
-      </LibraryCategory>
-    </LibraryCategories>
-    <SelectedLibraryCategories>
-      <Id xmlns="">{be549c8e-54c2-41a3-bf8e-7f8b7c7453e8}</Id>
-    </SelectedLibraryCategories>
-    <DefaultNamespace>AxisIaiLibrary</DefaultNamespace>
-    <Placeholder>AxisIaiLibrary</Placeholder>
+    <Title>Test</Title>
+    <ProjectVersion>0.1.0.0</ProjectVersion>
+    <Placeholder>PLC</Placeholder>
     <Author>RG</Author>
-    <CombineIds>true</CombineIds>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="AxisIaiLib.tmc">
-      <SubType>Content</SubType>
-    </None>
+    <Compile Include="PlcTask.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\AppContext.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MAIN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MainStation.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DUTs" />
+    <Folder Include="GVLs" />
+    <Folder Include="VISUs" />
+    <Folder Include="POUs" />
   </ItemGroup>
   <ItemGroup>
     <PlaceholderReference Include="Tc2_Standard">
       <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Standard</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_System">
+      <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Module">
+      <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Module</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoCore">
       <DefaultResolution>TcoCore, 0.11.0.35 (Vortex.Library)</DefaultResolution>
@@ -60,6 +70,10 @@
     <PlaceholderReference Include="TcoElements">
       <DefaultResolution>TcoElements, 0.11.0.35 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoElements</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="TcoInspectors">
+      <DefaultResolution>TcoInspectors, 0.11.0.29 (Vortex.Library)</DefaultResolution>
+      <Namespace>TcoInspectors</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoIo">
       <DefaultResolution>TcoIo, 0.11.0.35 (Vortex.Library)</DefaultResolution>
@@ -87,6 +101,9 @@
     <PlaceholderResolution Include="TcoElements">
       <Resolution>TcoElements, 0.11.0.35 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
+    <PlaceholderResolution Include="TcoInspectors">
+      <Resolution>TcoInspectors, 0.11.0.29 (Vortex.Library)</Resolution>
+    </PlaceholderResolution>
     <PlaceholderResolution Include="TcoIo">
       <Resolution>TcoIo, 0.11.0.35 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
@@ -98,121 +115,14 @@
     </PlaceholderResolution>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Context" />
-    <Folder Include="IAI" />
-    <Folder Include="IAI\Data types" />
-    <Folder Include="IAI\Data types\Enum" />
-    <Folder Include="IAI\Data types\In" />
-    <Folder Include="IAI\Data types\In\Gateway" />
-    <Folder Include="IAI\Data types\Interfaces" />
-    <Folder Include="IAI\Data types\Out" />
-    <Folder Include="IAI\Data types\Out\Gateway" />
-    <Folder Include="IAI\Global Variables" />
-    <Folder Include="IAI\IAI_Drive" />
-    <Folder Include="IAI\IAI_Drive\TcoAxis" />
-    <Folder Include="IAI\IAI_Drive\TcoAxis\AxisTasks" />
-    <Folder Include="IAI\IAI_Drive\TcoAxis\MotionTasks" />
+    <None Include="AxisIaiLibExample.tmc">
+      <SubType>Content</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Context\MainStation.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Context\PRG_TEST.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Context\TcUnitContext.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\AxisLimits.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Enum\eSetPositionMode.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Enum\E_AccelMode.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Enum\E_RMod.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Enum\E_StopMode.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\IAIAxisStatus.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Interfaces\iSuperActuator.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\In\Gateway\GatewayStatus.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\In\Gateway\StatusSignal0.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\In\Gateway\StatusSignal1.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\In\PlcIn.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\In\StatusIn.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\IOAxis.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Out\ControlOut.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Out\Gateway\ControlSignal0.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Out\Gateway\ControlSignal1.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Out\Gateway\GatewayControl.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Data types\Out\PlcOut.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Global Variables\AxisStats.TcGVL">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\Global Variables\AxisStatsGlobal.TcGVL">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\AxisIAI.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\AxisTasks\ResetTask.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\AxisTasks\SetPositionTask.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\IAxisIAI.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\HaltTask.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\HomeTask.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\MoveAbsoluteTask.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\MoveRelativeTask.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\MotionTasks\StopTask.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="IAI\IAI_Drive\TcoAxis\Power.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
+    <LibraryReference Include="AxisIaiLibrary,0.0.0.1,Gema">
+      <Namespace>AxisIaiLibrary</Namespace>
+    </LibraryReference>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>

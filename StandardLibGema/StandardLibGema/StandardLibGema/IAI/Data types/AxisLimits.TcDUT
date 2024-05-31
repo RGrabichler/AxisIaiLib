@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="AxisLimits" Id="{44bf4bb1-3dee-42b2-b7af-e44e9a932aec}">
+    <Declaration><![CDATA[TYPE
+    AxisLimits :
+    STRUCT
+        MaxAcceleration : UINT;
+        MINPosition     : DINT;
+        MaxPosition     : DINT;
+        MaxVelocity     : UINT;
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

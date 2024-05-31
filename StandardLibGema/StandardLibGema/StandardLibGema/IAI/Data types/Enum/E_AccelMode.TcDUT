@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_AccelMode" Id="{b3056980-3522-40b9-b1a2-e9852fd2dde6}">
+    <Declaration><![CDATA[//(*Operating mode selector: The AUTO mode is selected when this
+//	 signal is OFF, and the MANU mode is selected when the signal is ON*)
+TYPE
+    E_AccelMode :
+    (
+        AMode_Trapetz    := 0, (*default*)
+        AMode_S_Shape    := 1,
+        AMode_FirstOrder := 2
+    );
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

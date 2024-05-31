@@ -8,7 +8,7 @@
     <DownloadApplicationInfo>true</DownloadApplicationInfo>
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
-    <Name>AxisIaiLib</Name>
+    <Name>StandardLibGema</Name>
     <ProgramVersion>3.1.4024.0</ProgramVersion>
     <Application>{e1241689-0f27-4782-8333-790a4dd481d2}</Application>
     <TypeSystem>{81998057-4287-4bf3-ba42-36011e0ed6d7}</TypeSystem>
@@ -18,8 +18,8 @@
     <LibraryReferences>{9b8fea92-88af-4d85-9333-61b7246bd202}</LibraryReferences>
     <Company>Gema</Company>
     <Released>false</Released>
-    <Title>AxisIaiLibrary</Title>
-    <ProjectVersion>0.0.0.3</ProjectVersion>
+    <Title>StandardLibGema</Title>
+    <ProjectVersion>0.0.81</ProjectVersion>
     <LibraryCategories>
       <LibraryCategory xmlns="">
         <Id>{be549c8e-54c2-41a3-bf8e-7f8b7c7453e8}</Id>
@@ -30,13 +30,13 @@
     <SelectedLibraryCategories>
       <Id xmlns="">{be549c8e-54c2-41a3-bf8e-7f8b7c7453e8}</Id>
     </SelectedLibraryCategories>
-    <DefaultNamespace>AxisIaiLibrary</DefaultNamespace>
-    <Placeholder>AxisIaiLibrary</Placeholder>
+    <DefaultNamespace>StandardLibGema</DefaultNamespace>
+    <Placeholder>StandardLibGema</Placeholder>
     <Author>RG</Author>
     <CombineIds>true</CombineIds>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="AxisIaiLib.tmc">
+    <None Include="StandardLibGema.tmc">
       <SubType>Content</SubType>
     </None>
   </ItemGroup>
@@ -46,55 +46,55 @@
       <Namespace>Tc2_Standard</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoCore">
-      <DefaultResolution>TcoCore, 0.11.0.35 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoCore, 0.11.0.68 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoCore</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoData">
-      <DefaultResolution>TcoData, 0.11.0.35 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoData, 0.11.0.68 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoData</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoDrivesBeckhoff">
-      <DefaultResolution>TcoDrivesBeckhoff, 0.11.0.35 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoDrivesBeckhoff, 0.11.0.68 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoDrivesBeckhoff</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoElements">
-      <DefaultResolution>TcoElements, 0.11.0.35 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoElements, 0.11.0.68 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoElements</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoIo">
-      <DefaultResolution>TcoIo, 0.11.0.35 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoIo, 0.11.0.68 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoIo</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoPneumatics">
-      <DefaultResolution>TcoPneumatics, 0.11.0.35 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoPneumatics, 0.11.0.68 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoPneumatics</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoUtilities">
-      <DefaultResolution>TcoUtilities, 0.11.0.35 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoUtilities, 0.11.0.68 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoUtilities</Namespace>
     </PlaceholderReference>
   </ItemGroup>
   <ItemGroup>
     <PlaceholderResolution Include="TcoCore">
-      <Resolution>TcoCore, 0.11.0.35 (Vortex.Library)</Resolution>
+      <Resolution>TcoCore, 0.11.0.68 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoData">
-      <Resolution>TcoData, 0.11.0.35 (Vortex.Library)</Resolution>
+      <Resolution>TcoData, 0.11.0.68 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoDrivesBeckhoff">
-      <Resolution>TcoDrivesBeckhoff, 0.11.0.35 (Vortex.Library)</Resolution>
+      <Resolution>TcoDrivesBeckhoff, 0.11.0.68 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoElements">
-      <Resolution>TcoElements, 0.11.0.35 (Vortex.Library)</Resolution>
+      <Resolution>TcoElements, 0.11.0.68 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoIo">
-      <Resolution>TcoIo, 0.11.0.35 (Vortex.Library)</Resolution>
+      <Resolution>TcoIo, 0.11.0.68 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoPneumatics">
-      <Resolution>TcoPneumatics, 0.11.0.35 (Vortex.Library)</Resolution>
+      <Resolution>TcoPneumatics, 0.11.0.68 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoUtilities">
-      <Resolution>TcoUtilities, 0.11.0.35 (Vortex.Library)</Resolution>
+      <Resolution>TcoUtilities, 0.11.0.68 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +112,8 @@
     <Folder Include="IAI\IAI_Drive\TcoAxis" />
     <Folder Include="IAI\IAI_Drive\TcoAxis\AxisTasks" />
     <Folder Include="IAI\IAI_Drive\TcoAxis\MotionTasks" />
+    <Folder Include="Project Information" />
+    <Folder Include="Version" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Context\MainStation.TcPOU">
@@ -211,6 +213,21 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IAI\IAI_Drive\TcoAxis\Power.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Project Information\F_GetCompany.TcPOU">
+      <SubType>Code</SubType>
+      <SystemCall>true</SystemCall>
+    </Compile>
+    <Compile Include="Project Information\F_GetTitle.TcPOU">
+      <SubType>Code</SubType>
+      <SystemCall>true</SystemCall>
+    </Compile>
+    <Compile Include="Project Information\F_GetVersion.TcPOU">
+      <SubType>Code</SubType>
+      <SystemCall>true</SystemCall>
+    </Compile>
+    <Compile Include="Version\Global_Version.TcGVL">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

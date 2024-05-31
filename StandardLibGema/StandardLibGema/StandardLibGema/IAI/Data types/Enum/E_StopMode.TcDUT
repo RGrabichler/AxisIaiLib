@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_StopMode" Id="{a0aba8c1-f5dc-4e49-a23c-24ce4cdf609f}">
+    <Declaration><![CDATA[//(*Operating mode selector: The AUTO mode is selected when this
+//	 signal is OFF, and the MANU mode is selected when the signal is ON*)
+TYPE
+    E_StopMode :
+    (
+        SMode_OFF      := 0,
+        SMode_Param_36 := 1,
+        SMode_Param_37 := 2,
+        SMode_Param_38 := 3
+    );
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

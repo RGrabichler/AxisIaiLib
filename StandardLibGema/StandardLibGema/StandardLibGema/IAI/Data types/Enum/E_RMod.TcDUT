@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_RMod" Id="{cbfdee93-b413-4001-b94a-da4c74d9cb98}">
+    <Declaration><![CDATA[//(*Operating mode selector: The AUTO mode is selected when this
+//	 signal is OFF, and the MANU mode is selected when the signal is ON*)
+TYPE
+    E_RMod :
+    (
+        RMode_Auto := 0,
+        RMode_Manu := 1
+    );
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>
