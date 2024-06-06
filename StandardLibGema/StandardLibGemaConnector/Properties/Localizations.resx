@@ -249,6 +249,9 @@
   <data name="___Movement_suspended_due_to_NOT__" xml:space="preserve">
     <value>Movement suspended due to NOT</value>
   </data>
+  <data name="___No_Sensor_Active__Check_the_position_of_the_sensors___" xml:space="preserve">
+    <value>No Sensor Active, Check the position of the sensors!</value>
+  </data>
   <data name="___ReadUid__" xml:space="preserve">
     <value>ReadUid</value>
   </data>

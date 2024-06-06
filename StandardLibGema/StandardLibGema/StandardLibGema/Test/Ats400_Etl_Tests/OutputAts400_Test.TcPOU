@@ -13,22 +13,21 @@ VAR
 END_VAR
 
 VAR
-    dut_Select      : OutputAts400(THIS^, eRestoreMode.None);
+    dut_Select : OutputAts400(THIS^, eRestoreMode.None);
 
-
-    input             : InputAts400MockStatusReady;
+    input          : InputAts400MockStatusReady;
     itfInputAts400 : IInputAts400 := input;
     inData         : InputDataAts400;
 END_VAR
 
 VAR
-    dut_bitCombi : OutputAts400(THIS^, eRestoreMode.None);
-    timerBitCombi : TON := ( PT := T#15MS);
+    dut_bitCombi  : OutputAts400(THIS^, eRestoreMode.None);
+    timerBitCombi : TON := (PT := T#15MS);
 END_VAR
 
 VAR
-    dut_bitCombi9 : OutputAts400(THIS^, eRestoreMode.None);
-    timerBitCombi9 : TON := ( PT := T#15MS);
+    dut_bitCombi9  : OutputAts400(THIS^, eRestoreMode.None);
+    timerBitCombi9 : TON := (PT := T#15MS);
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[_nfContext.VolatileOpen(); //Required for TCopen
@@ -118,7 +117,7 @@ END_VAR
     <Method Name="SetDifferentPrograms_ExpectCorrespondingBitCombination" Id="{cd0426ce-9ee1-43da-ae6e-5d440cfaeb3a}">
       <Declaration><![CDATA[METHOD PRIVATE SetDifferentPrograms_ExpectCorrespondingBitCombination
 VAR_INST
-     selectedProgram : UINT := 11;
+    selectedProgram : UINT := 11;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('SetDifferentPrograms_ExpectCorrespondingBitCombination');
@@ -147,7 +146,7 @@ END_IF]]></ST>
     <Method Name="SetDifferentProgramsLike9_ExpectCorrespondingBitCombination" Id="{c85a5289-9600-41ff-81aa-408c729ed375}">
       <Declaration><![CDATA[METHOD PRIVATE SetDifferentProgramsLike9_ExpectCorrespondingBitCombination
 VAR_INST
-     selectedProgram : UINT := 9;
+    selectedProgram : UINT := 9;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('SetDifferentProgramsLike9_ExpectCorrespondingBitCombination');
@@ -222,8 +221,8 @@ END_IF
     <Method Name="SetProgram5_ExpectBit1TrueBit2FalseBit3TrueOthersFalse" Id="{299ed021-c08d-42d4-9fd1-da71fd23694b}">
       <Declaration><![CDATA[METHOD PRIVATE SetProgram5_ExpectBit1TrueBit2FalseBit3TrueOthersFalse
 VAR_INST
-    duration : TON := (pt := T#50MS);
-      selectedProgram : UINT := 5;
+    duration        : TON  := (pt := T#50MS);
+    selectedProgram : UINT := 5;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('SetProgram5_ExpectBit1TrueBit2FalseBit3TrueOthersFalse');

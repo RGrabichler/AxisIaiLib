@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="eMachineModes" Id="{b4fbe22c-264d-0c3f-041a-83b8aad68a05}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE
+    eMachineModes :
+    (
+        Idle    := 0,
+        Automat := 1000,
+        Step    := 2000,
+        Home    := 3000,
+        Manual  := 4000,
+        Fault   := 9000
+    ) INT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

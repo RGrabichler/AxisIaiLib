@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK SelectProgramTask EXTENDS TcoCore.TcoTask
 VAR_OUTPUT
     {attribute clr [RenderIgnore()]}
-    output    : ARRAY[lower..upper] OF BOOL;
+    output : ARRAY[lower..upper] OF BOOL;
 END_VAR
 
 VAR_INPUT
@@ -14,7 +14,7 @@ END_VAR
 
 VAR
     {attribute clr [RenderIgnore()]}
-    i           : UINT;
+    i : UINT;
     //~
     selectState : (Init
         , Abort
@@ -45,13 +45,13 @@ END_VAR]]></Declaration>
             timer(In := TRUE, pt := T#1MS);
 
             IF timer.Q THEN
-                output[2]      := FALSE;
+                output[2]   := FALSE;
                 selectState := Select;
                 timer(In := FALSE);
             END_IF
         Select:
             timer(In := TRUE, PT := T#50MS);
-            output[6]      := TRUE;
+            output[6]   := TRUE;
             selectState := SetOutput;
         SetOutPut:
             output[7]  := (selectedProgram.0);

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ColorsSignalLightMachineModes" Id="{1591cb05-60ac-025a-34bc-1b49e3106441}">
+    <Declaration><![CDATA[TYPE
+    ColorsSignalLightMachineModes :
+    STRUCT
+        Green       : BOOL;
+        Yellow      : BOOL;
+        Red         : BOOL;
+    END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

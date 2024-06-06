@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="SignalLightsController_Test" Id="{d8ca5e8f-44fa-0071-14bb-221ceab2403f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK INTERNAL SignalLightsController_Test EXTENDS TcUnit.FB_TestSuite
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SetModes_ExpectCorrLight();]]></ST>
+    </Implementation>
+    <Method Name="SetModes_ExpectCorrLight" Id="{c2386a1e-9355-03b4-01e6-9a764025c8ac}">
+      <Declaration><![CDATA[METHOD PRIVATE SetModes_ExpectCorrLight
+VAR
+
+    dut           : SignalLightsController;
+    itfDut        : ISignalLightsController;
+    modesMachine  : eMachineModes;
+    actualColor   : ColorsSignalLightMachineModes;
+    expectedColor : ColorsSignalLightMachineModes;
+
+END_VAR
+VAR_INST
+    blinkTime : TIME := T#1MS;
+    blinker  : TP   (PT := T#1MS);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetDifferentMachineModes_ExpectCorrespondingLightColor');
+
+//Arrange
+itfDut              := dut;
+modesMachine        := eMachineModes.Automat;
+expectedColor.Green := TRUE;
+
+// Act
+actualColor := itfDut.SetMachineMode(modesMachine);
+
+// Assert
+AssertEquals
+(
+    Expected  := expectedColor
+    , Actual  := actualColor
+    , Message := 'ColorOuput shall be Green'
+);
+
+//========================Idle=============================
+modesMachine         := eMachineModes.Idle;
+expectedColor.Green  := FALSE;
+expectedColor.Red    := FALSE;
+expectedColor.Yellow := FALSE;
+
+actualColor := itfDut.SetMachineMode(modesMachine);
+
+AssertEquals
+(
+    Expected  := expectedColor
+    , Actual  := actualColor
+    , Message := 'ColorOuput shall be Off'
+);
+
+//========================Step=============================
+modesMachine         := eMachineModes.Step;
+expectedColor.Green  := TRUE;
+expectedColor.Red    := FALSE;
+expectedColor.Yellow := TRUE;
+
+actualColor := itfDut.SetMachineMode(modesMachine);
+
+AssertEquals
+(
+    Expected  := expectedColor
+    , Actual  := actualColor
+    , Message := 'ColorOuput shall be GreenAndYellow'
+);
+
+//========================Manual=============================
+modesMachine         := eMachineModes.Manual;
+expectedColor.Green  := FALSE;
+expectedColor.Red    := FALSE;
+expectedColor.Yellow := TRUE;
+
+actualColor := itfDut.SetMachineMode(modesMachine);
+
+AssertEquals
+(
+    Expected  := expectedColor
+    , Actual  := actualColor
+    , Message := 'ColorOuput shall be Yellow'
+);
+
+//========================Fault=============================
+modesMachine         := eMachineModes.Fault;
+expectedColor.Green  := FALSE;
+expectedColor.Red    := TRUE;
+expectedColor.Yellow := FALSE;
+
+actualColor := itfDut.SetMachineMode(modesMachine);
+AssertEquals
+(
+    Expected  := expectedColor
+    , Actual  := actualColor
+    , Message := 'ColorOuput shall be Red'
+);
+
+//========================Home=============================
+modesMachine := eMachineModes.Home;
+
+IF eMachineModes.Home = modesMachine THEN
+    blinker(in := TRUE);
+ELSE
+    blinker(in := FALSE);
+END_IF
+
+expectedColor.Red    := FALSE;
+expectedColor.Yellow := FALSE;
+
+actualColor := itfDut.SetMachineMode(modesMachine);
+
+IF blinker.ET >= 0 * blinkTime AND blinker.ET < blinkTime THEN
+    expectedColor.Green := TRUE;
+
+    AssertEquals
+    (
+        Expected  := expectedColor
+        , Actual  := actualColor
+        , Message := 'ColorOuput shall be GreenBlinking and True'
+    );
+
+ELSIF blinker.ET >= blinkTime AND blinker.ET < 2 * blinkTime THEN
+    expectedColor.Green := FALSE;
+
+    AssertEquals
+    (
+        Expected  := expectedColor
+        , Actual  := actualColor
+        , Message := 'ColorOuput shall be GreenBlinking and False'
+    );
+
+ELSIF blinker.ET > 2 * blinkTime AND blinker.ET < 3 * blinkTime THEN
+    expectedColor.Green := TRUE;
+
+    AssertEquals
+    (
+        Expected  := expectedColor
+        , Actual  := actualColor
+        , Message := 'ColorOuput shall be GreenBlinking and TRUE'
+    );
+ELSE
+
+    //========================Idle, Check again if all out =============================
+    modesMachine         := eMachineModes.Idle;
+    expectedColor.Green  := FALSE;
+    expectedColor.Red    := FALSE;
+    expectedColor.Yellow := FALSE;
+
+    actualColor := itfDut.SetMachineMode(modesMachine);
+
+    AssertEquals
+    (
+        Expected  := expectedColor
+        , Actual  := actualColor
+        , Message := 'ColorOuput shall be Off again'
+    );
+
+    {analysis -9}
+    TEST_FINISHED();
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

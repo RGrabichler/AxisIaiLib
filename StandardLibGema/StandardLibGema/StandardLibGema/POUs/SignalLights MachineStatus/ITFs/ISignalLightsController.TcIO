@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="ISignalLightsController" Id="{5cc853b6-a6b4-052f-2580-1168e385b567}">
+    <Declaration><![CDATA[INTERFACE ISignalLightsController
+]]></Declaration>
+    <Property Name="GetColorsSignalLightMachineModes" Id="{38e34ed0-21eb-03eb-0c2c-f07eb4f78088}">
+      <Declaration><![CDATA[PROPERTY GetColorsSignalLightMachineModes : ColorsSignalLightMachineModes]]></Declaration>
+      <Get Name="Get" Id="{8b9b8ee7-4b0c-0379-1ae1-4eee6175b99a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="GetColorsSignalLightMachineStatus" Id="{0a127001-5391-07a4-1104-fe4e47abccef}">
+      <Declaration><![CDATA[PROPERTY GetColorsSignalLightMachineStatus : ColorsSignalLightMachineModes]]></Declaration>
+      <Get Name="Get" Id="{681124da-3b80-0284-0316-ff0fa244f1cc}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="SetBlinkTime" Id="{71c84436-d35b-0c87-0414-decff83dd88f}">
+      <Declaration><![CDATA[METHOD SetBlinkTime
+VAR_INPUT
+	blinkTime : TIME ;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetMachineMode" Id="{362b10ad-363d-0e31-2181-9b66b7933c66}">
+      <Declaration><![CDATA[METHOD SetMachineMode : ColorsSignalLightMachineModes
+VAR_INPUT
+    currentMachineMode : eMachineModes := eMachineModes.Idle;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetMachineStatusOff" Id="{99d8ed84-32f0-0337-2bb7-ce97eb828066}">
+      <Declaration><![CDATA[METHOD SetMachineStatusOff : ColorsSignalLightsStatus
+VAR_INPUT
+    currentMachineStatus : eMachineStatus ;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetMachineStatusOn" Id="{34fa206c-f612-09fc-27dc-9eafa1f7979e}">
+      <Declaration><![CDATA[METHOD SetMachineStatusOn : ColorsSignalLightsStatus
+VAR_INPUT
+    currentMachineStatus : eMachineStatus ;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

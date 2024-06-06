@@ -41,60 +41,84 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PlaceholderReference Include="RFID FB U">
+      <DefaultResolution>RFID universal data interface TwinCAT, * (Turck)</DefaultResolution>
+      <Namespace>RFID_FB_U</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_EtherCAT">
+      <DefaultResolution>Tc2_EtherCAT, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_EtherCAT</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Standard">
       <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Standard</Namespace>
     </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_System">
+      <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Utilities">
+      <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Module">
+      <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Module</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="TcoCore">
-      <DefaultResolution>TcoCore, 0.11.0.68 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoCore, 0.11.0.71 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoCore</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoData">
-      <DefaultResolution>TcoData, 0.11.0.68 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoData, 0.11.0.71 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoData</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoDrivesBeckhoff">
-      <DefaultResolution>TcoDrivesBeckhoff, 0.11.0.68 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoDrivesBeckhoff, 0.11.0.71 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoDrivesBeckhoff</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoElements">
-      <DefaultResolution>TcoElements, 0.11.0.68 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoElements, 0.11.0.71 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoElements</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoIo">
-      <DefaultResolution>TcoIo, 0.11.0.68 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoIo, 0.11.0.71 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoIo</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoPneumatics">
-      <DefaultResolution>TcoPneumatics, 0.11.0.68 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoPneumatics, 0.11.0.71 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoPneumatics</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="TcoUtilities">
-      <DefaultResolution>TcoUtilities, 0.11.0.68 (Vortex.Library)</DefaultResolution>
+      <DefaultResolution>TcoUtilities, 0.11.0.71 (Vortex.Library)</DefaultResolution>
       <Namespace>TcoUtilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="TcUnit">
+      <DefaultResolution>TcUnit, * (www.tcunit.org)</DefaultResolution>
+      <Namespace>TcUnit</Namespace>
     </PlaceholderReference>
   </ItemGroup>
   <ItemGroup>
     <PlaceholderResolution Include="TcoCore">
-      <Resolution>TcoCore, 0.11.0.68 (Vortex.Library)</Resolution>
+      <Resolution>TcoCore, 0.11.0.71 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoData">
-      <Resolution>TcoData, 0.11.0.68 (Vortex.Library)</Resolution>
+      <Resolution>TcoData, 0.11.0.71 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoDrivesBeckhoff">
-      <Resolution>TcoDrivesBeckhoff, 0.11.0.68 (Vortex.Library)</Resolution>
+      <Resolution>TcoDrivesBeckhoff, 0.11.0.71 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoElements">
-      <Resolution>TcoElements, 0.11.0.68 (Vortex.Library)</Resolution>
+      <Resolution>TcoElements, 0.11.0.71 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoIo">
-      <Resolution>TcoIo, 0.11.0.68 (Vortex.Library)</Resolution>
+      <Resolution>TcoIo, 0.11.0.71 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoPneumatics">
-      <Resolution>TcoPneumatics, 0.11.0.68 (Vortex.Library)</Resolution>
+      <Resolution>TcoPneumatics, 0.11.0.71 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="TcoUtilities">
-      <Resolution>TcoUtilities, 0.11.0.68 (Vortex.Library)</Resolution>
+      <Resolution>TcoUtilities, 0.11.0.71 (Vortex.Library)</Resolution>
     </PlaceholderResolution>
   </ItemGroup>
   <ItemGroup>
@@ -120,6 +144,7 @@
     <Folder Include="POUs\Cylinders" />
     <Folder Include="POUs\Cylinders\Base" />
     <Folder Include="POUs\Cylinders\ExampleCylinder" />
+    <Folder Include="POUs\Cylinders\Zylinder" />
     <Folder Include="POUs\DualPositionActuator" />
     <Folder Include="POUs\DualPositionActuator\DUTs" />
     <Folder Include="POUs\DualPositionActuator\ITFs" />
@@ -127,8 +152,12 @@
     <Folder Include="POUs\Engel Ethercat Bridge Communication" />
     <Folder Include="POUs\Engel Ethercat Bridge Communication\DUTs" />
     <Folder Include="POUs\Engel Ethercat Bridge Communication\FunctionBlocks" />
+    <Folder Include="POUs\SignalLights MachineStatus" />
     <Folder Include="POUs\Sequences" />
     <Folder Include="POUs\Sequences\Test" />
+    <Folder Include="POUs\SignalLights MachineStatus\DUTs" />
+    <Folder Include="POUs\SignalLights MachineStatus\ITFs" />
+    <Folder Include="POUs\SignalLights MachineStatus\POUs" />
     <Folder Include="POUs\Turck Rfid Reader" />
     <Folder Include="POUs\Turck Rfid Reader\Mock" />
     <Folder Include="POUs\Turck Rfid Reader\Rfid" />
@@ -140,6 +169,7 @@
     <Folder Include="Test\Ats400_Etl_Tests" />
     <Folder Include="Test\DualPositionActuator" />
     <Folder Include="Test\Engel Ethercat Bridge Comm Tests" />
+    <Folder Include="Test\SignalLights MachineStatus Tests" />
     <Folder Include="Test\Sequences" />
     <Folder Include="Test\Sequences\Test" />
     <Folder Include="Test\Turck Rfid Reader Test" />
@@ -237,6 +267,9 @@
     <Compile Include="IAI\IAI_Drive\TcoAxis\Power.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PlcTask.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\ATS400_ETL\DUT\InputDataAts400.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -297,6 +330,12 @@
     <Compile Include="POUs\Cylinders\TcoDoubleCylinder.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Cylinders\Zylinder\CylCustom.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Cylinders\Zylinder\CylCustomMoveTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\DualPositionActuator\DUTs\E_DualPositionActuatorState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -337,6 +376,24 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Sequences\Test\stSequenceTest.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\SignalLights MachineStatus\DUTs\ColorsSignalLightsStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\SignalLights MachineStatus\DUTs\eMachineModes.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\SignalLights MachineStatus\DUTs\ColorsSignalLightMachineModes.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\SignalLights MachineStatus\DUTs\eMachineStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\SignalLights MachineStatus\ITFs\ISignalLightsController.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\SignalLights MachineStatus\POUs\SignalLightsController.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Turck Rfid Reader\Mock\RfidMockNoRfidInRange.TcPOU">
@@ -384,10 +441,10 @@
       <SubType>Code</SubType>
       <SystemCall>true</SystemCall>
     </Compile>
-    <Compile Include="Test\0 Context\PRG_TEST_1.TcPOU">
+    <Compile Include="Test\0 Context\PRG_TEST.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Test\0 Context\TcUnitContext_1.TcPOU">
+    <Compile Include="Test\0 Context\TcUnitContext.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\0 Context\TestStation.TcPOU">
@@ -412,6 +469,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\Sequences\Test\SequenceTryout_Test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Test\SignalLights MachineStatus Tests\SignalLightsController_Test.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\Turck Rfid Reader Test\RfidHead_Test.TcPOU">

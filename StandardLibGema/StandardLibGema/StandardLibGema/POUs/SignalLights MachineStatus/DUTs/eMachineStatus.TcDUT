@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="eMachineStatus" Id="{3313c827-6ec7-0a50-030a-1616b65e8e1d}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE
+    eMachineStatus :
+    (
+
+        SpecialModeBlue     := 100,
+        SpecialModeWhite    := 200,
+        SpecialModeViolet   := 300,
+        SpecialModeTurquise := 400,
+        All                 := 990
+    ) INT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

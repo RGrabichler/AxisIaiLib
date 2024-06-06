@@ -36,6 +36,11 @@ VAR
     outputAts400Test : OutputAts400_Test;
 END_VAR
 //===================================================================================
+//===============================SignalLights for MachineStatus ===============================================
+VAR
+    signalLightsControllerTest : SignalLightsController_Test;
+END_VAR
+//===================================================================================
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[TcUnit.RUN();

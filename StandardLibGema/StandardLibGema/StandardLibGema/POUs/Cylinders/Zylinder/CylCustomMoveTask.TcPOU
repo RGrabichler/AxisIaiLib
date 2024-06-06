@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CylCustomMoveTask" Id="{84c5e10d-1805-4fb3-a5ec-ae8376f520a6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CylCustomMoveTask EXTENDS TcoCore.TcoTask
+VAR_INPUT
+    PositionSensor         : BOOL;
+    MaxTimeToReachPosition : TIME := T#10S;
+    PositionName           : STRING(25);
+END_VAR
+VAR_IN_OUT
+    MoveToPositionSignal : BOOL;
+    InverseSignal        : BOOL;
+END_VAR
+
+VAR
+    _stringBuilder : TcoCore.StringBuilder;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF (THIS^.Execute()) THEN
+    IF (THIS^.ElapsedTime > MaxTimeToReachPosition) THEN
+        THIS^.Messenger
+            .Error(_stringBuilder.Clear().Append(PositionName).Append(' Sensor not reached, TimeOut!').ToString())
+            .Pin();
+
+        THIS^.ThrowWhen(TRUE);
+    END_IF;
+
+    InverseSignal        := FALSE;
+    MoveToPositionSignal := TRUE;
+    THIS^.DoneWhen(PositionSensor);
+END_IF
+]]></ST>
+    </Implementation>
+    <Method Name="FB_init" Id="{d0928a9f-4215-4c74-b345-53d2e8b280b9}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject : ITcoObject;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// This is not clear to me... I from time to time the consumer code does not see 'FB_init' of 'TcoObject', that's why overridden here with super call...
+SUPER^.FB_init(bInitRetains, bInCopyCode, ParentObject);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnAbort" Id="{5a2ad2a1-d570-4011-925a-9908510e20c6}">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Executes when task is aborted.
+        </summary>
+    </docu>
+~*)
+METHOD PROTECTED OnAbort
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveToPositionSignal := FALSE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{d8cf4064-6f21-4f66-8b91-d236e8fca4e2}">
+      <Declaration><![CDATA[METHOD PROTECTED OnError
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.OnAbort();
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

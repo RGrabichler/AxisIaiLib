@@ -2,7 +2,7 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <Itf Name="IHeartBeat" Id="{91448687-689a-4ab3-9ef3-21f38db9796a}">
     <Declaration><![CDATA[INTERFACE IHeartBeat EXTENDS __SYSTEM.IQueryInterface
- ]]></Declaration>
+]]></Declaration>
     <Property Name="GetErrorMessage" Id="{69c031b9-aefa-4d4b-a8cf-a96d5c13d03f}">
       <Declaration><![CDATA[PROPERTY GetErrorMessage : T_MaxString;]]></Declaration>
       <Get Name="Get" Id="{1ab98fdd-ac77-4486-8b8a-b0183f154cc1}">
