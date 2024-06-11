@@ -1,13 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="SignalLightsController" Id="{a3831b7a-f468-072b-07bc-5d866e7a1270}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK SignalLightsController IMPLEMENTS ISignalLightsController
+    <Declaration><![CDATA[FUNCTION_BLOCK SignalLightsController EXTENDS TcoCore.TcoObject IMPLEMENTS ISignalLightsController
 VAR
-    _blinkTime : TIME := T#1000MS;
+    blinker : Blinker;
+    colorsStatus : ColorsSignalLightsStatus;
+    colorsMode : ColorsSignalLightMachineModes;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Folder Name="TcOpen" Id="{5bb81a15-b92a-0fc0-2349-745b7e763cd2}" />
+    <Method Name="FB_init" Id="{868f2a62-2468-0ef6-16f5-eaab195850ac}" FolderPath="TcOpen\">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    ParentObject : ITcoObject;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="GetColorsSignalLightMachineModes" Id="{ea4c7eb4-63fe-0480-14d4-dbd32e8f6cf8}">
       <Declaration><![CDATA[PROPERTY GetColorsSignalLightMachineModes :  ColorsSignalLightMachineModes
 ]]></Declaration>
@@ -16,106 +31,155 @@ END_VAR]]></Declaration>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[]]></ST>
+          <ST><![CDATA[GetColorsSignalLightMachineModes := colorsMode;]]></ST>
         </Implementation>
       </Get>
     </Property>
     <Property Name="GetColorsSignalLightMachineStatus" Id="{61c67baa-eee7-034d-2319-e69b1ea0ec47}">
-      <Declaration><![CDATA[PROPERTY GetColorsSignalLightMachineStatus : ColorsSignalLightMachineModes
+      <Declaration><![CDATA[PROPERTY GetColorsSignalLightMachineStatus : ColorsSignalLightsStatus
 ]]></Declaration>
       <Get Name="Get" Id="{337c6540-7a18-09a7-100a-9a6284d2aaa7}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[]]></ST>
+          <ST><![CDATA[GetColorsSignalLightMachineStatus := colorsStatus;]]></ST>
         </Implementation>
       </Get>
     </Property>
+    <Method Name="Restore" Id="{2c202b00-9469-0abf-05de-8807bc290315}" FolderPath="TcOpen\">
+      <Declaration><![CDATA[(*~
+    <docu>
+        <summary>
+            Restore all tasks of this instance into initial state.
+        </summary>
+    </docu>
+~*)
+METHOD Restore : ITcoRestorable
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ServiceMode" Id="{a39e8956-494e-0458-3f1a-add1796a23b7}" FolderPath="TcOpen\">
+      <Declaration><![CDATA[METHOD PROTECTED ServiceMode
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="SetBlinkTime" Id="{0da11680-2f5f-0252-3b6c-0817468bf029}">
       <Declaration><![CDATA[METHOD SetBlinkTime
 VAR_INPUT
-    blinkTime : TIME ;
+    blinkOnTime  : TIME;
+    blinkOffTime : TIME;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_blinkTime := blinkTime;]]></ST>
+        <ST><![CDATA[THIS^.blinker.SetOffTime(blinkOffTime);
+THIS^.blinker.SetOnTime(blinkOnTime);]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetMachineMode" Id="{3a4f1b80-1872-04a2-0d9a-630ebf80f85e}">
       <Declaration><![CDATA[METHOD SetMachineMode : ColorsSignalLightMachineModes
 VAR_INPUT
-    currentMachineMode : eMachineModes := eMachineModes.Idle;
+    currentMachineMode : eMachineModes ;
 END_VAR
-VAR_INST
-    blinker : TP := (PT := _blinkTime);
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF eMachineModes.Home = currentMachineMode THEN
-    blinker(in := TRUE);
-ELSE
-    blinker(in := FALSE);
+        <ST><![CDATA[
+IF eMachineModes.Home = currentMachineMode THEN
+    blinker.ExecuteTimer();
 END_IF
 
 CASE currentMachineMode OF
     eMachineModes.Fault:
-        SetMachineMode.Red    := TRUE;
-        SetMachineMode.Green  := FALSE;
-        SetMachineMode.Yellow := FALSE;
+        colorsMode.Red    := TRUE;
+        colorsMode.Green  := FALSE;
+        colorsMode.Yellow := FALSE;
 
     eMachineModes.Idle:
 
-        SetMachineMode.Red    := FALSE;
-        SetMachineMode.Green  := FALSE;
-        SetMachineMode.Yellow := FALSE;
+        colorsMode.Red    := FALSE;
+        colorsMode.Green  := FALSE;
+        colorsMode.Yellow := FALSE;
 
     eMachineModes.Automat:
-        SetMachineMode.Red    := FALSE;
-        SetMachineMode.Green  := TRUE;
-        SetMachineMode.Yellow := FALSE;
+        colorsMode.Red    := FALSE;
+        colorsMode.Green  := TRUE;
+        colorsMode.Yellow := FALSE;
 
     eMachineModes.Step:
-        SetMachineMode.Red    := FALSE;
-        SetMachineMode.Green  := TRUE;
-        SetMachineMode.Yellow := TRUE;
+        colorsMode.Red    := FALSE;
+        colorsMode.Green  := TRUE;
+        colorsMode.Yellow := TRUE;
 
     eMachineModes.Home:
-        SetMachineMode.Red    := FALSE;
-        SetMachineMode.Yellow := FALSE;
-
-        IF blinker.Q THEN
-            SetMachineMode.Green := TRUE;
-        ELSE
-            SetMachineMode.Green := FALSE;
-        END_IF
+        colorsMode.Red    := FALSE;
+        colorsMode.Yellow := FALSE;
+        colorsMode.Green  := blinker.IsOn;
 
     eMachineModes.Manual:
-        SetMachineMode.Red    := FALSE;
-        SetMachineMode.Yellow := TRUE;
-        SetMachineMode.Green  := FALSE;
+        colorsMode.Red    := FALSE;
+        colorsMode.Yellow := TRUE;
+        colorsMode.Green  := FALSE;
 ELSE
     ;
-END_CASE]]></ST>
+END_CASE
+
+ SetMachineMode := colorsMode ;]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetMachineStatusOff" Id="{b8bada96-3e7b-0287-112f-dcc29f5c588f}">
       <Declaration><![CDATA[METHOD SetMachineStatusOff : ColorsSignalLightsStatus
 VAR_INPUT
-    currentMachineStatus : eMachineStatus ;
+    currentMachineStatus : eMachineStatus;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[CASE currentMachineStatus OF
+    eMachineStatus.Blue:
+        colorsStatus.Blue := FALSE;
+    eMachineStatus.Turquise:
+        colorsStatus.Turquise := FALSE;
+    eMachineStatus.Violet:
+        colorsStatus.Violet := FALSE;
+    eMachineStatus.White:
+        colorsStatus.White := FALSE;
+    eMachineStatus.All:
+        colorsStatus.Blue     := FALSE;
+        colorsStatus.Turquise := FALSE;
+        colorsStatus.White    := FALSE;
+        colorsStatus.Violet   := FALSE;
+END_CASE
+
+SetMachineStatusOff := colorsStatus;]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetMachineStatusOn" Id="{ac3547ba-4fce-0714-2ddd-7a82bdb7e26d}">
       <Declaration><![CDATA[METHOD SetMachineStatusOn : ColorsSignalLightsStatus
 VAR_INPUT
-    currentMachineStatus	: eMachineStatus ;
+    currentMachineStatus : eMachineStatus;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[CASE currentMachineStatus OF
+    eMachineStatus.Blue:
+        colorsStatus.Blue := TRUE;
+    eMachineStatus.Turquise:
+        colorsStatus.Turquise := TRUE;
+    eMachineStatus.Violet:
+        colorsStatus.Violet := TRUE;
+    eMachineStatus.White:
+        colorsStatus.White := TRUE;
+    eMachineStatus.All:
+        colorsStatus.Blue     := TRUE;
+        colorsStatus.Turquise := TRUE;
+        colorsStatus.White    := TRUE;
+        colorsStatus.Violet   := TRUE;
+END_CASE
+
+SetMachineStatusOn := colorsStatus;]]></ST>
       </Implementation>
     </Method>
   </POU>

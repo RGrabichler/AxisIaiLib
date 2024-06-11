@@ -41,7 +41,11 @@ VAR
     signalLightsControllerTest : SignalLightsController_Test;
 END_VAR
 //===================================================================================
-]]></Declaration>
+//===============================Utilities ===============================================
+VAR
+    blinkerTest : Blinker_Test;
+END_VAR
+//=======]]></Declaration>
     <Implementation>
       <ST><![CDATA[TcUnit.RUN();
 ]]></ST>

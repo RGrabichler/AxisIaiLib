@@ -8,11 +8,11 @@ TYPE
     eMachineStatus :
     (
 
-        SpecialModeBlue     := 100,
-        SpecialModeWhite    := 200,
-        SpecialModeViolet   := 300,
-        SpecialModeTurquise := 400,
-        All                 := 990
+        Blue     := 100,
+        White    := 200,
+        Violet   := 300,
+        Turquise := 400,
+        All      := 990
     ) INT;
 END_TYPE]]></Declaration>
   </DUT>

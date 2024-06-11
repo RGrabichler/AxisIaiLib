@@ -152,6 +152,7 @@
     <Folder Include="POUs\Engel Ethercat Bridge Communication" />
     <Folder Include="POUs\Engel Ethercat Bridge Communication\DUTs" />
     <Folder Include="POUs\Engel Ethercat Bridge Communication\FunctionBlocks" />
+    <Folder Include="POUs\Utilities" />
     <Folder Include="POUs\SignalLights MachineStatus" />
     <Folder Include="POUs\Sequences" />
     <Folder Include="POUs\Sequences\Test" />
@@ -169,6 +170,7 @@
     <Folder Include="Test\Ats400_Etl_Tests" />
     <Folder Include="Test\DualPositionActuator" />
     <Folder Include="Test\Engel Ethercat Bridge Comm Tests" />
+    <Folder Include="Test\BlinkerTest" />
     <Folder Include="Test\SignalLights MachineStatus Tests" />
     <Folder Include="Test\Sequences" />
     <Folder Include="Test\Sequences\Test" />
@@ -429,6 +431,9 @@
     <Compile Include="POUs\Turck Rfid Reader\Rfid\Wrapper\Rfid_FB_Compact_Wrapper.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Utilities\Blinker.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Project Information\F_GetCompany.TcPOU">
       <SubType>Code</SubType>
       <SystemCall>true</SystemCall>
@@ -454,6 +459,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\Ats400_Etl_Tests\OutputAts400_Test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Test\BlinkerTest\Blinker_Test.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\DualPositionActuator\FB_DualPositionActuator_Test.TcPOU">
@@ -483,6 +491,11 @@
     <Compile Include="Version\Global_Version.TcGVL">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <LibraryReference Include="BASIC,3.31,OSCAT">
+      <Namespace>BASIC</Namespace>
+    </LibraryReference>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>

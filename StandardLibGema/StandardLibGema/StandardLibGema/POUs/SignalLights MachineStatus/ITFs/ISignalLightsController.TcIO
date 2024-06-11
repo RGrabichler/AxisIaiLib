@@ -10,7 +10,7 @@
       </Get>
     </Property>
     <Property Name="GetColorsSignalLightMachineStatus" Id="{0a127001-5391-07a4-1104-fe4e47abccef}">
-      <Declaration><![CDATA[PROPERTY GetColorsSignalLightMachineStatus : ColorsSignalLightMachineModes]]></Declaration>
+      <Declaration><![CDATA[PROPERTY GetColorsSignalLightMachineStatus : ColorsSignalLightsStatus]]></Declaration>
       <Get Name="Get" Id="{681124da-3b80-0284-0316-ff0fa244f1cc}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -18,14 +18,15 @@
     <Method Name="SetBlinkTime" Id="{71c84436-d35b-0c87-0414-decff83dd88f}">
       <Declaration><![CDATA[METHOD SetBlinkTime
 VAR_INPUT
-	blinkTime : TIME ;
+    blinkOnTime  : TIME;
+    blinkOffTime : TIME;
 END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="SetMachineMode" Id="{362b10ad-363d-0e31-2181-9b66b7933c66}">
       <Declaration><![CDATA[METHOD SetMachineMode : ColorsSignalLightMachineModes
 VAR_INPUT
-    currentMachineMode : eMachineModes := eMachineModes.Idle;
+    currentMachineMode : eMachineModes ;
 END_VAR
 ]]></Declaration>
     </Method>

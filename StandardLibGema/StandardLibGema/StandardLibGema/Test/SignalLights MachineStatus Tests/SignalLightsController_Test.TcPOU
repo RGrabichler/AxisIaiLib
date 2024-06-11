@@ -1,150 +1,393 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="SignalLightsController_Test" Id="{d8ca5e8f-44fa-0071-14bb-221ceab2403f}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK INTERNAL SignalLightsController_Test EXTENDS TcUnit.FB_TestSuite
+    <Declaration><![CDATA[FUNCTION_BLOCK INTERNAL SignalLightsController_Test EXTENDS TcUnit.FB_TestSuite IMPLEMENTS TcoCore.ITcoContext
+VAR
+    //Context for TcOpen
+    _nfContext : TcoCore.TcoContextNfCompatibility;
+END_VAR
+
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[SetModes_ExpectCorrLight();]]></ST>
+      <ST><![CDATA[SetModes_ExpectCorrLight();
+SetMachineStatusOn_ExpectCorrLights();
+SetIndivStatusOn_thenSetIndivOff();
+SetMachineStatusOnAllThenOffAll();
+SetDivStatus_ExpectPropsAccordingly();]]></ST>
     </Implementation>
+    <Folder Name="ITcoContext" Id="{c98fd2bb-6c2b-0007-18a7-cb34bcda95ec}" />
+    <Property Name="Context" Id="{697e2ddd-c094-0bdb-15d9-c7e157021eb8}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Context : TcoCore.ITcoContext
+]]></Declaration>
+      <Get Name="Get" Id="{fc7a87c9-3710-06d7-06ce-1fb39c35936f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Context := This^._nfContext;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="EndCycleCount" Id="{ac77f67b-8e5f-08b6-0795-f1f1815404b1}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY EndCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{a3ea9982-ebd2-03e8-3edd-4c1b39317f7c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[EndCycleCount := THIS^._nfContext._endCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Environment" Id="{32ef3121-be2b-0b41-0f27-9fabffa48706}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Environment : TcoCore.ITcoContextEnvironment
+]]></Declaration>
+      <Get Name="Get" Id="{09dc3cd7-6c6f-0c65-2147-5a969dead66b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Environment := THIS^._nfContext._settings;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Identity" Id="{4811df9f-1ebd-077a-073f-0015bc21d024}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Identity : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{8b12006b-6674-0121-281d-271d4227a8ae}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Identity := THIS^._nfContext._Identity;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Logger" Id="{13746edc-79da-0358-03ca-fc89aff6aebb}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Logger : TcoCore.ITcoLogger
+]]></Declaration>
+      <Get Name="Get" Id="{64d60500-ddd5-0c79-0961-e891911bc1c8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Logger := THIS^._nfContext._logger;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RealTimeClock" Id="{4969de23-f67d-015d-2587-de076e4ea65b}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY RealTimeClock : TcoCore.ITcoRtc
+]]></Declaration>
+      <Get Name="Get" Id="{45718cd9-d6ab-08ee-1d01-5107025e0156}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RealTimeClock := THIS^._nfContext._rtc;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SetDivStatus_ExpectPropsAccordingly" Id="{c1d760df-0ed2-0366-197b-d325cb576864}">
+      <Declaration><![CDATA[METHOD PRIVATE SetDivStatus_ExpectPropsAccordingly
+VAR_INST
+    dut           : SignalLightsController(THIS^);
+    itfDut        : ISignalLightsController;
+    actualColor   : ColorsSignalLightsStatus;
+    expectedColor : ColorsSignalLightsStatus;
+
+
+    modesStatus : eMachineStatus;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetDivStatus_ExpectPropsAccordingly');
+
+//Arrange
+itfDut := dut;
+
+//Check before
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+AssertFalse(actualColor.Blue, 'ColorOutput Blue shall be off');
+AssertFalse(actualColor.Violet, 'ColorOuput Violet1 shall be off');
+AssertFalse(actualColor.White, 'ColorOuput White shall be off');
+
+//Blue
+itfDut.SetMachineStatusOn(eMachineStatus.Blue);
+actualColor := itfDut.GetColorsSignalLightMachineStatus;
+AssertTrue(actualColor.Blue, 'ColorOutput Blue shall be On');
+actualColor := itfDut.SetMachineStatusOff(eMachineStatus.Blue);
+AssertFalse(actualColor.Blue, 'ColorOutput shall be off');
+
+//Violet
+actualColor := itfDut.SetMachineStatusOn(eMachineStatus.Violet);
+AssertTrue(actualColor.Violet, 'ColorOutput Violet2 shall be On');
+itfDut.SetMachineStatusOff(eMachineStatus.Violet);
+actualColor := itfDut.GetColorsSignalLightMachineStatus;
+AssertFalse(actualColor.Violet, 'ColorOutput Violet shall be Off');
+AssertFalse(actualColor.Blue, 'ColorOutput shall be off');
+actualColor := itfDut.SetMachineStatusOff(eMachineStatus.Violet);
+AssertFalse(actualColor.Violet, 'ColorOutput shall be off');
+
+//Turquise
+actualColor := itfDut.SetMachineStatusOn(eMachineStatus.Turquise);
+AssertTrue(actualColor.Turquise, 'ColorOutput Turquise shall be On');
+AssertFalse(actualColor.White, 'ColorOutput shall be off');
+AssertFalse(actualColor.Violet, 'ColorOutput shall be off');
+AssertFalse(actualColor.Blue, 'ColorOutput shall be off');
+actualColor := itfDut.SetMachineStatusOff(eMachineStatus.Turquise);
+itfDut.SetMachineStatusOn(eMachineStatus.Turquise);
+actualColor := itfDut.GetColorsSignalLightMachineStatus;
+AssertTrue(actualColor.Turquise, 'ColorOutput Turquise shall be On');
+itfDut.SetMachineStatusOff(eMachineStatus.Turquise);
+actualColor := itfDut.GetColorsSignalLightMachineStatus;
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+actualColor := itfDut.GetColorsSignalLightMachineStatus;
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+//White
+itfDut.SetMachineStatusOn(eMachineStatus.White);
+actualColor := itfDut.GetColorsSignalLightMachineStatus;
+AssertTrue(actualColor.White, 'ColorOutput White shall be On');
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+actualColor := itfDut.SetMachineStatusOff(eMachineStatus.Violet);
+AssertFalse(actualColor.Violet, 'ColorOutput shall be off');
+AssertFalse(actualColor.Blue, 'ColorOutput shall be off');
+actualColor := itfDut.SetMachineStatusOff(eMachineStatus.White);
+AssertFalse(actualColor.White, 'ColorOutput shall be off');
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetIndivStatusOn_thenSetIndivOff" Id="{63f336da-3345-0603-0bf5-848a67b030bc}">
+      <Declaration><![CDATA[METHOD PRIVATE SetIndivStatusOn_thenSetIndivOff
+VAR_INST
+    dut           : SignalLightsController(THIS^);
+    itfDut        : ISignalLightsController;
+    actualColor   : ColorsSignalLightsStatus;
+    expectedColor : ColorsSignalLightsStatus;
+
+
+    modesStatus : eMachineStatus;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetIndivStatusOn_thenSetIndivOff');
+
+//Arrange
+itfDut := dut;
+
+//Check before
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+AssertFalse(actualColor.Blue, 'ColorOutput Blue shall be off');
+AssertFalse(actualColor.Violet, 'ColorOuput Violet shall be off');
+AssertFalse(actualColor.White, 'ColorOuput White shall be off');
+
+//Blue
+actualColor := itfDut.SetMachineStatusOn(eMachineStatus.Blue);
+AssertTrue(actualColor.Blue, 'ColorOutput Blue shall be On');
+ actualColor := itfDut.SetMachineStatusOff(eMachineStatus.Blue);
+AssertFalse(actualColor.Blue, 'ColorOutput shall be off');
+
+//Violet
+actualColor :=itfDut.SetMachineStatusOn(eMachineStatus.Violet);
+AssertTrue(actualColor.Violet, 'ColorOutput Violet shall be On');
+AssertFalse(actualColor.Blue, 'ColorOutput shall be off');
+actualColor :=itfDut.SetMachineStatusOff(eMachineStatus.Violet);
+AssertFalse(actualColor.Violet, 'ColorOutput shall be off');
+
+//Turquise
+actualColor :=itfDut.SetMachineStatusOn(eMachineStatus.Turquise);
+AssertTrue(actualColor.Turquise, 'ColorOutput Turquise shall be On');
+AssertFalse(actualColor.White, 'ColorOutput shall be off');
+AssertFalse(actualColor.Violet, 'ColorOutput shall be off');
+AssertFalse(actualColor.Blue, 'ColorOutput shall be off');
+actualColor :=itfDut.SetMachineStatusOff(eMachineStatus.Turquise);
+actualColor :=itfDut.SetMachineStatusOn(eMachineStatus.Violet);
+AssertTrue(actualColor.Violet, 'ColorOutput Violet shall be On');
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+
+//White
+actualColor :=itfDut.SetMachineStatusOn(eMachineStatus.White);
+AssertTrue(actualColor.White, 'ColorOutput White shall be On');
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+actualColor :=itfDut.SetMachineStatusOff(eMachineStatus.Violet);
+AssertFalse(actualColor.Violet, 'ColorOutput shall be off');
+AssertFalse(actualColor.Blue, 'ColorOutput shall be off');
+actualColor :=itfDut.SetMachineStatusOff(eMachineStatus.White);
+AssertFalse(actualColor.White , 'ColorOutput shall be off');
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetMachineStatusOn_ExpectCorrLights" Id="{a3dd56f4-7b99-0869-38c7-05f2e90316f9}">
+      <Declaration><![CDATA[METHOD PRIVATE SetMachineStatusOn_ExpectCorrLights
+VAR_INST
+    dut           : SignalLightsController(THIS^);
+    itfDut        : ISignalLightsController;
+    actualColor   : ColorsSignalLightsStatus;
+    expectedColor : ColorsSignalLightsStatus;
+    modesStatus   : eMachineStatus;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetMachineStatusOn_ExpectCorrLights');
+
+//Arrange
+itfDut := dut;
+
+    modesStatus        := eMachineStatus.Blue;
+    expectedColor.Blue := TRUE;
+
+    // Act
+    actualColor := itfDut.SetMachineStatusOn(modesStatus);
+
+    // Assert
+    AssertEquals
+    (
+        Expected  := expectedColor
+        , Actual  := actualColor
+        , Message := 'ColorOuput shall be BLUE'
+    );
+
+    //Act
+    modesStatus := eMachineStatus.Turquise;
+    actualColor := itfDut.SetMachineStatusOn(modesStatus);
+
+    AssertTrue(actualColor.Turquise, 'ColorOutput shall be Turquise');
+    AssertTrue(actualColor.Blue, 'ColorOutput Blue shall be still On');
+    AssertFalse(actualColor.Violet, 'ColorOuput Violet shall be off');
+    AssertFalse(actualColor.White, 'ColorOuput White shall be off');
+
+     //Act
+    modesStatus := eMachineStatus.Violet;
+    actualColor := itfDut.SetMachineStatusOn(modesStatus);
+
+    AssertTrue(actualColor.Turquise, 'ColorOutput shall be Turquise');
+    AssertTrue(actualColor.Blue, 'ColorOutput Blue shall be still On');
+    AssertTrue(actualColor.Violet, 'ColorOuput Violet shall be on');
+    AssertFalse(actualColor.White, 'ColorOuput White shall be off');
+
+
+         //Act
+    modesStatus := eMachineStatus.White;
+    actualColor := itfDut.SetMachineStatusOn(modesStatus);
+
+    AssertTrue(actualColor.Turquise, 'ColorOutput shall be Turquise');
+    AssertTrue(actualColor.Blue, 'ColorOutput Blue shall be still On');
+    AssertTrue(actualColor.Violet, 'ColorOuput Violet shall be on');
+    AssertTrue(actualColor.White, 'ColorOuput White shall be on');
+
+
+
+         //Act
+    modesStatus := eMachineStatus.All;
+    actualColor := itfDut.SetMachineStatusOff(modesStatus);
+
+    AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+    AssertFalse(actualColor.Blue, 'ColorOutput Blue shall be off');
+    AssertFalse(actualColor.Violet, 'ColorOuput Violet shall be off');
+    AssertFalse(actualColor.White, 'ColorOuput White shall be off');
+
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetMachineStatusOnAllThenOffAll" Id="{d3986cb6-ddb2-0e24-04a2-782acd19bece}">
+      <Declaration><![CDATA[METHOD PRIVATE SetMachineStatusOnAllThenOffAll
+VAR_INST
+    dut           : SignalLightsController(THIS^);
+    itfDut        : ISignalLightsController;
+    actualColor   : ColorsSignalLightsStatus;
+    expectedColor : ColorsSignalLightsStatus;
+
+
+    modesStatus : eMachineStatus;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetMachineStatusOnAllThenOffAll');
+
+//Arrange
+itfDut := dut;
+
+//Check before
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+AssertFalse(actualColor.Blue, 'ColorOutput Blue shall be off');
+AssertFalse(actualColor.Violet, 'ColorOuput Violet shall be off');
+AssertFalse(actualColor.White, 'ColorOuput White shall be off');
+
+//Act
+actualColor := itfDut.SetMachineStatusOn(eMachineStatus.Blue);
+actualColor := itfDut.SetMachineStatusOn(eMachineStatus.Turquise);
+actualColor := itfDut.SetMachineStatusOn(eMachineStatus.Violet);
+actualColor := itfDut.SetMachineStatusOn(eMachineStatus.White);
+
+// Assert
+AssertTrue(actualColor.Turquise, 'ColorOutput shall be Turquise');
+AssertTrue(actualColor.Blue, 'ColorOutput Blue shall be still On');
+AssertTrue(actualColor.Violet, 'ColorOuput Violet shall be On');
+AssertTrue(actualColor.White, 'ColorOuput White shall be On');
+
+//Act
+actualColor := itfDut.SetMachineStatusOff(eMachineStatus.All);
+
+//Check after
+AssertFalse(actualColor.Turquise, 'ColorOutput shall be off');
+AssertFalse(actualColor.Blue, 'ColorOutput Blue shall be off');
+AssertFalse(actualColor.Violet, 'ColorOuput Violet shall be off');
+AssertFalse(actualColor.White, 'ColorOuput White shall be off');
+
+//setALll
+actualColor := itfDut.SetMachineStatusOn(eMachineStatus.All);
+// Assert
+AssertTrue(actualColor.Turquise, 'ColorOutput shall be Turquise');
+AssertTrue(actualColor.Blue, 'ColorOutput Blue shall be still On');
+AssertTrue(actualColor.Violet, 'ColorOuput Violet shall be On');
+AssertTrue(actualColor.White, 'ColorOuput White shall be On');
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="SetModes_ExpectCorrLight" Id="{c2386a1e-9355-03b4-01e6-9a764025c8ac}">
       <Declaration><![CDATA[METHOD PRIVATE SetModes_ExpectCorrLight
-VAR
+VAR_INST
 
-    dut           : SignalLightsController;
+    dut           : SignalLightsController(THIS^);
     itfDut        : ISignalLightsController;
-    modesMachine  : eMachineModes;
     actualColor   : ColorsSignalLightMachineModes;
     expectedColor : ColorsSignalLightMachineModes;
 
-END_VAR
-VAR_INST
-    blinkTime : TIME := T#1MS;
-    blinker  : TP   (PT := T#1MS);
+    blinkTime    : TIME := T#10MS;
+    timer        : TON  := (pt := T#100MS);
+    modesMachine : eMachineModes;
+    state        : INT;
+
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('SetDifferentMachineModes_ExpectCorrespondingLightColor');
 
 //Arrange
-itfDut              := dut;
-modesMachine        := eMachineModes.Automat;
-expectedColor.Green := TRUE;
+itfDut := dut;
+itfDut.SetBlinkTime(blinktime, blinktime);
 
-// Act
-actualColor := itfDut.SetMachineMode(modesMachine);
-
-// Assert
-AssertEquals
-(
-    Expected  := expectedColor
-    , Actual  := actualColor
-    , Message := 'ColorOuput shall be Green'
-);
-
-//========================Idle=============================
-modesMachine         := eMachineModes.Idle;
-expectedColor.Green  := FALSE;
-expectedColor.Red    := FALSE;
-expectedColor.Yellow := FALSE;
-
-actualColor := itfDut.SetMachineMode(modesMachine);
-
-AssertEquals
-(
-    Expected  := expectedColor
-    , Actual  := actualColor
-    , Message := 'ColorOuput shall be Off'
-);
-
-//========================Step=============================
-modesMachine         := eMachineModes.Step;
-expectedColor.Green  := TRUE;
-expectedColor.Red    := FALSE;
-expectedColor.Yellow := TRUE;
-
-actualColor := itfDut.SetMachineMode(modesMachine);
-
-AssertEquals
-(
-    Expected  := expectedColor
-    , Actual  := actualColor
-    , Message := 'ColorOuput shall be GreenAndYellow'
-);
-
-//========================Manual=============================
-modesMachine         := eMachineModes.Manual;
-expectedColor.Green  := FALSE;
-expectedColor.Red    := FALSE;
-expectedColor.Yellow := TRUE;
-
-actualColor := itfDut.SetMachineMode(modesMachine);
-
-AssertEquals
-(
-    Expected  := expectedColor
-    , Actual  := actualColor
-    , Message := 'ColorOuput shall be Yellow'
-);
-
-//========================Fault=============================
-modesMachine         := eMachineModes.Fault;
-expectedColor.Green  := FALSE;
-expectedColor.Red    := TRUE;
-expectedColor.Yellow := FALSE;
-
-actualColor := itfDut.SetMachineMode(modesMachine);
-AssertEquals
-(
-    Expected  := expectedColor
-    , Actual  := actualColor
-    , Message := 'ColorOuput shall be Red'
-);
-
-//========================Home=============================
-modesMachine := eMachineModes.Home;
-
-IF eMachineModes.Home = modesMachine THEN
-    blinker(in := TRUE);
-ELSE
-    blinker(in := FALSE);
-END_IF
-
-expectedColor.Red    := FALSE;
-expectedColor.Yellow := FALSE;
-
-actualColor := itfDut.SetMachineMode(modesMachine);
-
-IF blinker.ET >= 0 * blinkTime AND blinker.ET < blinkTime THEN
+IF state = 0 THEN
+    modesMachine        := eMachineModes.Automat;
     expectedColor.Green := TRUE;
 
+    // Act
+    actualColor := itfDut.SetMachineMode(modesMachine);
+
+    // Assert
     AssertEquals
     (
         Expected  := expectedColor
         , Actual  := actualColor
-        , Message := 'ColorOuput shall be GreenBlinking and True'
+        , Message := 'ColorOuput shall be Green'
     );
 
-ELSIF blinker.ET >= blinkTime AND blinker.ET < 2 * blinkTime THEN
-    expectedColor.Green := FALSE;
-
-    AssertEquals
-    (
-        Expected  := expectedColor
-        , Actual  := actualColor
-        , Message := 'ColorOuput shall be GreenBlinking and False'
-    );
-
-ELSIF blinker.ET > 2 * blinkTime AND blinker.ET < 3 * blinkTime THEN
-    expectedColor.Green := TRUE;
-
-    AssertEquals
-    (
-        Expected  := expectedColor
-        , Actual  := actualColor
-        , Message := 'ColorOuput shall be GreenBlinking and TRUE'
-    );
-ELSE
-
-    //========================Idle, Check again if all out =============================
+    //========================Idle=============================
     modesMachine         := eMachineModes.Idle;
     expectedColor.Green  := FALSE;
     expectedColor.Red    := FALSE;
@@ -156,14 +399,147 @@ ELSE
     (
         Expected  := expectedColor
         , Actual  := actualColor
-        , Message := 'ColorOuput shall be Off again'
+        , Message := 'ColorOuput shall be Off'
     );
 
-    {analysis -9}
-    TEST_FINISHED();
+    //========================Step=============================
+    modesMachine         := eMachineModes.Step;
+    expectedColor.Green  := TRUE;
+    expectedColor.Red    := FALSE;
+    expectedColor.Yellow := TRUE;
+
+    actualColor := itfDut.SetMachineMode(modesMachine);
+
+    AssertEquals
+    (
+        Expected  := expectedColor
+        , Actual  := actualColor
+        , Message := 'ColorOuput shall be GreenAndYellow'
+    );
+
+    //========================Manual=============================
+    modesMachine         := eMachineModes.Manual;
+    expectedColor.Green  := FALSE;
+    expectedColor.Red    := FALSE;
+    expectedColor.Yellow := TRUE;
+
+    actualColor := itfDut.SetMachineMode(modesMachine);
+
+    AssertEquals
+    (
+        Expected  := expectedColor
+        , Actual  := actualColor
+        , Message := 'ColorOuput shall be Yellow'
+    );
+
+    //========================Fault=============================
+    modesMachine         := eMachineModes.Fault;
+    expectedColor.Green  := FALSE;
+    expectedColor.Red    := TRUE;
+    expectedColor.Yellow := FALSE;
+
+     itfDut.SetMachineMode(modesMachine);
+     actualColor := itfDut.GetColorsSignalLightMachineModes;
+    AssertEquals
+    (
+        Expected  := expectedColor
+        , Actual  := actualColor
+        , Message := 'ColorOuput shall be Red'
+    );
+
+    state := 10;
 END_IF
-]]></ST>
+
+IF state = 10 THEN
+
+    //========================Home=============================
+    modesMachine := eMachineModes.Home;
+    itfDut.SetMachineMode(modesMachine);
+
+    IF eMachineModes.Home = modesMachine THEN
+        timer(in := TRUE);
+    END_IF
+
+    expectedColor.Red    := FALSE;
+    expectedColor.Yellow := FALSE;
+
+    IF timer.ET >= 0 * blinkTime AND timer.ET < blinkTime THEN
+        expectedColor.Green := TRUE;
+        actualColor         := itfDut.SetMachineMode(modesMachine);
+
+        AssertEquals
+        (
+            Expected  := expectedColor
+            , Actual  := actualColor
+            , Message := 'ColorOuput shall be GreenBlinking and True 1 '
+        );
+
+    ELSIF timer.ET > blinkTime + T#2MS AND timer.ET < 2 * blinkTime THEN
+        expectedColor.Green := FALSE;
+        actualColor         := itfDut.SetMachineMode(modesMachine);
+
+        AssertEquals
+        (
+            Expected  := expectedColor
+            , Actual  := actualColor
+            , Message := 'ColorOuput shall be GreenBlinking and False 2'
+        );
+
+    ELSIF timer.ET > 2 * blinkTime + T#2MS AND timer.ET < 3 * blinkTime THEN
+        expectedColor.Green := TRUE;
+        actualColor         := itfDut.SetMachineMode(modesMachine);
+
+        AssertEquals
+        (
+            Expected  := expectedColor
+            , Actual  := actualColor
+            , Message := 'ColorOuput shall be GreenBlinking and TRUE 3'
+        );
+    ELSIF timer.ET > 3 * blinkTime + T#2MS AND timer.ET < 4 * blinkTime THEN
+        expectedColor.Green := False;
+        actualColor         := itfDut.SetMachineMode(modesMachine);
+
+        AssertEquals
+        (
+            Expected  := expectedColor
+            , Actual  := actualColor
+            , Message := 'ColorOuput shall be GreenBlinking and TRUE 4'
+        );
+    ELSIF timer.ET > 5 * blinkTime THEN
+
+        //========================Idle, Check again if all out =============================
+        modesMachine := eMachineModes.Idle;
+
+        expectedColor.Green  := FALSE;
+        expectedColor.Red    := FALSE;
+        expectedColor.Yellow := FALSE;
+
+        actualColor := itfDut.SetMachineMode(modesMachine);
+
+        AssertEquals
+        (
+            Expected  := expectedColor
+            , Actual  := actualColor
+            , Message := 'ColorOuput shall be Off again'
+        );
+
+        {analysis -9}
+        TEST_FINISHED();
+    END_IF
+END_IF]]></ST>
       </Implementation>
     </Method>
+    <Property Name="StartCycleCount" Id="{7c93a685-71f8-003b-23de-24d740ffc34d}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY StartCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{acf0cc6d-f10d-0be7-02a0-39eff05c1599}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StartCycleCount := THIS^._nfContext._startCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
   </POU>
 </TcPlcObject>

@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Blinker" Id="{0bcc2ba1-b0bb-09c9-2636-5eb1120e6ba5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Blinker
+VAR
+    _offTime : TIME := T#1000MS;
+    _onTime  : TIME := T#1000MS;
+    onTimer : TON;
+    offTimer : TON;
+    blinkOutput : BOOL;
+    state : INT ;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ExecuteTimer" Id="{17675f51-55b0-0bc8-0a07-15c900b79623}">
+      <Declaration><![CDATA[METHOD ExecuteTimer : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF state = 0 THEN
+    onTimer(in := FALSE);
+    offTimer(in := FALSE);
+
+    state := 10;
+END_IF
+
+IF state = 10 THEN
+    onTimer(in := TRUE, pt := _onTime);
+    blinkOutput := TRUE;
+
+    IF onTimer.Q THEN
+        state := 20;
+
+        RETURN;
+    END_IF
+END_IF
+
+IF state = 20 THEN
+    offTimer(in := TRUE, pt := _offTime);
+    blinkOutput := FALSE;
+
+    IF offTimer.Q THEN
+        state := 0;
+    END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsOn" Id="{b5db8056-a39e-04fa-247c-91e03b1ea57f}">
+      <Declaration><![CDATA[PROPERTY IsOn : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1cc0d8e8-b02b-0215-1ebb-abb07dd16d37}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsOn := blinkOutput;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SetOffTime" Id="{917cb60e-41c7-0c4b-25bf-3cfe292ad3c9}">
+      <Declaration><![CDATA[METHOD SetOffTime
+VAR_INPUT
+    offTime : TIME;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_offTime := offTime;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetOnTime" Id="{c2dcf15a-b143-04e7-3831-5bb6b6ef2c9f}">
+      <Declaration><![CDATA[METHOD SetOnTime
+VAR_INPUT
+    onTime: TIME;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_onTime := onTime;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

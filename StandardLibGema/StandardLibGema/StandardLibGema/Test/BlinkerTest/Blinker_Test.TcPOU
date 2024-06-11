@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Blinker_Test" Id="{967cb89f-b663-0b5c-181a-3ead389f3bd8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Blinker_Test EXTENDS TcUnit.FB_TestSuite
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ExecuteBlinker_ExpectBlinkingWithSetTime();]]></ST>
+    </Implementation>
+    <Method Name="ExecuteBlinker_ExpectBlinkingWithSetTime" Id="{3a7bda9f-fc57-086e-3b0e-6f48e5576069}">
+      <Declaration><![CDATA[METHOD PRIVATE ExecuteBlinker_ExpectBlinkingWithSetTime
+VAR_INST
+    dut : Blinker;
+    timeOn : TIME ;
+    timeOff : TIME;
+    duration : TIME;
+    ReferenceTimerOn : TON;
+    ReferenceTimerOff : TON;
+
+    state : INT;
+    expectedResult : BOOL;
+    actualResult : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('ExecuteBlinker_ExpectBlinkingWithSetTime');
+timeOn  := T#2MS;
+timeOff := T#5MS;
+dut.SetOffTime(timeOff);
+dut.SetOnTime(timeOn);
+ReferenceTimerOn();
+ReferenceTimerOff();
+dut.ExecuteTimer();
+
+IF state = 0 THEN
+    ReferenceTimerOn(in := TRUE, pt := 2 * timeOn);
+
+    AssertTrue(dut.IsOn, 'Shall be True');
+    state := 10;
+END_IF
+
+IF state = 10 THEN
+    IF ReferenceTimerOn.ET = timeOn THEN
+        AssertTrue(dut.IsOn, 'Shall be True State 10');
+        state := 20;
+        ReferenceTimerOn(in := FALSE);
+        ReferenceTimerOff(in := TRUE, pt := 2 * timeOff);
+        RETURN;
+    END_IF
+END_IF
+
+IF state = 20 THEN
+    AssertFalse(dut.IsOn, 'Shall be False');
+
+    IF ReferenceTimerOff.ET = timeOff THEN
+        AssertFalse(dut.IsOn, 'Shall still be Falsem, State 20');
+        state := 30;
+        ReferenceTimerOff(in := FALSE);
+        ReferenceTimerOn(in := TRUE);
+        RETURN;
+    END_IF
+END_IF
+
+IF state = 30 THEN
+    IF ReferenceTimerOn.ET = timeOn THEN
+        AssertTrue(dut.IsOn, 'Shall be True State 20');
+        state := 40;
+        ReferenceTimerOn(in := FALSE);
+        RETURN;
+    END_IF
+END_IF
+
+IF state = 40 THEN
+    {analysis -9}
+    TEST_FINISHED();
+
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

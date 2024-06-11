@@ -241,6 +241,61 @@ namespace StandardLibGemaConnector.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Home.
+        /// </summary>
+        public static string ___Home__ {
+            get {
+                return ResourceManager.GetString("___Home__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Home and work position sensors are both active. Check the position of sensors!.
+        /// </summary>
+        public static string ___Home_and_work_position_sensors_are_both_active__Check_the_position_of_sensors___ {
+            get {
+                return ResourceManager.GetString("___Home_and_work_position_sensors_are_both_active__Check_the_position_of_sensors_" +
+                        "__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Home position sensor.
+        /// </summary>
+        public static string ___Home_position_sensor__ {
+            get {
+                return ResourceManager.GetString("___Home_position_sensor__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Home sensor signal.
+        /// </summary>
+        public static string ___Home_sensor_signal__ {
+            get {
+                return ResourceManager.GetString("___Home_sensor_signal__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Home sensor signal 1.
+        /// </summary>
+        public static string ___Home_sensor_signal_1__ {
+            get {
+                return ResourceManager.GetString("___Home_sensor_signal_1__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Home sensor signal 2.
+        /// </summary>
+        public static string ___Home_sensor_signal_2__ {
+            get {
+                return ResourceManager.GetString("___Home_sensor_signal_2__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Jogging.
         /// </summary>
         public static string ___Jogging__ {
@@ -277,6 +332,15 @@ namespace StandardLibGemaConnector.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Move Home.
+        /// </summary>
+        public static string ___Move_Home__ {
+            get {
+                return ResourceManager.GetString("___Move_Home__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Move modulo.
         /// </summary>
         public static string ___Move_modulo__ {
@@ -291,6 +355,87 @@ namespace StandardLibGemaConnector.Properties {
         public static string ___Move_relative__ {
             get {
                 return ResourceManager.GetString("___Move_relative__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move to home position actuator.
+        /// </summary>
+        public static string ___Move_to_home_position_actuator__ {
+            get {
+                return ResourceManager.GetString("___Move_to_home_position_actuator__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move to home position signal.
+        /// </summary>
+        public static string ___Move_to_home_position_signal__ {
+            get {
+                return ResourceManager.GetString("___Move_to_home_position_signal__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move to Work.
+        /// </summary>
+        public static string ___Move_to_Work__ {
+            get {
+                return ResourceManager.GetString("___Move_to_Work__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move to work position actuator.
+        /// </summary>
+        public static string ___Move_to_work_position_actuator__ {
+            get {
+                return ResourceManager.GetString("___Move_to_work_position_actuator__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move to work position signal.
+        /// </summary>
+        public static string ___Move_to_work_position_signal__ {
+            get {
+                return ResourceManager.GetString("___Move_to_work_position_signal__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Movement aborted due to.
+        /// </summary>
+        public static string ___Movement_aborted_due_to__ {
+            get {
+                return ResourceManager.GetString("___Movement_aborted_due_to__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Movement suspended due to.
+        /// </summary>
+        public static string ___Movement_suspended_due_to__ {
+            get {
+                return ResourceManager.GetString("___Movement_suspended_due_to__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Movement suspended due to NOT.
+        /// </summary>
+        public static string ___Movement_suspended_due_to_NOT__ {
+            get {
+                return ResourceManager.GetString("___Movement_suspended_due_to_NOT__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Sensor Active, Check the position of the sensors!.
+        /// </summary>
+        public static string ___No_Sensor_Active__Check_the_position_of_the_sensors___ {
+            get {
+                return ResourceManager.GetString("___No_Sensor_Active__Check_the_position_of_the_sensors___", resourceCulture);
             }
         }
         
@@ -331,11 +476,38 @@ namespace StandardLibGemaConnector.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ReadData.
+        /// </summary>
+        public static string ___ReadData__ {
+            get {
+                return ResourceManager.GetString("___ReadData__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ReadUid.
+        /// </summary>
+        public static string ___ReadUid__ {
+            get {
+                return ResourceManager.GetString("___ReadUid__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Reset.
         /// </summary>
         public static string ___Reset__ {
             get {
                 return ResourceManager.GetString("___Reset__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ResetTask.
+        /// </summary>
+        public static string ___ResetTask__ {
+            get {
+                return ResourceManager.GetString("___ResetTask__", resourceCulture);
             }
         }
         
@@ -363,6 +535,69 @@ namespace StandardLibGemaConnector.Properties {
         public static string ___Stop__ {
             get {
                 return ResourceManager.GetString("___Stop__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waehle ein Programm.
+        /// </summary>
+        public static string ___Waehle_ein_Programm__ {
+            get {
+                return ResourceManager.GetString("___Waehle_ein_Programm__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work.
+        /// </summary>
+        public static string ___Work__ {
+            get {
+                return ResourceManager.GetString("___Work__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work position sensor.
+        /// </summary>
+        public static string ___Work_position_sensor__ {
+            get {
+                return ResourceManager.GetString("___Work_position_sensor__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work sensor signal.
+        /// </summary>
+        public static string ___Work_sensor_signal__ {
+            get {
+                return ResourceManager.GetString("___Work_sensor_signal__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work sensor signal 1.
+        /// </summary>
+        public static string ___Work_sensor_signal_1__ {
+            get {
+                return ResourceManager.GetString("___Work_sensor_signal_1__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work sensor signal 2.
+        /// </summary>
+        public static string ___Work_sensor_signal_2__ {
+            get {
+                return ResourceManager.GetString("___Work_sensor_signal_2__", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WriteData.
+        /// </summary>
+        public static string ___WriteData__ {
+            get {
+                return ResourceManager.GetString("___WriteData__", resourceCulture);
             }
         }
     }
