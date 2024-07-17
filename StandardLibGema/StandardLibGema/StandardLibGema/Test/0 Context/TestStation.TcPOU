@@ -44,6 +44,7 @@ END_VAR
 //===============================Utilities ===============================================
 VAR
     blinkerTest : Blinker_Test;
+    counterTest : Counter_Test;
 END_VAR
 //=======]]></Declaration>
     <Implementation>

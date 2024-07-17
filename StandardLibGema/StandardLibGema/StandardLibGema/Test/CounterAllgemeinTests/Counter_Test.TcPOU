@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Counter_Test" Id="{5c5e1f81-17ee-0709-1a27-8f89b4c5c2b6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK INTERNAL Counter_Test EXTENDS TcUnit.FB_TestSuite IMPLEMENTS TcoCore.ITcoContext
+VAR
+    //Context for TcOpen
+    _nfContext : TcoCore.TcoContextNfCompatibility;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SetInitalValueExpectThisValueAsResult();
+InitalFbCountUpToLimitExpectCorrespondingValuesAndProp();
+CountDownToZeroExpectCorrespondingPropAndValue();
+CountUpDownBy10ExpectCorrespondingValue();
+ResetExpectNull();]]></ST>
+    </Implementation>
+    <Folder Name="ITcoContext" Id="{610205c1-b627-0b67-3d4f-d10881ae9f2d}" />
+    <Property Name="Context" Id="{a81957db-20e4-044f-3fd2-6a33587b24e6}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Context : TcoCore.ITcoContext
+]]></Declaration>
+      <Get Name="Get" Id="{39643666-0ab7-0024-04ea-30844abd813d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Context := This^._nfContext;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CountDownToZeroExpectCorrespondingPropAndValue" Id="{391dfa1b-7403-0811-0018-cfc4fc2fb746}">
+      <Declaration><![CDATA[METHOD PRIVATE CountDownToZeroExpectCorrespondingPropAndValue
+VAR_INST
+    dut    : Counter(THIS^, countStep := 1, countInitValue := 3, countLimit := 7);
+    itfDut : ICounter;
+
+    expected : StatusCounter;
+    actual   : StatusCounter;
+
+    valueEx :UDINT;
+    valueAc : UDINT;
+
+    reached : BOOL;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('CountDownToZeroExpectCorrespondingPropAndValue');
+
+//Arrange
+IF itfDut = 0 THEN
+    itfDut := dut;
+END_IF
+
+
+itfDut.CountDown();
+
+valueEx := 2;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 2 sein ');
+
+
+itfDut.CountDown();
+
+valueEx := 1;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 1 sein ');
+
+itfDut.CountDown();
+
+valueEx := 0;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 1 sein ');
+reached := itfDut.CountLimitReached;
+
+AssertTrue(itfDut.CountZeroReached, 'CountZeroReached muss True sein');
+
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CountUpDownBy10ExpectCorrespondingValue" Id="{a5fa9ee2-fbbf-08d4-3aef-471be6cabdf5}">
+      <Declaration><![CDATA[METHOD PRIVATE CountUpDownBy10ExpectCorrespondingValue
+VAR_INST
+    dut    : Counter(THIS^, countStep := 10, countInitValue := 0, countLimit := 15);
+    itfDut : ICounter;
+
+    expected : StatusCounter;
+    actual   : StatusCounter;
+
+    valueEx :UDINT;
+    valueAc : UDINT;
+
+    reached : BOOL;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('CountUpDownBy10ExpectCorrespondingValue');
+
+//Arrange
+IF itfDut = 0 THEN
+    itfDut := dut;
+END_IF
+
+valueEx := 0;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 0 sein ');
+
+///////////////////////////
+itfDut.CountUp();
+
+valueEx := 10;
+valueAc := itfDut.CountValue;
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 10 sein ');
+AssertFalse(itfDut.CountLimitReached, 'countLimitReached muss False sein');
+
+itfDut.CountUp();
+
+valueEx := 20;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 20 sein ');
+
+AssertTrue(itfDut.CountLimitReached, 'countLimitReached muss True sein');
+AssertFalse(itfDut.CountZeroReached, 'CountZeroReached muss False sein');
+
+/////////////////////////////
+itfDut.CountDown();
+itfDut.CountDown();
+
+valueEx := 0;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 0 sein ');
+
+AssertFalse(itfDut.CountLimitReached, 'countLimitReached muss False sein');
+AssertTrue(itfDut.CountZeroReached, 'CountZeroReached muss TRUE sein');
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="EndCycleCount" Id="{1fca321b-74c0-02d7-16d0-2ae0b7d7ede2}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY EndCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{ce0cc194-fc13-004e-2de6-1c1dc47ba45d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[EndCycleCount := THIS^._nfContext._endCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Environment" Id="{2237598f-cfe1-06f4-3681-7caca0768abf}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Environment : TcoCore.ITcoContextEnvironment
+]]></Declaration>
+      <Get Name="Get" Id="{f1b8ef09-99a3-0e0a-3cbd-7d02abf0342f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Environment := THIS^._nfContext._settings;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Identity" Id="{48ee5314-ee2f-067c-1148-1142729923fd}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Identity : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{e5f36ce5-9d99-095e-3c78-795f20e38010}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Identity := THIS^._nfContext._Identity;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="InitalFbCountUpToLimitExpectCorrespondingValuesAndProp" Id="{e9bf9443-63c9-0662-15b0-2695eb74a4ac}">
+      <Declaration><![CDATA[METHOD PRIVATE InitalFbCountUpToLimitExpectCorrespondingValuesAndProp
+VAR_INST
+    dut    : Counter(THIS^, countStep := 1, countInitValue := 5, countLimit := 7);
+    itfDut : ICounter;
+
+    expected : StatusCounter;
+    actual   : StatusCounter;
+
+    valueEx :UDINT;
+    valueAc : UDINT;
+
+    reached : BOOL;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('InitalFbCountUpToLimitExpectCorrespondingValuesAndProp');
+
+//Arrange
+IF itfDut = 0 THEN
+    itfDut := dut;
+END_IF
+
+
+itfDut.CountUp();
+
+valueEx := 6;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 6 sein ');
+
+itfDut.CountUp();
+
+valueEx := 7;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 7 sein ');
+
+reached := itfDut.CountLimitReached;
+
+AssertTrue(reached, 'countLimitReached muss True sein');
+AssertFalse(itfDut.CountZeroReached, 'CountZeroReached muss False sein');
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Logger" Id="{b0d8dcc0-3760-0046-2c44-7370b04b2ab7}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY Logger : TcoCore.ITcoLogger
+]]></Declaration>
+      <Get Name="Get" Id="{1aafbc66-47f7-02fb-3fef-9ae97d5a28aa}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Logger := THIS^._nfContext._logger;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RealTimeClock" Id="{30bfde95-6dec-0171-1f76-f40cf0638890}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY RealTimeClock : TcoCore.ITcoRtc
+]]></Declaration>
+      <Get Name="Get" Id="{dfb449ae-de23-063f-0416-650c2b9e7df0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RealTimeClock := THIS^._nfContext._rtc;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ResetExpectNull" Id="{f545f2fa-2236-02f6-382d-ae6f9fc90319}">
+      <Declaration><![CDATA[METHOD PRIVATE ResetExpectNull
+VAR_INST
+    dut    : Counter(THIS^, countStep := 10, countInitValue := 0, countLimit := 15);
+    itfDut : ICounter;
+
+    expected : StatusCounter;
+    actual   : StatusCounter;
+
+    valueEx :UDINT;
+    valueAc : UDINT;
+
+    reached : BOOL;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('ResetExpectNull');
+
+//Arrange
+IF itfDut = 0 THEN
+    itfDut := dut;
+END_IF
+
+valueEx := 0;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 0 sein ');
+
+///////////////////////////
+itfDut.CountUp();
+
+valueEx := 10;
+valueAc := itfDut.CountValue;
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 10 sein ');
+AssertFalse(itfDut.CountLimitReached, 'countLimitReached muss False sein');
+
+itfDut.CountUp();
+
+valueEx := 20;
+valueAc := itfDut.CountValue;
+
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 20 sein ');
+
+itfDut.ResetCount();
+
+valueEx :=0;
+valueAc := itfDut.CountValue;
+AssertTrue(itfDut.CountZeroReached, 'nach Reset muss Zero sein');
+AssertEquals_UDINT(valueEx, valueAc, 'Value muss 0 sein ');
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetInitalValueExpectThisValueAsResult" Id="{e675e7f6-2711-038b-2e55-8d2cbd2ecb88}">
+      <Declaration><![CDATA[METHOD PRIVATE SetInitalValueExpectThisValueAsResult
+VAR_INST
+    dut    : Counter(THIS^, countStep := 1, countInitValue := 5, countLimit := 10);
+    itfDut : ICounter;
+ status : StatusCounter;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('SetInitalValueExpectThisValueAsResult');
+
+
+//Arrange
+IF itfDut = 0 THEN
+    itfDut := dut;
+END_IF
+
+//Aact
+
+// Assert
+
+AssertEquals_UDINT(5, itfdut.CountValue, 'Value should be 5');
+
+{analysis -9}
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StartCycleCount" Id="{3c9d6d25-e00a-06fc-09cb-d9301afde015}" FolderPath="ITcoContext\">
+      <Declaration><![CDATA[PROPERTY StartCycleCount : ULINT
+]]></Declaration>
+      <Get Name="Get" Id="{7f21ff3e-dd57-0e36-183f-246b12b578d9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StartCycleCount := THIS^._nfContext._startCycleCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

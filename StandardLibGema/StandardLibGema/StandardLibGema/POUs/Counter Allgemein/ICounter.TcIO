@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="ICounter" Id="{593939c4-607a-0dd0-0a21-75c8fdff69f9}">
+    <Declaration><![CDATA[INTERFACE ICounter
+]]></Declaration>
+    <Folder Name="CountFunctionalities" Id="{0fbdae5a-5e8a-0074-30f0-6fd93cc4bca5}" />
+    <Method Name="CountDown" Id="{7e639733-a462-0a1b-02d7-5070292f8ceb}" FolderPath="CountFunctionalities\">
+      <Declaration><![CDATA[METHOD CountDown
+
+]]></Declaration>
+    </Method>
+    <Property Name="CountLimitReached" Id="{57352792-e5b6-0ca1-279b-27bebe12d775}" FolderPath="CountFunctionalities\">
+      <Declaration><![CDATA[PROPERTY CountLimitReached : BOOL]]></Declaration>
+      <Get Name="Get" Id="{bae2a9ea-b20a-0b88-36a6-794612c3ab82}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="CountUp" Id="{6339b761-3036-0075-0f28-9b3ceb00f394}" FolderPath="CountFunctionalities\">
+      <Declaration><![CDATA[METHOD CountUp
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="CountValue" Id="{0875e127-abdf-0314-1404-e5272cfea721}" FolderPath="CountFunctionalities\">
+      <Declaration><![CDATA[PROPERTY CountValue : UDINT]]></Declaration>
+      <Get Name="Get" Id="{c90cb94a-0b5a-095a-1466-4674072d0613}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="CountZeroReached" Id="{559b21d2-3fe4-00fc-0051-b44c03cf8e04}" FolderPath="CountFunctionalities\">
+      <Declaration><![CDATA[PROPERTY CountZeroReached : BOOL]]></Declaration>
+      <Get Name="Get" Id="{bd2194b4-324f-0c7c-2951-6ad832f1f56d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="ResetCount" Id="{d4080402-ea23-04df-35e3-bcb995816e77}" FolderPath="CountFunctionalities\">
+      <Declaration><![CDATA[METHOD ResetCount
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

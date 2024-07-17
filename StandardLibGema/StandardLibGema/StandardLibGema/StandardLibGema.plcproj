@@ -152,6 +152,7 @@
     <Folder Include="POUs\Engel Ethercat Bridge Communication" />
     <Folder Include="POUs\Engel Ethercat Bridge Communication\DUTs" />
     <Folder Include="POUs\Engel Ethercat Bridge Communication\FunctionBlocks" />
+    <Folder Include="POUs\Counter Allgemein" />
     <Folder Include="POUs\Utilities" />
     <Folder Include="POUs\SignalLights MachineStatus" />
     <Folder Include="POUs\Sequences" />
@@ -171,6 +172,7 @@
     <Folder Include="Test\DualPositionActuator" />
     <Folder Include="Test\Engel Ethercat Bridge Comm Tests" />
     <Folder Include="Test\BlinkerTest" />
+    <Folder Include="Test\CounterAllgemeinTests" />
     <Folder Include="Test\SignalLights MachineStatus Tests" />
     <Folder Include="Test\Sequences" />
     <Folder Include="Test\Sequences\Test" />
@@ -294,6 +296,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\ATS400_ETL\Mocks\InputAts400MockStatusReady.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Counter Allgemein\Counter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Counter Allgemein\ICounter.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Counter Allgemein\StatusCounter.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Cylinders\Base\TcoCylinderBase.TcPOU">
@@ -462,6 +473,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\BlinkerTest\Blinker_Test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Test\CounterAllgemeinTests\Counter_Test.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\DualPositionActuator\FB_DualPositionActuator_Test.TcPOU">

@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Counter" Id="{71761be2-846a-03d7-24fd-9df14ef6de76}" SpecialFunc="None">
+    <Declaration><![CDATA[//{attribute 'hide_all_locals'}
+FUNCTION_BLOCK Counter EXTENDS TcoCore.TcoObject IMPLEMENTS ICounter
+VAR
+    _countStep  : UDINT;
+    _countValue : UDINT;
+    _countLimit : UDINT;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CountDown" Id="{fbcebd65-b073-042c-0580-9caf1d87a402}">
+      <Declaration><![CDATA[METHOD CountDown
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_countValue := _countValue - _countStep;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CountLimitReached" Id="{6ff381d1-d150-0405-3307-973197abea7c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'variable'}
+PROPERTY CountLimitReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{11a815fc-0412-04bf-3c78-7cb2d56e0265}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CountLimitReached := CountValue >= _countLimit;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CountUp" Id="{0689e83a-e86c-036c-1fad-26a429474485}">
+      <Declaration><![CDATA[METHOD CountUp
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+_countValue := _countValue + _countStep;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CountValue" Id="{a47fbf65-5553-03b4-133f-2092def58893}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'monitor'}
+PROPERTY CountValue : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{dbf8f875-581e-013c-00bf-04ea6089a5c1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CountValue := _countValue;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CountZeroReached" Id="{14fe20d1-0de4-01e8-1131-c439570199b8}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'variable'}
+PROPERTY CountZeroReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{45620290-2679-0cc7-0d31-412975b1e6e6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CountZeroReached:= CountValue = 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{d430239b-e232-0b79-2b53-93e5164e2e76}">
+      <Declaration><![CDATA[{attribute 'hide'}
+METHOD FB_init : BOOL
+VAR_INPUT
+    (* if TRUE, the retain variables are initialized (warm start / cold start)*)
+    bInitRetains : BOOL;
+    (* if TRUE, the instance afterwards gets moved into the copy code (online change)*)
+    bInCopyCode  : BOOL;
+    ParentObject : ITcoObject;
+
+    countStep      : UDINT;
+    countInitValue : UDINT;
+    countLimit     : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//SUPER^.FB_init(bInitRetains, bInCopyCode, ParentObject);
+
+_countStep := countStep;
+_countValue := countInitValue;
+_countLimit := countLimit;
+
+IF countInitValue > countLimit THEN
+    Messenger.Error('Value groesser als Limit eingestellt');
+    RETURN;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetCount" Id="{6ec835ed-0aaa-0362-2dbc-f1eaa28343ce}">
+      <Declaration><![CDATA[METHOD ResetCount
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_countValue := 0;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

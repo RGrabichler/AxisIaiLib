@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="StatusCounter" Id="{329661e8-f4be-06ea-2274-36fab1421daa}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE StatusCounter :
+(
+    Error := 0,
+    Run,
+    Unknown
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
