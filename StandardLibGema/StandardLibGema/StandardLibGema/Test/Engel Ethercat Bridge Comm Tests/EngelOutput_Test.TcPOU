@@ -14,33 +14,33 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('SetOutputsAndVerify');
 
-out.SetManualActive(TRUE);
+out.ManualActive(TRUE);
 AssertEquals_BYTE(Expected := 2#0000_0001, Actual := out.output[39], 'SetManualActive is true');
-out.SetManualActive(FALSE);
+out.ManualActive(FALSE);
 
-out.SetAutomaticActive(TRUE);
+out.AutomaticIsActive(TRUE);
 AssertEquals_BYTE(Expected := 2#0000_0010, Actual := out.output[39], 'SetAutomaticeActive is true');
-out.SetAutomaticActive(FALSE);
+out.AutomaticIsActive(FALSE);
 
-out.SetStart(TRUE);
+out.StartAutomatic(TRUE);
 AssertEquals_BYTE(Expected := 2#0000_0100, Actual := out.output[39], 'SetStart is true');
-out.SetStart(FALSE);
+out.StartAutomatic(FALSE);
 
-out.SetRequestHome(TRUE);
+out.RequestHome(TRUE);
 AssertEquals_BYTE(Expected := 2#0000_1000, Actual := out.output[39], 'SetRequestHome is true');
-out.SetRequestHome(FALSE);
+out.RequestHome(FALSE);
 
-out.SetHomeDone(TRUE);
+out.HomeIsDone(TRUE);
 AssertEquals_BYTE(Expected := 2#0001_0000, Actual := out.output[39], 'SetHomeDone is true');
-out.SetHomeDone(FALSE);
+out.HomeIsDone(FALSE);
 
-out.SetSafetyClosed(TRUE);
+out.SafetyIsClosed(TRUE);
 AssertEquals_BYTE(Expected := 2#0010_0000, Actual := out.output[39], 'SetSafetyClosed is true');
-out.SetSafetyClosed(FALSE);
+out.SafetyIsClosed(FALSE);
 
-out.SetSafetyOpeningRequest(TRUE);
+out.RequestSafetyOpening(TRUE);
 AssertEquals_BYTE(Expected := 2#0100_0000, Actual := out.output[39], 'SetSafetyOpeningRequest is true');
-out.SetSafetyOpeningRequest(FALSE);
+out.RequestSafetyOpening(FALSE);
 
 out.SetHeartBeat(65535);
 AssertEquals_BYTE(Expected := 255, Actual := out.output[1], 'Byte  1 Heartbeat shall be 255');

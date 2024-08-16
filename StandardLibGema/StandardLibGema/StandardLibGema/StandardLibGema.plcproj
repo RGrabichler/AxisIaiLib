@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{d82fc749-9cad-4ccf-8b04-92c10f9d2cb3}</ProjectGuid>
     <SubObjectsSortedByName>True</SubObjectsSortedByName>
-    <DownloadApplicationInfo>true</DownloadApplicationInfo>
+    <DownloadApplicationInfo>false</DownloadApplicationInfo>
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>StandardLibGema</Name>
@@ -56,6 +56,9 @@
     <PlaceholderReference Include="Tc2_System">
       <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_TcpIp">
+      <DefaultResolution>Tc2_TcpIp, * (Beckhoff Automation GmbH)</DefaultResolution>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Utilities">
       <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
@@ -141,6 +144,9 @@
     <Folder Include="POUs\ATS400_ETL\FunctionBlocks" />
     <Folder Include="POUs\ATS400_ETL\Interfaces" />
     <Folder Include="POUs\ATS400_ETL\Mocks" />
+    <Folder Include="POUs\Communication Extern\DUTs" />
+    <Folder Include="POUs\Communication Extern\FunctionBlocks" />
+    <Folder Include="POUs\Communication Extern\Interfaces" />
     <Folder Include="POUs\Cylinders" />
     <Folder Include="POUs\Cylinders\Base" />
     <Folder Include="POUs\Cylinders\ExampleCylinder" />
@@ -153,6 +159,7 @@
     <Folder Include="POUs\Engel Ethercat Bridge Communication\DUTs" />
     <Folder Include="POUs\Engel Ethercat Bridge Communication\FunctionBlocks" />
     <Folder Include="POUs\Counter Allgemein" />
+    <Folder Include="POUs\Communication Extern" />
     <Folder Include="POUs\Utilities" />
     <Folder Include="POUs\SignalLights MachineStatus" />
     <Folder Include="POUs\Sequences" />
@@ -173,6 +180,7 @@
     <Folder Include="Test\Engel Ethercat Bridge Comm Tests" />
     <Folder Include="Test\BlinkerTest" />
     <Folder Include="Test\CounterAllgemeinTests" />
+    <Folder Include="Test\CommunicationExtern Tests" />
     <Folder Include="Test\SignalLights MachineStatus Tests" />
     <Folder Include="Test\Sequences" />
     <Folder Include="Test\Sequences\Test" />
@@ -296,6 +304,33 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\ATS400_ETL\Mocks\InputAts400MockStatusReady.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\DUTs\E_ConnectionStepsTcp.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\DUTs\OutCommunicationRobOmron.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\DUTs\InCommunicationRobOmron.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\DUTs\stTelegrammOmronTcp.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\DUTs\uTelegrammOmronTcp.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\FunctionBlocks\CommunicationRoboterOmron.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\FunctionBlocks\TcpIpCommSeq.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\Interfaces\ICommunicationRoboterOmron.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Communication Extern\Interfaces\ICommSeq.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Counter Allgemein\Counter.TcPOU">
@@ -473,6 +508,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\BlinkerTest\Blinker_Test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Test\CommunicationExtern Tests\CommunicationRoboterOmron_Test.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\CounterAllgemeinTests\Counter_Test.TcPOU">

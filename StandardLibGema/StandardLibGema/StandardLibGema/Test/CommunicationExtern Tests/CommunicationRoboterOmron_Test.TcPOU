@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CommunicationRoboterOmron_Test" Id="{bf0737b3-6fdc-037e-0887-9390a00b6926}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CommunicationRoboterOmron_Test EXTENDS TcUnit.FB_TestSuite
+VAR
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SetOutputsExpectCorrespondingBits();]]></ST>
+    </Implementation>
+    <Method Name="SetOutputsExpectCorrespondingBits" Id="{06b5ffbf-cebb-000c-3232-1c8cd66dec5b}">
+      <Declaration><![CDATA[METHOD PRIVATE SetOutputsExpectCorrespondingBits
+VAR_INST
+    dut    : CommunicationRoboterOmron(sRemoteHost := '192.168.3.215', serverPort := 7000);
+    itfDut : ICommunicationRoboterOmron ;
+
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Test('SetOutputsExpectCorrespondingBits');
+itfDut := dut;
+
+dut.Run();
+IF itfDut <> 0 THEN
+    itfDut.Run();
+    itfDut.ContactPrepared(TRUE);
+    AssertTrue(dut.StatusCom.ContactPrepared, 'ContactPrepared muss true sein');
+
+    itfDut.Reset(TRUE);
+    AssertTrue(dut.StatusCom.Reset, 'Reset muss true sein');
+
+end_if
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

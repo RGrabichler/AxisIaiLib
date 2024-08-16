@@ -10,7 +10,7 @@ END_VAR]]></Declaration>
     </Implementation>
     <Method Name="ParseVariantOne" Id="{176e2a5f-3f1c-44b1-b54c-f8d6de9c8f9a}">
       <Declaration><![CDATA[METHOD PRIVATE ParseVariantOne
-VAR
+VAR_INST
     in : ARRAY[1..42] OF BYTE;
 
     engelInput : EngelInput;

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="InCommunicationRobOmron" Id="{9f405032-e33a-08e2-2f91-72920fa26638}">
+    <Declaration><![CDATA[TYPE
+    InCommunicationRobOmron :
+    STRUCT
+        {attribute addProperty Name "<#Home Pos erreicht#>"}
+        homePosReached : BOOL;
+        {attribute addProperty Name "<#Status Running#>"}
+        statusRunning : BOOL;
+        {attribute addProperty Name "<#Fehler#>"}
+        Fault : BOOL;
+        {attribute addProperty Name "<#Fehler ID#>"}
+        FaultID : INT;
+        {attribute addProperty Name "<#HighPower aktiv#>"}
+        PowerOn : BOOL;
+        {attribute addProperty Name "<#EStop aktiv#>"}
+        Estop : BOOL;
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

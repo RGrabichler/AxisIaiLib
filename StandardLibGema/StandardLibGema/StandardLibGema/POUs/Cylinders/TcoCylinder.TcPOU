@@ -280,14 +280,14 @@ SUPER^
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Status" Id="{797dfc38-75c0-4007-920a-c1cd14db1175}">
-      <Declaration><![CDATA[PROPERTY Status : REFERENCE TO TcoCylinderStatus]]></Declaration>
+    <Property Name="StatusCom" Id="{797dfc38-75c0-4007-920a-c1cd14db1175}">
+      <Declaration><![CDATA[PROPERTY StatusCom : REFERENCE TO TcoCylinderStatus]]></Declaration>
       <Get Name="Get" Id="{947247aa-4156-4af9-9427-2673f3cfe83a}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Status REF= _status;]]></ST>
+          <ST><![CDATA[StatusCom REF= _status;]]></ST>
         </Implementation>
       </Get>
     </Property>

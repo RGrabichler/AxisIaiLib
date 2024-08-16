@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CommunicationRoboterOmron" Id="{1ac7e105-3b25-0b17-3b45-88d9bb989bfe}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CommunicationRoboterOmron IMPLEMENTS ICommunicationRoboterOmron
+VAR
+    comRobseq     : TcpIpCommSeq(sRemoteHost := _sRemoteHost, serverPort := _serverPort);
+    itfCommRobSeq : ICommSeq := comRobseq;
+    msgToSend     : uTelegrammOmronTcp;
+    msgReceive    : uTelegrammOmronTcp;
+
+    _sRemoteHost : STRING;
+    _serverPort  : UDINT;
+
+    _msgFmtStr : T_MaxString;
+    _eState    : E_SocketConnectionState := eSOCKET_DISCONNECTED;
+END_VAR
+VAR
+    inCom : InCommunicationRobOmron;
+END_VAR
+VAR
+    outCom : OutCommunicationRobOmron;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Commands" Id="{75a7b40e-76b1-01f5-0d64-a8290e71ccf4}" />
+    <Folder Name="Status" Id="{a23304dd-ff41-088e-31c0-96c0d093b994}" />
+    <Method Name="ContactPrepared" Id="{9a6c5b2d-8d2d-076e-18d7-f8c505e6ffb0}" FolderPath="Status\">
+      <Declaration><![CDATA[METHOD ContactPrepared
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[outCom.ContactPrepared := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="EState" Id="{8c77e85a-4b9f-0ce6-0c2d-27847de7578e}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY EState : Tc2_TcpIp.E_SocketConnectionState
+]]></Declaration>
+      <Get Name="Get" Id="{fa2ac68a-5d41-05b8-3be9-92aae133aa44}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Estate := _eState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{87117b2c-19c0-0557-1475-f1f1efc33cf9}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    sRemoteHost : STRING;
+    serverPort : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_sRemoteHost := sRemoteHost;
+_serverPort  := serverPort;
+comRobseq.FB_init
+(
+    bInitRetains  := bInitretains
+    , bInCopyCode := bInCopyCode
+    , sRemoteHost := sRemoteHost
+    , serverPort  := serverPort
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HighPowerOff" Id="{2e552741-83f9-01d0-2132-2a420c0a23bc}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD HighPowerOff
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[outCom.HighPowerOff := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HighPowerOn" Id="{d8f31f79-682e-04d4-39e9-2138abb9885b}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD HighPowerOn
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[outCom.HighPowerOn:= enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MapCom" Id="{7736c7c0-40b1-0fe7-12e9-740122b19378}">
+      <Declaration><![CDATA[METHOD PRIVATE MapCom
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//TCP IP Komm
+////==========in
+inCom.homePosReached := INT_TO_BOOL(msgReceive.stTel.myBool[1]);
+inCom.statusRunning  := INT_TO_BOOL(msgReceive.stTel.myBool[2]);
+inCom.Fault          := INT_TO_BOOL(msgReceive.stTel.myBool[3]);
+inCom.PowerOn        := INT_TO_BOOL(msgReceive.stTel.myBool[4]);
+inCom.Estop          := INT_TO_BOOL(msgReceive.stTel.myBool[5]);
+
+inCom.FaultID := msgReceive.stTel.myInt[1];
+
+//===================Outputs===========================================
+msgToSend.stTel.myInt[1] := BOOL_TO_INT(outCom.StartAutomatic);
+msgToSend.stTel.myInt[2] := BOOL_TO_INT(outCom.stopAutomatic);
+msgToSend.stTel.myInt[3] := BOOL_TO_INT(outCom.reset);
+msgToSend.stTel.myInt[4] := BOOL_TO_INT(outCom.requestHome);
+msgToSend.stTel.myInt[5] := BOOL_TO_INT(outCom.highPowerOn);
+msgToSend.stTel.myInt[6] := BOOL_TO_INT(outCom.highPowerOff);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="MsgFmtStr" Id="{dc529fd5-a228-027c-0196-a238b38adaf2}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY MsgFmtStr : Tc2_System.T_MaxString
+]]></Declaration>
+      <Get Name="Get" Id="{025aa952-86da-0638-279f-a253ec0a2dd6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MsgFmtStr := _msgFmtStr;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="RequestHome" Id="{bff26ffe-51aa-0ed0-28da-307e87e48fd8}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD RequestHome
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[outCom.RequestHome := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{9562c329-5077-03a2-20bd-fd8393080387}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD Reset
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[outCom.Reset := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Run" Id="{b0a8cea4-850b-07f7-30be-c99cec3455a2}">
+      <Declaration><![CDATA[METHOD Run
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[itfCommRobSeq.Run(msgSend := msgToSend, msgRcv := msgReceive);
+MapCom();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StartAutomatic" Id="{b7aac558-5590-037c-1cbd-d5e0441b6495}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD StartAutomatic
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[outCom.StartAutomatic := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StatusCom" Id="{d10a5e23-8711-082c-1b70-55cbdda8c354}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'variable'}
+PROPERTY StatusCom : REFERENCE TO OutCommunicationRobOmron]]></Declaration>
+      <Get Name="Get" Id="{2b200bc2-4f36-058d-2ff8-b343fcb62fc4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[//For Testing
+StatusCom REF= outCom;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="StopAutomatic" Id="{e9fc8f17-5e6e-09a6-1894-342978b5ac7f}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD StopAutomatic
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[outCom.StopAutomatic := enable;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

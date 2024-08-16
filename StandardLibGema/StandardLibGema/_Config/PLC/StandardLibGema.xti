@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.56" ClassName="CNestedPlcProjDef">
-	<Project GUID="{D82FC749-9CAD-4CCF-8B04-92C10F9D2CB3}" Name="StandardLibGema" PrjFilePath="..\..\StandardLibGema\StandardLibGema.plcproj" TmcFilePath="..\..\StandardLibGema\StandardLibGema.tmc" ReloadTmc="true" AmsPort="852" FileArchiveSettings="#x001e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-		<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="StandardLibGema\StandardLibGema.tmc" TmcHash="{8F70AD36-66A6-89A9-41AE-5E74B53F91C3}">
+	<Project GUID="{D82FC749-9CAD-4CCF-8B04-92C10F9D2CB3}" Name="StandardLibGema" PrjFilePath="..\..\StandardLibGema\StandardLibGema.plcproj" TmcFilePath="..\..\StandardLibGema\StandardLibGema.tmc" ReloadTmc="true" AmsPort="852" TargetArchiveSettings="#x0000" FileArchiveSettings="#x001e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
+		<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="StandardLibGema\StandardLibGema.tmc" TmcHash="{1CE086BD-4B93-3DE9-2FC5-C5A37F96FA64}">
 			<Name>StandardLibGema Instance</Name>
 			<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 			<Contexts>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="uTelegrammOmronTcp" Id="{ceb15f0e-0c05-0e28-1c16-afa1588a7dca}">
+    <Declaration><![CDATA[TYPE
+    uTelegrammOmronTcp :
+    UNION
+        //~
+        stTel : stTelegrammOmronTcp;
+        aTel  : ARRAY[1..SIZEOF(stTelegrammOmronTcp)] OF BYTE;
+        sTel  : STRING(SIZEOF(stTelegrammOmronTcp));
+    //~
+    END_UNION
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

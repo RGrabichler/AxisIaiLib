@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="ICommSeq" Id="{0288787b-92b2-0ae4-1805-041e52f340d8}">
+    <Declaration><![CDATA[INTERFACE ICommSeq
+]]></Declaration>
+    <Property Name="EState" Id="{267e7815-fb68-0cbf-2d27-6d4044e081a5}">
+      <Declaration><![CDATA[PROPERTY EState : E_SocketConnectionState]]></Declaration>
+      <Get Name="Get" Id="{8a62a295-6512-002a-05f7-8814a800c94f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="MsgFmtStr" Id="{1d403324-c97a-07cd-3b35-8cb054c8391e}">
+      <Declaration><![CDATA[PROPERTY MsgFmtStr : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{8fbd84d7-a95a-0fff-2be2-0fc12f2a33b2}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="Run" Id="{101d01ee-403e-0903-08ca-3ff7e823f98f}">
+      <Declaration><![CDATA[METHOD Run
+VAR_INPUT
+    msgSend : REFERENCE TO uTelegrammOmronTcp;
+    msgRcv  : REFERENCE TO uTelegrammOmronTcp;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

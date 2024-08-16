@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="OutCommunicationRobOmron" Id="{29873a74-4775-0002-22e8-4e3f2afa311a}">
+    <Declaration><![CDATA[TYPE
+    OutCommunicationRobOmron :
+    STRUCT
+        {attribute addProperty Name "<#AutoMode Aktiv#>"}
+        StartAutomatic  : BOOL;
+        StopAutomatic   : BOOL;
+        Reset           : BOOL;
+        RequestHome     : BOOL;
+        HighPowerOn     : BOOL;
+        HighPowerOff    : BOOL;
+        ContactPrepared : BOOL;
+    END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

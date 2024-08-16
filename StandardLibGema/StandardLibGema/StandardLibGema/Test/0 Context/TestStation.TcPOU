@@ -36,6 +36,12 @@ VAR
     outputAts400Test : OutputAts400_Test;
 END_VAR
 //===================================================================================
+//===============================Communication with ETL ATS400 ===============================================
+VAR
+    CommunicationRoboterOmron  : CommunicationRoboterOmron_Test;
+
+END_VAR
+//===================================================================================
 //===============================SignalLights for MachineStatus ===============================================
 VAR
     signalLightsControllerTest : SignalLightsController_Test;

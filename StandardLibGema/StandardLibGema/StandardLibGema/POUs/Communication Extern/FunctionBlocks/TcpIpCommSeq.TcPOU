@@ -1,0 +1,387 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="TcpIpCommSeq" Id="{f790cfc1-bf28-0b15-300e-b81c6bdd1fc5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK TcpIpCommSeq IMPLEMENTS ICommSeq
+VAR
+    msgSend : uTelegrammOmronTcp;
+    msgRcv  : uTelegrammOmronTcp;
+END_VAR
+VAR
+    _sRemoteHost     : STRING;
+    _serverPort      : UDINT;
+    eStep            : E_ConnectionStepsTcp := E_ConnectionStepsTcp.eCONNECTION_STATE_IDLE;
+    _bEnable         : BOOL                 := TRUE;
+    _comTrig         : Tc2_Standard.f_TRIG;
+    _comStatus       : BOOL;
+    _bConnected      : BOOL;
+    _bDisconnect     : BOOL;
+    fbServerCon      : Tc2_TcpIp.FB_ClientServerConnection;
+    fbSend           : Tc2_TcpIp.FB_SocketSend;
+    fbRceive         : Tc2_TcpIp.FB_SocketReceive;
+    cbLen            : UDINT;
+    bExecute         : BOOL;
+    tTimeout         : TIME                    := T#2S;
+    _eState          : E_SocketConnectionState := eSOCKET_DISCONNECTED;
+    sSrvNetId        : T_AmsNetId              := '';
+    hSocket          : T_HSOCKET;
+    bExecuteRec      : BOOL;
+    bBusy            : BOOL;
+    bError           : BOOL;
+    nErrId           : UDINT;
+    nRecBytes        : UDINT;
+    _hbOld           : INT := 0;
+    _hb              : INT;
+    _hbErrCoun       : INT;
+    index            : uINT;
+    _reset           : BOOL;
+    fbPollTimer      : Tc2_Standard.TON := (PT := TIME#10MS); (* Receive poll timer *)
+    fbReconnectTimer : Tc2_Standard.TON := (pt := TIME#1S);
+    fbResponseTimer  : Tc2_Standard.TON := (pt := TIME#160MS); (* Response timeout timer *)
+    fbTimeOut        : Tc2_Standard.TON := (pt := TIME#2S);    //Time OUt für ANtwort
+    reconnectTime    : TIME             := T#1S;
+    _index           : INT              := 0;
+    _dataRcv         : Tc2_Standard.R_TRIG;
+    _bConnectedTrig  : Tc2_Standard.R_TRIG;
+    _n               : INT;
+    _ErrorCycle      : UDINT;
+    faultID          : UINT;
+    _msgFmtStr       : T_MaxString;
+END_VAR
+VAR CONSTANT
+    hbError : INT := 5;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="EState" Id="{abe3a146-2e00-0bbf-05b5-f1b7d595a552}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY EState : Tc2_TcpIp.E_SocketConnectionState
+]]></Declaration>
+      <Get Name="Get" Id="{df5d733c-b566-0e63-19d8-800b27c9e52d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Estate := _eState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{62233bdd-090c-0876-20ab-f5631c114c85}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+    sRemoteHost : STRING;
+    serverPort : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_sRemoteHost := sRemoteHost;
+_serverPort  := serverPort;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mClearData" Id="{c38e70cf-1b3f-0e7e-01d5-f64e37fc4e3a}">
+      <Declaration><![CDATA[METHOD PRIVATE mClearData : BOOL
+VAR
+    _index : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+FOR _index := 1 TO SIZEOF(TcpIpCommSeq.msgRcv) - 1 DO
+    msgRcv.aTel[_index] := 0;
+END_FOR
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="MsgFmtStr" Id="{16bc53bd-5775-0df4-1f71-e6eb38d27bb3}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY MsgFmtStr : Tc2_System.T_MaxString
+]]></Declaration>
+      <Get Name="Get" Id="{a86d43f1-c3b2-0cf2-03c9-52bde7b8f20a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MsgFmtStr := _msgFmtStr;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Run" Id="{0683cfce-fe75-022e-274b-257e293736f0}">
+      <Declaration><![CDATA[METHOD Run
+VAR_INPUT
+    msgSend : REFERENCE TO uTelegrammOmronTcp;
+    msgRcv  : REFERENCE TO uTelegrammOmronTcp;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[msgSend REF= THIS^.msgSend;
+msgRcv  REF= THIS^.msgRcv;
+
+IF NOT _bConnected THEN
+    mClearData();
+END_IF
+
+IF _comTrig.Q THEN
+    //    fbReconnectTimer(pt := T#0MS);
+    IF _comStatus THEN
+        _comStatus := FALSE;
+        _bEnable   := FALSE;
+    ELSE
+        _bEnable   := TRUE;
+        _comStatus := true;
+    END_IF
+
+    //else
+    //    fbReconnectTimer(pt := t#5s);
+END_IF
+
+//StateMachine f+ür die TCP/IP Com
+//Solange Enable true, versucht der Baustein eine Verbindung aufzubauen
+//Gesamte Zeitüberwachung für bEnable und keine Verbindung, -> als Error an HMI
+fbPollTimer(in := NOT fbPollTimer.Q);
+fbResponseTimer(in := NOT fbResponseTimer.Q);
+
+CASE eStep OF
+    eCONNECTION_STATE_IDLE:
+        IF _bEnable XOR _bConnected THEN
+            IF _bEnable THEN
+                fbReconnectTimer(in := TRUE);
+
+                IF fbReconnectTimer.Q THEN
+                    _bDisconnect := FALSE;
+                    nRecBytes    := 0;
+                    fbReconnectTimer(in := FALSE, pt := reconnectTime);
+                    estep := eCONNECTION_STATE_CONNECT_START;
+                END_IF
+            ELSE
+                estep := eCONNECTION_STATE_CLOSE_START;
+            END_IF
+        ELSIF _bConnected THEN
+            estep := eCONNECTION_STATE_DATAEXCHANGE;
+        ELSE
+            fbReconnectTimer(in := FALSE);
+        END_IF
+    eCONNECTION_STATE_CONNECT_START:
+        cbLen := SIZEOF(msgSend.aTel) + 1;
+        //Rücksetzten Heartbeat
+        _hb        := 0;
+        _hbOld     := 0;
+        _hbErrCoun := 0;
+
+        fbServerCon
+        (
+            sSrvNetID     :=
+            , nMode       := Tc2_TcpIp.CONNECT_MODE_ENABLEDBG
+            , sRemoteHost := _sRemoteHost
+            , nRemotePort := _serverPort
+            , bEnable     := _bEnable
+            , tReconnect  := reconnectTime
+            , bBusy       => bBusy
+            , bError      => bError
+            , nErrId      => nErrId
+            , hSocket     => hSocket
+            , eState      => _eState
+        );
+
+        IF NOT fbServerCon.bBusy THEN
+            IF NOT fbServerCon.bError THEN
+                _n := _n + 1;
+
+                IF _n >= 2 THEN
+                    _n          := 0;
+                    _bConnected := TRUE;
+
+                    _msgFmtStr := 'Connection via TCP/IP established mit OmronRoboter! ';
+                    Tc2_System.ADSLOGSTR
+                    (
+                        msgCtrlMask := Tc2_System.ADSLOG_MSGTYPE_WARN
+                        , msgFmtStr := _msgFmtStr
+                        , strArg    := ''
+                    );
+
+                    FaultID := 0;
+                END_IF
+
+                eStep := eCONNECTION_STATE_IDLE;
+            ELSE
+                _msgFmtStr := concat('fbServerCon geht nicht ', UDINT_TO_STRING(fbServerCon.nErrId));
+
+                Tc2_System.ADSLOGSTR
+                (
+                    msgCtrlMask := Tc2_System.ADSLOG_MSGTYPE_WARN
+                    , msgFmtStr := _msgFmtStr
+                    , strArg    := ''
+                );
+
+                // Fehler, dass die Connection nicht zustande kommt fürs HMI
+                // Lösung vermutlihc, Omron Comm-Programm muss neugestartet werden,
+                // da ein Heartbeat FEhler vorliegt
+                _bConnectedTrig(clk := _bConnected);
+                FaultID := 10;
+                eStep   := eCONNECTION_STATE_ERROR;
+                _n      := 0;
+            END_IF
+        END_IF
+    eCONNECTION_STATE_DATAEXCHANGE:
+        _bDisconnect := NOT _bEnable OR _bDisconnect; //(kann aufs Hmi gelegt werden
+
+        IF _bDisconnect AND NOT (fbSend.bBusy OR fbRceive.bBusy) THEN
+            _bDisconnect := FALSE;
+            eStep        := eCONNECTION_STATE_CLOSE_START;
+        ELSE
+            //Sender der Daten
+            IF NOT (_bDisconnect OR fbSend.bBusy) THEN
+                IF fbResponseTimer.q AND NOT fbRceive.bBusy THEN
+                    fbSend(bExecute := FALSE);
+
+                    fbSend
+                    (
+                        sSrvNetId  := sSrvNetId
+                        , hSocket  := fbServerCon.hSocket
+                        , cbLen    := cbLen
+                        , pSrc     := ADR(msgSend.aTel)
+                        , bExecute := TRUE
+                        , tTimeout := tTimeout
+                        , bBusy    => bBusy
+                        , bError   => bError
+                        , nErrId   => nErrId
+                    );
+                END_IF
+            ELSE
+                fbSend(bExecute := FALSE);
+
+                IF fbSend.bError THEN
+                    _msgFmtStr := concat('fbSend ', UDINT_TO_STRING(fbServerCon.nErrId));
+
+                    Tc2_System.ADSLOGSTR
+                    (
+                        msgCtrlMask := Tc2_System.ADSLOG_MSGTYPE_WARN
+                        , msgFmtStr := _msgFmtStr
+                        , strArg    := ''
+                    );
+                END_IF
+            END_IF
+
+            //===================Recieve Data =================================
+            IF NOT (_bDisconnect OR fbRceive.bBusy) THEN
+                IF fbPollTimer.Q THEN
+                    fbRceive(bExecute := FALSE);
+
+                    fbRceive
+                    (
+                        sSrvNetId   := sSrvNetId
+                        , hSocket   := fbServerCon.hSocket
+                        , cbLen     := cbLen
+                        , pDest     := ADR(msgRcv.aTel)
+                        , bExecute  := TRUE
+                        , tTimeout  := tTimeout
+                        , bBusy     => bBusy
+                        , bError    => bError
+                        , nErrId    => nErrId
+                        , nRecBytes =>
+                    );
+
+                    // CHekcehn des HEartbeats, ob Änderungen da sind
+                    _hb := BYTE_TO_INT(msgRcv.stTel.myStats[3]);
+                    fbRceive(nRecBytes => nRecBytes);
+
+                    IF _hb = _hbOld THEN
+                        fbTimeOut(in := TRUE);
+                    ELSE
+                        fbTimeOut(in := false);
+                    END_IF
+
+                    IF nRecBytes <> 0 THEN
+                        IF _hb = _hbOld THEN
+                            _hbErrCoun := _hbErrCoun + 1;
+
+                            IF _hbErrCoun > 2 THEN
+                                _ErrorCycle := _ErrorCycle + 1;
+                            end_if
+                        ELSIF _hb <> _hbOld OR _hb = 0 THEN
+                            _hbErrCoun               := 0;
+                            msgSend.stTel.myStats[3] := INT_TO_BYTE(_hb);
+                        END_IF
+                    END_IF
+
+                    //===========================================================
+                    //=========================================================
+                    IF _hbErrCoun > hbError OR fbTimeOut.q THEN
+                        _bDisconnect := TRUE;
+
+                        //                        //                        mClearData();
+                        FOR index := 1 TO UDINT_TO_UINT(cbLen) DO
+                            msgRcv.aTel[index] := 0;
+                        END_FOR
+
+                        _msgFmtStr := 'HeartBeat Fehler, Verbindung verloren ';
+                        Tc2_System.ADSLOGSTR
+                        (
+                            msgCtrlMask := Tc2_System.ADSLOG_MSGTYPE_WARN
+                            , msgFmtStr := _msgFmtStr
+                            , strArg    := ''
+                        );
+                    END_IF
+
+                    _hbOld := _hb;
+                END_IF
+            ELSE
+                fbRceive(bExecute := FALSE);
+
+                IF NOT fbRceive.bError THEN
+                    //watchdog von Omron, "HEartBeat"
+                    //                    _msgSend.stTel.myStats[5] := _msgRcv.stTel.myStats[5];
+                ELSE
+                    _bDisconnect := TRUE;
+                    _msgFmtStr   := concat('fbSocketRec ', UDINT_TO_STRING(fbRceive.nErrId));
+                    Tc2_System.ADSLOGSTR
+                    (
+                        msgCtrlMask := Tc2_System.ADSLOG_MSGTYPE_WARN
+                        , msgFmtStr := _msgFmtStr
+                        , strArg    := ''
+                    );
+                END_IF
+            END_IF
+        END_IF
+    eCONNECTION_STATE_CLOSE_START:
+        Tc2_System.ADSLOGSTR
+        (
+            msgCtrlMask := Tc2_System.ADSLOG_MSGTYPE_WARN
+            , msgFmtStr := 'Verbindung mit Omron wird geschlossen'
+            , strArg    := ''
+        );
+
+        fbServerCon(bEnable := FALSE);
+        fbTimeOut(in := FALSE);
+
+        IF NOT fbServerCon.bBusy THEN
+            _bConnected := FALSE;
+
+            IF NOT fbServerCon.bError THEN
+                eStep := eCONNECTION_STATE_IDLE;
+            ELSE
+                _msgFmtStr := concat('fbSocketClose ', UDINT_TO_STRING(fbServerCon.nErrId));
+
+                Tc2_System.ADSLOGSTR
+                (
+                    msgCtrlMask := Tc2_System.ADSLOG_MSGTYPE_WARN
+                    , msgFmtStr := _msgFmtStr
+                    , strArg    := ''
+                );
+
+                eStep := eCONNECTION_STATE_ERROR;
+            END_IF
+        END_IF
+    eCONNECTION_STATE_ERROR: (* Error step *)
+        IF _bConnected THEN
+            eStep := eCONNECTION_STATE_CLOSE_START;
+        ELSE
+            eStep := eCONNECTION_STATE_IDLE;
+        END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

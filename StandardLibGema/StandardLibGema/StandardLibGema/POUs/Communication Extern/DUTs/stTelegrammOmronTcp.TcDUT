@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="stTelegrammOmronTcp" Id="{68d9fea4-1233-05bf-224c-04fa4059023b}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
+TYPE
+    stTelegrammOmronTcp :
+    STRUCT
+        myStats  : ARRAY[1..4] OF BYTE;
+        myInt    : ARRAY[1..10] OF INT;
+        myBool   : ARRAY[1..20] OF INT;
+        fillbyte : ARRAY[1..2] OF BYTE;
+    END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

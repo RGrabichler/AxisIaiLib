@@ -8,8 +8,8 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="SetAutomaticActive" Id="{19407746-1a90-45a3-9f28-077b8dfb8dc3}">
-      <Declaration><![CDATA[METHOD PUBLIC SetAutomaticActive
+    <Method Name="AutomaticIsActive" Id="{19407746-1a90-45a3-9f28-077b8dfb8dc3}">
+      <Declaration><![CDATA[METHOD PUBLIC AutomaticIsActive
 VAR_INPUT
     enable : BOOL;
 END_VAR
@@ -17,6 +17,56 @@ END_VAR
       <Implementation>
         <ST><![CDATA[
 output[39].1 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HomeIsDone" Id="{f8e3fb5c-52ae-4370-a529-ae0a1c62d872}">
+      <Declaration><![CDATA[METHOD PUBLIC HomeIsDone
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].4 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ManualActive" Id="{6b042214-0351-4e4b-a104-6db2855c91cb}">
+      <Declaration><![CDATA[METHOD PUBLIC ManualActive
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].0 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RequestHome" Id="{d5aef21f-256c-4ef9-8103-d9da6e61a11f}">
+      <Declaration><![CDATA[METHOD PUBLIC RequestHome
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].3 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RequestSafetyOpening" Id="{b9e2eed6-1e91-4bde-bf50-49adfe9dee4d}">
+      <Declaration><![CDATA[METHOD PUBLIC RequestSafetyOpening
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].6 := enable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SafetyIsClosed" Id="{3c8fc705-5b44-4d56-82ab-8842735b81e8}">
+      <Declaration><![CDATA[METHOD PUBLIC SafetyIsClosed
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[output[39].5 := enable;]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetHeartBeat" Id="{861bbb8b-1aee-4377-b3e6-c84dfee050d6}">
@@ -45,58 +95,8 @@ output[2].6 := heartBeat.14;
 output[2].7 := heartBeat.15;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SetHomeDone" Id="{f8e3fb5c-52ae-4370-a529-ae0a1c62d872}">
-      <Declaration><![CDATA[METHOD PUBLIC SetHomeDone
-VAR_INPUT
-    enable : BOOL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[output[39].4 := enable;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="SetManualActive" Id="{6b042214-0351-4e4b-a104-6db2855c91cb}">
-      <Declaration><![CDATA[METHOD PUBLIC SetManualActive
-VAR_INPUT
-    enable : BOOL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[output[39].0 := enable;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="SetRequestHome" Id="{d5aef21f-256c-4ef9-8103-d9da6e61a11f}">
-      <Declaration><![CDATA[METHOD PUBLIC SetRequestHome
-VAR_INPUT
-    enable : BOOL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[output[39].3 := enable;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="SetSafetyClosed" Id="{3c8fc705-5b44-4d56-82ab-8842735b81e8}">
-      <Declaration><![CDATA[METHOD PUBLIC SetSafetyClosed
-VAR_INPUT
-    enable : BOOL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[output[39].5 := enable;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="SetSafetyOpeningRequest" Id="{b9e2eed6-1e91-4bde-bf50-49adfe9dee4d}">
-      <Declaration><![CDATA[METHOD PUBLIC SetSafetyOpeningRequest
-VAR_INPUT
-    enable : BOOL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[output[39].6 := enable;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="SetStart" Id="{85a17433-aec3-4045-8824-65f3174c3d3c}">
-      <Declaration><![CDATA[METHOD PUBLIC SetStart
+    <Method Name="StartAutomatic" Id="{85a17433-aec3-4045-8824-65f3174c3d3c}">
+      <Declaration><![CDATA[METHOD PUBLIC StartAutomatic
 VAR_INPUT
     enable : BOOL;
 END_VAR

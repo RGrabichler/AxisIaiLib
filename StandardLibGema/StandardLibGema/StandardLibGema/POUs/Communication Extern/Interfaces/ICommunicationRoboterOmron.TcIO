@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="ICommunicationRoboterOmron" Id="{996aedc9-c4c3-0ece-1bac-eb0c3ba8695f}">
+    <Declaration><![CDATA[INTERFACE ICommunicationRoboterOmron EXTENDS __SYSTEM.IQueryInterface]]></Declaration>
+    <Folder Name="Commands" Id="{d1ee2977-2e1d-0c9a-1f8d-700840bf107a}" />
+    <Method Name="ContactPrepared" Id="{e2a4f042-87e0-09a8-2516-ac045da79c2a}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD ContactPrepared
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="EState" Id="{a554bf8d-3668-0bf6-2ebb-f98b68de1bb5}">
+      <Declaration><![CDATA[PROPERTY EState : E_SocketConnectionState]]></Declaration>
+      <Get Name="Get" Id="{c3d60dbf-a4c4-070d-2af6-c7e47b26ba7a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="HighPowerOn" Id="{65a7d103-5df9-01df-1cd2-b3e4db9fc1b1}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD HighPowerOn
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="MsgFmtStr" Id="{17a091ed-baf9-04c0-129a-d545380b55db}">
+      <Declaration><![CDATA[PROPERTY MsgFmtStr : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{0fce75c3-e9f4-09bd-0737-52dd852a93b7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="RequestHome" Id="{6d38cf01-0273-02f2-3f63-50cd1db295c6}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD RequestHome
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Reset" Id="{4ef9796b-6ba3-0cf1-0d22-83fcd722b75d}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD Reset
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Run" Id="{558e231b-2dc8-0ccc-29ab-5a99bfe9691b}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD Run]]></Declaration>
+    </Method>
+    <Method Name="StartAutomatic" Id="{55967697-6e1c-0795-170c-95595c3068ad}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD StartAutomatic
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="StopAutomatic" Id="{afa72e8f-f0d8-0233-0dce-2733ed2fe2b1}" FolderPath="Commands\">
+      <Declaration><![CDATA[METHOD StopAutomatic
+VAR_INPUT
+    enable : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>
